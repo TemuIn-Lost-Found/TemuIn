@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # TemuIn - Lost & Found Application
 
 Aplikasi Lost & Found yang dibangun menggunakan Go (Golang) dan MySQL.
@@ -70,8 +69,10 @@ A: Cukup jalankan ulang perintah `go run cmd/reset_db/main.go`. Hati-hati, semua
 - Folder `review/pages` berfungsi untuk menyimpan halaman umum atau public-facing yang bisa diakses tanpa login.
 
 **Catatan Penamaan Branch**
-- Silahkan membuat `branch` anda sendiri sebelum mengerjakan fitur
-- contoh : `nama/feature` = `budi/landing-pages`
+- Silahkan membuat `branch` feat / fix sebelum mengerjakan fitur
+- feat/... untuk push sebuah ftur
+- fix/... untuk fix bug
+- contoh : `feat/nama-fitur` = `feat/login`
 
 # Warning
 - Jangan pernah menghapus folder atau file apapun yg sudah ada atau bawaan dari laravel
@@ -79,6 +80,3 @@ A: Cukup jalankan ulang perintah `go run cmd/reset_db/main.go`. Hati-hati, semua
 - Silahkan git push ke branch anda sendiri jangan langsung ke branch `main`
 - Jika terjadi konflik silahkan perbaiki terlebih dahulu sebelum `push` ke branch anda
 - Jika sudah selesai semua silahkan berikan `commit` yang jelas dan `pull request` ke branch `main`
-
-
->>>>>>> 836e49cafe2e66330a62388e6476ccfa3d42a213
