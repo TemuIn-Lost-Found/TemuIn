@@ -80,28 +80,5 @@ A: Cukup jalankan ulang perintah `go run cmd/reset_db/main.go`. Hati-hati, semua
 - Jika terjadi konflik silahkan perbaiki terlebih dahulu sebelum `push` ke branch anda
 - Jika sudah selesai semua silahkan berikan `commit` yang jelas dan `pull request` ke branch `main`
 
-## Instalation
-Clone Repository
-```sh
-https://github.com/TemuIn-Lost-Found/TemuIn.git
-```
-Tulis perintah dibawah in untuk menginstal depedensi yang di perlukan 
-```sh
-go mod tidy
-```
 
-Lalu buat database temuin_db di mysql
-```sh
-create databases temuin_db
-```
-
-Jalankan migration dan seeder
-```sh
-go run cmd/reset_db/main.go
-```
-
-## Running Project
-```sh
-go run main.go
-```
 >>>>>>> 836e49cafe2e66330a62388e6476ccfa3d42a213
