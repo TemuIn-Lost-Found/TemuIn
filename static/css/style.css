@@ -1,0 +1,211 @@
+:root {
+    --bg-primary: #36393f;
+    --bg-secondary: #2f3136;
+    --bg-tertiary: #202225;
+    --text-normal: #dcddde;
+    --text-muted: #72767d;
+    --text-header: #ffffff;
+    --accent: #5865F2;
+    --accent-hover: #4752c4;
+    --green: #3ba55c;
+    --red: #ed4245;
+    --gold: #faa61a;
+    --font-primary: 'Inter', sans-serif;
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--bg-primary);
+    color: var(--text-normal);
+    font-family: var(--font-primary);
+    margin: 0;
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 240px;
+    background-color: var(--bg-secondary);
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    flex-shrink: 0;
+}
+
+.sidebar-header {
+    color: var(--text-header);
+    font-weight: bold;
+    font-size: 1.2rem;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid var(--bg-tertiary);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.category-list {
+    flex: 1;
+    overflow-y: auto;
+    margin-bottom: 10px;
+}
+
+.category-section-label {
+    text-transform: uppercase;
+    font-size: 12px;
+    font-weight: bold;
+    color: var(--text-muted);
+    padding: 8px 10px;
+    margin-top: 10px;
+}
+
+.category-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    color: #8e9297;
+    margin-bottom: 2px;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.category-item:hover {
+    background-color: rgba(79, 84, 92, 0.16);
+    color: var(--text-normal);
+}
+
+.category-item.active {
+    background-color: rgba(79, 84, 92, 0.32);
+    color: var(--text-header);
+}
+
+.user-panel {
+    background-color: var(--bg-tertiary);
+    padding: 10px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Main Content */
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--bg-primary);
+    min-width: 0; /* Prevent flex overflow */
+}
+
+.top-bar {
+    height: 48px;
+    background-color: var(--bg-primary);
+    border-bottom: 1px solid var(--bg-tertiary);
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    justify-content: space-between;
+    box-shadow: 0 1px 0 rgba(4,4,5,0.2);
+    flex-shrink: 0;
+}
+
+.top-bar h3 {
+    margin: 0;
+    color: var(--text-header);
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.content-feed {
+    padding: 16px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+/* Components */
+.btn {
+    background-color: var(--accent);
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-weight: 500;
+    text-decoration: none;
+    font-size: 14px;
+    display: inline-block;
+}
+
+.btn:hover {
+    background-color: var(--accent-hover);
+}
+
+.btn-secondary {
+    background-color: #4f545c;
+}
+.btn-secondary:hover {
+    background-color: #5d6269;
+}
+
+/* Cards */
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+}
+
+.thread-card {
+    background-color: var(--bg-secondary);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.2s;
+}
+
+.thread-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.card-image {
+    height: 160px;
+    width: 100%;
+    object-fit: cover;
+    background-color: var(--bg-tertiary);
+}
+
+.card-content {
+    padding: 12px;
+}
+
+.card-title {
+    color: var(--text-header);
+    font-weight: 600;
+    margin: 0 0 8px 0;
+    font-size: 16px;
+}
+
+.card-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--text-muted);
+    align-items: center;
+}
+
+.card-badge {
+    background-color: var(--bg-tertiary);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    text-transform: uppercase;
+}
+
+.badge-lost { color: var(--red); border: 1px solid var(--red); }
+.badge-found { color: var(--green); border: 1px solid var(--green); }
