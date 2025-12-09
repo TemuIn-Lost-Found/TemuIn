@@ -21,7 +21,7 @@
 ## Instalation
 Clone Repository
 ```sh
-git clone https://github.com/RecalmHealth/Recalm.git
+https://github.com/TemuIn-Lost-Found/TemuIn.git
 ```
 Tulis perintah dibawah in untuk menginstal depedensi yang di perlukan 
 ```sh
