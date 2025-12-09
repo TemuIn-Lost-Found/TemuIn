@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block header_title %}Login{% endblock %}
+
+{% block content %}
+<div style="max-width: 400px; margin: 40px auto; background: var(--bg-secondary); padding: 32px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+    <div style="text-align: center; margin-bottom: 24px;">
+        <h2 style="color: var(--text-header);">Welcome Back!</h2>
+        <div style="color: var(--text-muted);">We're so excited to see you again!</div>
+    </div>
+    
+    <form method="post">
+        <!-- CSRF Removed -->
+
+        <!-- Simple rendering for now, can be enhanced -->
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; color: var(--text-muted); font-size: 12px; font-weight: bold; text-transform: uppercase; margin-bottom: 8px;">
+                Username
+            </label>
+            <div style="background: var(--bg-tertiary); border: 1px solid #202225; border-radius: 4px; padding: 10px;">
+                <input type="text" name="username" required placeholder="Enter your username">
+            </div>
+        </div>
+        
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; color: var(--text-muted); font-size: 12px; font-weight: bold; text-transform: uppercase; margin-bottom: 8px;">
+                Password
+            </label>
+            <div style="background: var(--bg-tertiary); border: 1px solid #202225; border-radius: 4px; padding: 10px;">
+                <input type="password" name="password" required placeholder="Enter your password">
+            </div>
+        </div>
+        
+        <button type="submit" class="btn" style="width: 100%; padding: 12px; font-size: 16px;">Log In</button>
+    </form>
+    
+    <div style="margin-top: 10px; font-size: 14px; color: var(--text-muted);">
+        Need an account? <a href="/register" style="color: var(--accent);">Register</a>
+    </div>
+</div>
+
+<style>
+    /* Quick hack to style django input fields */
+    input[type='text'], input[type='password'] {
+        background: transparent;
+        border: none;
+        color: var(--text-normal);
+        width: 100%;
+        outline: none;
+    }
+</style>
+{% endblock %}

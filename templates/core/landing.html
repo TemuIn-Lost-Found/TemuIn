@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TemuIN - Lost & Found</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        body {
+            background-color: var(--bg-primary);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .navbar {
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .hero-section {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 40px;
+            box-sizing: border-box;
+            gap: 40px;
+        }
+        .hero-text h1 {
+            font-size: 48px;
+            color: var(--text-header);
+            margin-bottom: 20px;
+            font-weight: 800;
+        }
+        .hero-text p {
+            font-size: 18px;
+            color: var(--text-normal);
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        .hero-image {
+            background-color: var(--bg-secondary);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+        }
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--bg-tertiary);
+            padding: 12px 20px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            color: var(--text-header);
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div style="font-size: 24px; font-weight: bold; color: var(--text-header); display: flex; align-items: center; gap: 8px;">
+            <span class="material-icons" style="color: var(--accent);">search</span>
+            TemuIN
+        </div>
+        <div style="display: flex; gap: 20px;">
+            {% if user %}
+                <a href="/" class="btn">Dashboard</a>
+            {% else %}
+                <a href="/login" style="color: var(--text-normal); text-decoration: none; padding: 8px 16px;">Login</a>
+                <a href="/register" class="btn">Register</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <div class="hero-section">
+        <div class="hero-text" style="max-width: 550px;">
+            <h1>Temukan Barang yang Hilang</h1>
+            <p>Platform komunitas modern untuk melaporkan dan menemukan barang hilang di sekitarmu. Bergabunglah dengan ribuan pengguna lain dan dapatkan reward saat membantu sesama.</p>
+            <div style="display: flex; gap: 16px;">
+                <a href="/" class="btn" style="padding: 12px 32px; font-size: 16px;">Cari Barang</a>
+                {% if not user %}
+                <a href="/register" class="btn" style="background-color: var(--bg-tertiary); color: var(--text-header); padding: 12px 32px; font-size: 16px;">Daftar Sekarang</a>
+                {% endif %}
+            </div>
+            <div style="margin-top: 40px; display: flex; gap: 40px; color: var(--text-muted);">
+                <div>
+                    <strong style="color: var(--text-header); font-size: 24px; display: block;">2k+</strong>
+                    Items Listed
+                </div>
+                <div>
+                    <strong style="color: var(--text-header); font-size: 24px; display: block;">1.5k</strong>
+                    Found Items
+                </div>
+                <div>
+                    <strong style="color: var(--text-header); font-size: 24px; display: block;">500+</strong>
+                    Active Users
+                </div>
+            </div>
+        </div>
+        
+        <div class="hero-image">
+            <div class="feature-item">
+                <span class="material-icons" style="color: #faa61a;">monetization_on</span>
+                Dapatkan Reward Koin
+            </div>
+            <div class="feature-item">
+                <span class="material-icons" style="color: #3ba55c;">verified</span>
+                Verifikasi Aman
+            </div>
+            <div class="feature-item">
+                <span class="material-icons" style="color: #5865F2;">chat</span>
+                Live Chat Owner
+            </div>
+            <div style="margin-top: 20px; color: var(--text-muted); font-size: 14px;">
+                Mulai cari barang hilangmu sekarang!
+            </div>
+        </div>
+    </div>
+</body>
+</html>
