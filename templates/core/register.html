@@ -3,43 +3,89 @@
 {% block header_title %}Create an Account{% endblock %}
 
 {% block content %}
-<div style="max-width: 400px; margin: 40px auto; background: var(--bg-secondary); padding: 32px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+<div
+    style="max-width: 400px; margin: 40px auto; background: var(--bg-secondary); padding: 32px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
     <div style="text-align: center; margin-bottom: 24px;">
         <h2 style="color: var(--text-header);">Create an Account</h2>
     </div>
-    
+
     <form method="post">
         <!-- CSRF Removed -->
 
         <div style="margin-bottom: 20px;">
-            <label style="display: block; color: var(--text-muted); font-size: 12px; font-weight: bold; text-transform: uppercase; margin-bottom: 8px;">
+            <label
+                style="display: block; color: var(--text-muted); font-size: 12px; font-weight: bold; text-transform: uppercase; margin-bottom: 8px;">
                 Username
             </label>
             <div style="background: var(--bg-tertiary); border: 1px solid #202225; border-radius: 4px; padding: 10px;">
-                <input type="text" name="username" required placeholder="Choose a username">
+                <input type="text" name="username" value="{{ username }}" placeholder="Choose a username">
             </div>
+            {% if username_error %}
+            <div style="color: #f04747; font-size: 12px; margin-top: 6px;">
+                {{ username_error }}
+            </div>
+            {% endif %}
         </div>
-        
+
         <div style="margin-bottom: 20px;">
-            <label style="display: block; color: var(--text-muted); font-size: 12px; font-weight: bold; text-transform: uppercase; margin-bottom: 8px;">
+            <label
+                style="display: block; color: var(--text-muted); font-size: 12px; font-weight: bold; text-transform: uppercase; margin-bottom: 8px;">
                 Password
             </label>
-            <div style="background: var(--bg-tertiary); border: 1px solid #202225; border-radius: 4px; padding: 10px;">
-                <input type="password" name="password" required placeholder="Choose a password">
+            <div
+                style="background: var(--bg-tertiary); border: 1px solid #202225; border-radius: 4px; padding: 10px; position: relative;">
+                <input type="password" name="password" id="password-register" placeholder="Choose a password"
+                    style="padding-right: 35px;">
+                <button type="button" onclick="togglePasswordRegister()"
+                    style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; padding: 5px; color: var(--text-muted);">
+                    <svg id="eye-icon-register" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                </button>
             </div>
-            <div style="color: var(--text-muted); font-size: 11px; margin-top: 4px;">For security, please choose a strong password.</div>
+            <div style="color: var(--text-muted); font-size: 11px; margin-top: 4px;">
+                Minimal 8 karakter, mengandung huruf besar dan kecil
+            </div>
+            {% if password_error %}
+            <div style="color: #f04747; font-size: 12px; margin-top: 6px;">
+                {{ password_error }}
+            </div>
+            {% endif %}
+            {% if error %}
+            <div style="color: #f04747; font-size: 12px; margin-top: 6px;">
+                {{ error }}
+            </div>
+            {% endif %}
         </div>
-        
+
         <button type="submit" class="btn" style="width: 100%; padding: 12px; font-size: 16px;">Continue</button>
     </form>
-    
+
+    <div style="margin: 20px 0; text-align: center; position: relative;">
+        <div style="border-top: 1px solid #202225; position: absolute; width: 100%; top: 50%;"></div>
+        <span
+            style="background: var(--bg-secondary); padding: 0 10px; position: relative; color: var(--text-muted); font-size: 12px;">OR</span>
+    </div>
+
+    <a href="/auth/google/login" style="text-decoration: none;">
+        <button type="button"
+            style="width: 100%; padding: 12px; background: white; color: #444; border: 1px solid #ddd; border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.2s;">
+            <img src="/static/images/Google.svg" alt="Google" style="width: 20px; height: 20px; margin-right: 12px;">
+            Continue with Google
+        </button>
+    </a>
+
     <div style="margin-top: 10px; font-size: 14px; color: var(--text-muted);">
         Already have an account? <a href="/login" style="color: var(--accent);">Login</a>
     </div>
 </div>
 
 <style>
-    input[type='text'], input[type='password'], input[type='email'] {
+    input[type='text'],
+    input[type='password'],
+    input[type='email'] {
         background: transparent;
         border: none;
         color: var(--text-normal);
@@ -47,4 +93,19 @@
         outline: none;
     }
 </style>
+
+<script>
+    function togglePasswordRegister() {
+        const passwordInput = document.getElementById('password-register');
+        const eyeIcon = document.getElementById('eye-icon-register');
+
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            eyeIcon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>';
+        } else {
+            passwordInput.type = 'password';
+            eyeIcon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>';
+        }
+    }
+</script>
 {% endblock %}
