@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,7 +9,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
     <!-- Material Icons -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- Sidebar JavaScript -->
+    <script src="/static/js/sidebar.js" defer></script>
 </head>
+
 <body>
     {% include 'components/sidebar.html' %}
 
@@ -17,20 +21,24 @@
         <!-- User Panel removed (it is in sidebar) -->
         <header class="top-bar">
             <h3>{% block header_title %}Beranda{% endblock %}</h3>
-            
+
             <!-- Setup simple search form -->
-            <form action="/" method="GET" style="display: flex; align-items: center; background: var(--bg-tertiary); padding: 4px 8px; border-radius: 4px;">
-                <input type="text" name="q" placeholder="Cari..." style="background: transparent; border: none; color: white; outline: none;">
-                <button type="submit" style="background: none; border: none; color: var(--text-muted); cursor: pointer;">
+            <form action="/" method="GET"
+                style="display: flex; align-items: center; background: var(--bg-tertiary); padding: 4px 8px; border-radius: 4px;">
+                <input type="text" name="q" placeholder="Cari..."
+                    style="background: transparent; border: none; color: white; outline: none;">
+                <button type="submit"
+                    style="background: none; border: none; color: var(--text-muted); cursor: pointer;">
                     <span class="material-icons" style="font-size: 18px;">search</span>
                 </button>
             </form>
         </header>
-        
+
         <div class="content-feed">
             {% block content %}
             {% endblock %}
         </div>
     </main>
 </body>
+
 </html>
