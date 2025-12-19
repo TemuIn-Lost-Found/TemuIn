@@ -13,7 +13,9 @@
     --font-primary: 'Inter', sans-serif;
 }
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
     box-sizing: border-box;
 }
 
@@ -27,6 +29,73 @@ body {
     overflow: hidden;
 }
 
+/* Sidebar start*/
+
+/* Mobile Menu Toggle Button */
+.menu-toggle {
+    display: none;
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    z-index: 1001;
+    background-color: var(--bg-secondary);
+    border: none;
+    border-radius: 4px;
+    padding: 10px;
+    cursor: pointer;
+    color: var(--text-header);
+    transition: background-color 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.menu-toggle:hover {
+    background-color: var(--bg-tertiary);
+}
+
+.menu-toggle .material-icons {
+    font-size: 24px;
+    display: block;
+}
+
+/* Sidebar Overlay */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 998;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.sidebar-overlay.active {
+    display: block;
+    opacity: 1;
+}
+
+/* Sidebar Close Button (Mobile Only) */
+.sidebar-close {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 4px;
+    margin-left: auto;
+    transition: color 0.2s ease;
+}
+
+.sidebar-close:hover {
+    color: var(--text-header);
+}
+
+.sidebar-close .material-icons {
+    font-size: 24px;
+}
+
 /* Sidebar */
 .sidebar {
     width: 240px;
@@ -35,6 +104,7 @@ body {
     flex-direction: column;
     padding: 10px;
     flex-shrink: 0;
+    transition: transform 0.3s ease;
 }
 
 .sidebar-header {
@@ -95,13 +165,103 @@ body {
     gap: 10px;
 }
 
+/* Responsive Styles */
+
+/* Tablet and Mobile */
+@media screen and (max-width: 768px) {
+
+    /* Show menu toggle button */
+    .menu-toggle {
+        display: block;
+    }
+
+    /* Hide sidebar by default on mobile */
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        z-index: 999;
+        transform: translateX(-100%);
+        box-shadow: 2px 0 8px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Show sidebar when active */
+    .sidebar.active {
+        transform: translateX(0);
+    }
+
+    /* Show close button on mobile */
+    .sidebar-close {
+        display: block;
+    }
+
+    /* Adjust main content to full width */
+    .main-content {
+        margin-left: 0;
+    }
+
+    /* Adjust top bar for menu button */
+    .top-bar {
+        padding-left: 60px;
+    }
+
+    /* Prevent body scroll when sidebar is open */
+    body.sidebar-open {
+        overflow: hidden;
+    }
+}
+
+/* Small Mobile Devices */
+@media screen and (max-width: 480px) {
+    .sidebar {
+        width: 280px;
+        max-width: 80vw;
+    }
+
+    .top-bar h3 {
+        font-size: 14px;
+    }
+
+    .top-bar form {
+        max-width: 150px;
+    }
+
+    .top-bar form input {
+        font-size: 12px;
+    }
+}
+
+/* Desktop - Ensure sidebar is always visible */
+@media screen and (min-width: 769px) {
+    .sidebar {
+        position: relative;
+        transform: translateX(0);
+    }
+
+    .menu-toggle {
+        display: none;
+    }
+
+    .sidebar-overlay {
+        display: none !important;
+    }
+
+    .sidebar-close {
+        display: none;
+    }
+}
+
+/* Sidebar end*/
+
 /* Main Content */
 .main-content {
     flex: 1;
     display: flex;
     flex-direction: column;
     background-color: var(--bg-primary);
-    min-width: 0; /* Prevent flex overflow */
+    min-width: 0;
+    /* Prevent flex overflow */
 }
 
 .top-bar {
@@ -112,7 +272,7 @@ body {
     align-items: center;
     padding: 0 16px;
     justify-content: space-between;
-    box-shadow: 0 1px 0 rgba(4,4,5,0.2);
+    box-shadow: 0 1px 0 rgba(4, 4, 5, 0.2);
     flex-shrink: 0;
 }
 
@@ -150,6 +310,7 @@ body {
 .btn-secondary {
     background-color: #4f545c;
 }
+
 .btn-secondary:hover {
     background-color: #5d6269;
 }
@@ -170,7 +331,7 @@ body {
 
 .thread-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .card-image {
@@ -207,5 +368,12 @@ body {
     text-transform: uppercase;
 }
 
-.badge-lost { color: var(--red); border: 1px solid var(--red); }
-.badge-found { color: var(--green); border: 1px solid var(--green); }
+.badge-lost {
+    color: var(--red);
+    border: 1px solid var(--red);
+}
+
+.badge-found {
+    color: var(--green);
+    border: 1px solid var(--green);
+}

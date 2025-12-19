@@ -1,0 +1,44 @@
+# TemuIn - Lost and Found Application
+
+# Environment and secrets
+.env
+.env.local
+.env.*.local
+
+# Build outputs
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+temuin
+temuin.exe
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool
+*.out
+
+# Go workspace file
+go.work
+
+# Logs
+*.log
+
+# Temporary directories
+tmp/
+temp/
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
