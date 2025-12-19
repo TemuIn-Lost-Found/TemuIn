@@ -23,6 +23,10 @@ func RegisterRoutes(r *gin.Engine) {
 		public.GET("/auth/google/login", handlers.GoogleLogin)
 		public.GET("/auth/google/callback", handlers.GoogleCallback)
 
+		// Highlights pages
+		public.GET("/highlights", handlers.AllHighlightsPage)
+		public.GET("/highlights/category/:pk", handlers.CategoryHighlightsPage)
+
 		public.GET("/category/:pk", handlers.CategoryPage)
 		public.GET("/subcategory/:pk", handlers.SubCategoryPage)
 	}
