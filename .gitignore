@@ -42,3 +42,9 @@ build/
 # OS
 .DS_Store
 Thumbs.db
+
+# Database migrations (if auto-generated)
+migrations/
+
+# Generated/temporary images
+static/images/*_Gemini_Generated_Image_*.png
