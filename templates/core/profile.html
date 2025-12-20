@@ -5,25 +5,29 @@
 {% block content %}
 <div class="profile-container" style="display: flex; gap: 24px; flex-wrap: wrap;">
     <!-- Profile Info -->
-    <div style="flex: 1; min-width: 300px; background: var(--bg-secondary); padding: 24px; border-radius: 8px; height: fit-content;">
+    <div
+        style="flex: 1; min-width: 300px; background: var(--bg-secondary); padding: 24px; border-radius: 8px; height: fit-content;">
         <div style="text-align: center; margin-bottom: 24px;">
-            <div style="width: 80px; height: 80px; background: var(--accent); border-radius: 50%; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: bold; color: white;">
+            <div
+                style="width: 80px; height: 80px; background: var(--accent); border-radius: 50%; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: bold; color: white;">
                 {{ user.Username|slice:":1"|upper }}
             </div>
             <h2 style="margin: 0; color: var(--text-header);">{{ user.Username }}</h2>
             <div style="color: var(--text-muted);">Member since {{ FormatTime(user.DateJoined, "Jan 2006") }}</div>
         </div>
-        
+
         <div style="background: var(--bg-tertiary); padding: 16px; border-radius: 8px; margin-bottom: 24px;">
-            <div style="font-size: 12px; color: var(--text-muted); text-transform: uppercase; font-weight: bold;">Wallet Balance</div>
+            <div style="font-size: 12px; color: var(--text-muted); text-transform: uppercase; font-weight: bold;">Wallet
+                Balance</div>
             <div style="font-size: 24px; color: var(--gold); font-weight: bold; margin: 4px 0;">
                 {{ user.CoinBalance }} <span style="font-size: 14px; color: var(--text-normal);">Coins</span>
             </div>
-            
+
             <form action="/topup" method="post" style="margin-top: 16px;">
                 <!-- CSRF Token Removed -->
                 <div style="display: flex; gap: 8px;">
-                    <select name="amount" style="flex: 1; padding: 8px; border-radius: 4px; background: var(--bg-primary); color: white; border: none;">
+                    <select name="amount"
+                        style="flex: 1; padding: 8px; border-radius: 4px; background: var(--bg-primary); color: white; border: none;">
                         <option value="100">100 Coins</option>
                         <option value="500">500 Coins</option>
                         <option value="1000">1000 Coins</option>
@@ -32,16 +36,17 @@
                 </div>
             </form>
         </div>
-        
+
         <div>
-            <h4 style="color: var(--text-header); border-bottom: 1px solid var(--bg-tertiary); padding-bottom: 8px;">Account Stats</h4>
+            <h4 style="color: var(--text-header); border-bottom: 1px solid var(--bg-tertiary); padding-bottom: 8px;">
+                Account Stats</h4>
             <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
                 <span>Reports Posted</span>
                 <span style="color: var(--text-header);">{{ items|length }}</span>
             </div>
         </div>
     </div>
-    
+
     <!-- My Reports -->
     <div style="flex: 2; min-width: 300px;">
         <h3 style="color: var(--text-header); margin-top: 0; margin-bottom: 16px;">My Reports</h3>
@@ -51,11 +56,12 @@
                 {% if item.Image %}
                 <img src="/static/{{ item.Image }}" alt="{{ item.Title }}" class="card-image">
                 {% else %}
-                <div class="card-image" style="display: flex; align-items: center; justify-content: center; color: #72767d;">
+                <div class="card-image"
+                    style="display: flex; align-items: center; justify-content: center; color: #72767d;">
                     <span class="material-icons">image_not_supported</span>
                 </div>
                 {% endif %}
-                
+
                 <div class="card-content">
                     <h4 class="card-title">{{ item.Title }}</h4>
                     <div class="card-meta">
@@ -64,19 +70,22 @@
                     </div>
                     {% if not item.IsHighlighted and item.Status == 'LOST' %}
                     <form action="/item/{{ item.ID }}/highlight" method="post" style="margin-top: 8px;">
-                        
-                        <button type="submit" class="btn" style="width: 100%; font-size: 12px; background-color: var(--gold); color: black;">
+
+                        <button type="submit" class="btn"
+                            style="width: 100%; font-size: 12px; background-color: var(--gold); color: black;">
                             Boost (50 Coins)
                         </button>
                     </form>
                     {% endif %}
-                     {% if item.IsHighlighted %}
-                    <div style="margin-top: 8px; font-size: 12px; color: var(--gold); text-align: center;">Target Highlighted!</div>
+                    {% if item.IsHighlighted %}
+                    <div style="margin-top: 8px; font-size: 12px; color: var(--gold); text-align: center;">Target
+                        Highlighted!</div>
                     {% endif %}
                 </div>
             </div>
             {% empty %}
-            <div style="color: var(--text-muted); padding: 20px; text-align: center; background: var(--bg-secondary); border-radius: 8px; width: 100%;">
+            <div
+                style="color: var(--text-muted); padding: 20px; text-align: center; background: var(--bg-secondary); border-radius: 8px; width: 100%;">
                 You haven't posted any items yet.
             </div>
             {% endfor %}
@@ -90,25 +99,28 @@
                 {% if item.Image %}
                 <img src="/static/{{ item.Image }}" alt="{{ item.Title }}" class="card-image">
                 {% else %}
-                <div class="card-image" style="display: flex; align-items: center; justify-content: center; color: #72767d; background: #2f3136;">
+                <div class="card-image"
+                    style="display: flex; align-items: center; justify-content: center; color: #72767d; background: #2f3136;">
                     <span class="material-icons">volunteer_activism</span>
                 </div>
                 {% endif %}
-                
+
                 <div class="card-content">
                     <h4 class="card-title">{{ item.Title }}</h4>
                     <div class="card-meta">
                         <span class="card-badge badge-found">FOUND</span>
                         <a href="/item/{{ item.ID }}" style="color: var(--accent); text-decoration: none;">View</a>
                     </div>
-                    <div style="margin-top: 8px; font-size: 12px; color: var(--green); display: flex; align-items: center; gap: 4px;">
+                    <div
+                        style="margin-top: 8px; font-size: 12px; color: var(--green); display: flex; align-items: center; gap: 4px;">
                         <span class="material-icons" style="font-size: 14px;">check_circle</span>
                         You found this!
                     </div>
                 </div>
             </div>
             {% empty %}
-            <div style="color: var(--text-muted); padding: 20px; text-align: center; background: var(--bg-secondary); border-radius: 8px; width: 100%;">
+            <div
+                style="color: var(--text-muted); padding: 20px; text-align: center; background: var(--bg-secondary); border-radius: 8px; width: 100%;">
                 You haven't found any items yet.
             </div>
             {% endfor %}

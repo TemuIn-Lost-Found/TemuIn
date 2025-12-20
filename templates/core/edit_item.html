@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+
+{% block header_title %}Edit Postingan{% endblock %}
+
+{% block content %}
+<div class="form-container" style="max-width: 600px; margin: 0 auto;">
+    <form method="POST" enctype="multipart/form-data" class="card"
+        style="padding: 24px; display: flex; flex-direction: column; gap: 16px;">
+
+        <!-- Title -->
+        <div class="form-group">
+            <label
+                style="display: block; color: var(--text-muted); margin-bottom: 8px; font-size: 12px; text-transform: uppercase;">Judul
+                Barang</label>
+            <input type="text" name="title" class="form-control" value="{{ item.Title }}"
+                placeholder="Contoh: Dompet Hilang di Parkiran" required
+                style="width: 100%; padding: 12px; background: var(--bg-tertiary); border: 1px solid var(--bg-tertiary); border-radius: 4px; color: white;">
+        </div>
+
+        <!-- Category & Subcategory -->
+        <div style="display: flex; gap: 16px; margin-bottom: 8px;">
+            <div style="flex: 1;">
+                <label
+                    style="display: block; color: var(--text-muted); margin-bottom: 8px; font-size: 12px; text-transform: uppercase;">Kategori</label>
+                <select name="category" id="id_category"
+                    style="width: 100%; padding: 12px; background: var(--bg-tertiary); border: none; border-radius: 4px; color: white;">
+                    <option value="">Pilih Kategori...</option>
+                    {% for cat in sidebar_categories %}
+                    <option value="{{ cat.ID }}" {% if item.CategoryID==cat.ID %}selected{% endif %}>{{ cat.Name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div style="flex: 1;">
+                <label
+                    style="display: block; color: var(--text-muted); margin-bottom: 8px; font-size: 12px; text-transform: uppercase;">Sub-Kategori</label>
+                <select name="subcategory" id="id_subcategory"
+                    style="width: 100%; padding: 12px; background: var(--bg-tertiary); border: none; border-radius: 4px; color: white;">
+                    <option value="">Pilih Kategori Dulu...</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Description -->
+        <div class="form-group">
+            <label
+                style="display: block; color: var(--text-muted); margin-bottom: 8px; font-size: 12px; text-transform: uppercase;">Deskripsi
+                Detail</label>
+            <textarea name="description" rows="4" placeholder="Jelaskan ciri-ciri barang, kronologi, dll..." required
+                style="width: 100%; padding: 12px; background: var(--bg-tertiary); border: none; border-radius: 4px; color: white; font-family: inherit;">{{ item.Description }}</textarea>
+        </div>
+
+        <!-- Location -->
+        <div class="form-group">
+            <label
+                style="display: block; color: var(--text-muted); margin-bottom: 8px; font-size: 12px; text-transform: uppercase;">Lokasi
+                Terakhir</label>
+            <input type="text" name="location" value="{{ item.Location }}" placeholder="Contoh: Gedung A, Kantin, dll"
+                required
+                style="width: 100%; padding: 12px; background: var(--bg-tertiary); border: none; border-radius: 4px; color: white;">
+        </div>
+
+        <!-- Bounty -->
+        <div class="form-group">
+            <label
+                style="display: block; color: var(--text-muted); margin-bottom: 8px; font-size: 12px; text-transform: uppercase;">Imbalan
+                (Coins)</label>
+            <input type="number" name="bounty_coins" value="{{ item.BountyCoins }}" min="0"
+                style="width: 100%; padding: 12px; background: var(--bg-tertiary); border: none; border-radius: 4px; color: white;">
+            <small style="color: var(--text-muted); font-size: 11px;">Opsional. Berikan imbalan untuk penemu.</small>
+        </div>
+
+        <!-- Image -->
+        <div class="form-group">
+            <label
+                style="display: block; color: var(--text-muted); margin-bottom: 8px; font-size: 12px; text-transform: uppercase;">Foto
+                Barang</label>
+            {% if item.Image %}
+            <div style="margin-bottom: 8px;">
+                <img src="/static/{{ item.Image }}" style="max-width: 200px; max-height: 200px; border-radius: 8px;">
+                <p style="color: var(--text-muted); font-size: 11px; margin-top: 4px;">Foto saat ini (upload foto baru
+                    untuk mengganti)</p>
+            </div>
+            {% endif %}
+            <input type="file" name="image" accept="image/*"
+                style="width: 100%; padding: 12px; background: var(--bg-secondary); border-radius: 4px; color: var(--text-muted);">
+        </div>
+
+        <div style="display: flex; gap: 12px; margin-top: 16px;">
+            <button type="submit" class="btn btn-primary"
+                style="flex: 1; padding: 12px; font-weight: bold; font-size: 16px;">
+                Simpan Perubahan
+            </button>
+            <a href="/item/{{ item.ID }}" class="btn"
+                style="flex: 0; padding: 12px 24px; background: var(--bg-tertiary); text-decoration: none; display: flex; align-items: center; justify-content: center;">
+                Batal
+            </a>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Construct standard JS array from Pongo2 context
+        const subData = [
+            {% for s in subcategories %}
+            { id: {{ s.ID }}, name: "{{s.Name}}", category_id: {{ s.CategoryID }}},
+        {% endfor %}
+        ];
+
+    const catSelect = document.getElementById('id_category');
+    const subSelect = document.getElementById('id_subcategory');
+    const currentSubId = {{ item.SubCategoryID|default: "0" }};
+
+    function updateSubcategories() {
+        const selectedCat = parseInt(catSelect.value);
+
+        // Clear current options
+        subSelect.innerHTML = '<option value="">Pilih Sub-Kategori...</option>';
+
+        if (selectedCat) {
+            const filtered = subData.filter(s => s.category_id === selectedCat);
+            if (filtered.length === 0) {
+                const opt = document.createElement('option');
+                opt.value = "";
+                opt.textContent = "Tidak ada sub-kategori";
+                subSelect.appendChild(opt);
+            } else {
+                filtered.forEach(s => {
+                    const opt = document.createElement('option');
+                    opt.value = s.id;
+                    opt.textContent = s.name;
+                    if (s.id === currentSubId) {
+                        opt.selected = true;
+                    }
+                    subSelect.appendChild(opt);
+                });
+            }
+        } else {
+            const opt = document.createElement('option');
+            opt.value = "";
+            opt.textContent = "Pilih Kategori Dulu";
+            subSelect.appendChild(opt);
+        }
+    }
+
+    if (catSelect) {
+        catSelect.addEventListener('change', updateSubcategories);
+        // Initialize on page load
+        updateSubcategories();
+    }
+    });
+</script>
+{% endblock %}
