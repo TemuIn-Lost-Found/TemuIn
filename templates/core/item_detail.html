@@ -1,19 +1,19 @@
 {% extends 'base.html' %}
 
 {% block header_title %}
-    <span style="color: var(--text-muted); font-size: 14px;">Thread / </span> {{ item.Title }}
+<span style="color: var(--text-muted); font-size: 14px;">Thread / </span> {{ item.Title }}
 {% endblock %}
 
 {% block content %}
 <div class="thread-container" style="display: flex; flex-direction: column; height: 100%;">
-    
+
     <!-- Item Header (Pinned Message Style) -->
     <div style="padding: 16px; border-bottom: 1px solid var(--bg-tertiary); margin-bottom: 16px;">
         <div style="display: flex; gap: 16px;">
             {% if item.Image %}
             <img src="/static/{{ item.Image }}" style="max-width: 300px; max-height: 300px; border-radius: 8px;">
             {% endif %}
-            
+
             <div style="flex: 1;">
                 <h2 style="color: var(--text-header); margin-top: 0;">{{ item.Title }}</h2>
                 <div class="card-meta" style="margin-bottom: 12px;">
@@ -24,22 +24,25 @@
                     </span>
                     {% endif %}
                 </div>
-                
-                <div style="display: flex; align-items: center; gap: 6px; color: var(--text-muted); font-size: 13px; margin-bottom: 12px;">
+
+                <div
+                    style="display: flex; align-items: center; gap: 6px; color: var(--text-muted); font-size: 13px; margin-bottom: 12px;">
                     <span class="material-icons" style="font-size: 16px;">place</span>
                     {{ item.Location }}
                 </div>
-                
+
                 <p style="color: var(--text-normal); white-space: pre-wrap;">{{ item.Description }}</p>
-                
+
                 <div style="margin-top: 10px; font-size: 12px; color: var(--text-muted);">
                     Dilaporkan oleh {{ item.User.Username }} pada {{ FormatTime(item.CreatedAt, "02 Jan 2006 15:04") }}
                 </div>
 
                 <!-- Global Status Message if FOUND (Case Closed) -->
                 {% if item.Status == 'FOUND' %}
-                <div style="margin-top: 24px; background: linear-gradient(135deg, rgba(59, 165, 92, 0.1) 0%, rgba(59, 165, 92, 0.05) 100%); border: 1px solid var(--green); border-radius: 12px; padding: 20px; display: flex; align-items: center; gap: 16px;">
-                    <div style="background: var(--green); width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 4px 12px rgba(59, 165, 92, 0.3);">
+                <div
+                    style="margin-top: 24px; background: linear-gradient(135deg, rgba(59, 165, 92, 0.1) 0%, rgba(59, 165, 92, 0.05) 100%); border: 1px solid var(--green); border-radius: 12px; padding: 20px; display: flex; align-items: center; gap: 16px;">
+                    <div
+                        style="background: var(--green); width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 4px 12px rgba(59, 165, 92, 0.3);">
                         <span class="material-icons" style="color: white; font-size: 24px;">check_circle</span>
                     </div>
                     <div>
@@ -47,10 +50,66 @@
                         <p style="margin: 0; color: var(--text-normal); font-size: 14px;">
                             Barang ini telah dikonfirmasi kembali ke pemiliknya.
                             {% if item.Finder %}
-                            <br><span style="color: var(--text-muted); font-size: 13px;">Ditemukan oleh <strong>{{ item.Finder.Username }}</strong></span>
+                            <br><span style="color: var(--text-muted); font-size: 13px;">Ditemukan oleh
+                                <strong>{{item.Finder.Username }}</strong></span>
                             {% endif %}
                         </p>
                     </div>
+                </div>
+                {% endif %}
+
+                <!-- Owner Actions (Edit/Delete) -->
+                {% if user and is_owner and item.Status != 'FOUND' %}
+                <div style="margin-top: 16px; display: flex; gap: 8px;">
+                    <a href="/item/{{ item.ID }}/edit" class="btn"
+                        style="background: var(--accent); text-decoration: none; font-size: 13px; padding: 8px 16px; display: flex; align-items: center; gap: 6px;">
+                        <span class="material-icons" style="font-size: 16px;">edit</span> Edit Postingan
+                    </a>
+                    <form action="/item/{{ item.ID }}/delete" method="post" style="margin: 0;"
+                        onsubmit="return confirm('Yakin ingin menghapus postingan ini?');">
+                        <button type="submit" class="btn"
+                            style="background: #dc3545; font-size: 13px; padding: 8px 16px; display: flex; align-items: center; gap: 6px;">
+                            <span class="material-icons" style="font-size: 16px;">delete</span> Hapus Postingan
+                        </button>
+                    </form>
+                </div>
+                {% endif %}
+
+                <!-- Admin Actions (Delete/Ban) -->
+                {% if user and user.IsSuperuser %}
+                <div
+                    style="margin-top: 16px; padding: 12px; background: rgba(220, 53, 69, 0.1); border: 1px solid rgba(220, 53, 69, 0.3); border-radius: 8px;">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                        <span class="material-icons"
+                            style="color: #dc3545; font-size: 18px;">admin_panel_settings</span>
+                        <strong style="color: #dc3545; font-size: 13px;">ADMIN ACTIONS</strong>
+                    </div>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <form action="/admin/item/{{ item.ID }}/delete" method="post" style="margin: 0;"
+                            onsubmit="return confirm('⚠️ ADMIN: Yakin menghapus postingan ini?');">
+                            <button type="submit" class="btn"
+                                style="background: #dc3545; font-size: 12px; padding: 6px 12px; display: flex; align-items: center; gap: 4px;">
+                                <span class="material-icons" style="font-size: 14px;">delete_forever</span> Delete Post
+                            </button>
+                        </form>
+                        {% if not is_owner %}
+                        <button onclick="banUser({{ item.UserID }})" class="btn"
+                            style="background: #6c757d; font-size: 12px; padding: 6px 12px; display: flex; align-items: center; gap: 4px;">
+                            <span class="material-icons" style="font-size: 14px;">block</span>
+                            Ban User: {{ item.User.Username }}
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Report Button (For logged-in non-owners) -->
+                {% if user and not is_owner and not user.IsSuperuser and item.Status != 'FOUND' %}
+                <div style="margin-top: 16px;">
+                    <button onclick="showReportModal({{ item.ID }})" class="btn"
+                        style="background: #6c757d; font-size: 13px; padding: 8px 16px; display: flex; align-items: center; gap: 6px;">
+                        <span class="material-icons" style="font-size: 16px;">flag</span> Laporkan Postingan
+                    </button>
                 </div>
                 {% endif %}
             </div>
@@ -60,122 +119,145 @@
     <!-- Actions Section -->
     {% if user and item.Status != 'FOUND' %}
     <div style="margin-bottom: 24px;">
-        
+
         <!-- Condition 1: Finder ALREADY SELECTED. Mutual Confirmation Phase. -->
         {% if item.Finder %}
-             
-             <!-- Check if Current User is Owner OR Selected Finder -->
-             {% if is_owner or is_finder %}
-             <div style="background: var(--bg-secondary); border-radius: 12px; border: 1px solid var(--bg-tertiary); overflow: hidden;">
-                <div style="background: rgba(250, 166, 26, 0.1); padding: 16px; border-bottom: 1px solid rgba(250, 166, 26, 0.2); display: flex; align-items: center; gap: 12px;">
-                    <span class="material-icons" style="color: #faa61a;">warning_amber</span>
-                    <div>
-                        <strong style="color: #faa61a; display: block;">Proses Pengembalian dengan {{ item.Finder.Username }}</strong>
-                        <span style="font-size: 12px; color: var(--text-normal);">Menunggu konfirmasi pemilik untuk menyelesaikan.</span>
-                    </div>
-                </div>
 
-                <div style="padding: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
-                    <!-- Owner Side -->
-                    <div style="text-align: center; padding: 16px; background: var(--bg-primary); border-radius: 8px; border: 1px solid {% if item.OwnerConfirmed %}var(--green){% else %}var(--bg-tertiary){% endif %};">
-                        <div style="margin-bottom: 12px; font-weight: 600; color: var(--text-header); display: flex; align-items: center; justify-content: center; gap: 8px;">
-                            <span class="material-icons" style="font-size: 18px;">person</span> Pemilik
-                        </div>
-                        
-                        {% if item.OwnerConfirmed %}
-                             <div style="color: var(--green); font-weight: bold; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 6px;">
-                                <span class="material-icons">check_circle</span> Terkonfirmasi
-                            </div>
-                        {% else %}
-                            {% if is_owner %}
-                                <form action="/item/{{ item.ID }}/return" method="post">
-                                    <button type="submit" class="btn" style="width: 100%; background-color: var(--green);">Konfirmasi Terima</button>
-                                </form>
-                                <p style="margin-top: 8px; font-size: 11px; color: var(--text-muted);">Klik jika barang sudah kembali.</p>
-                            {% else %}
-                                <div style="color: var(--text-muted); font-size: 13px; font-style: italic;">Menunggu pemilik...</div>
-                            {% endif %}
-                        {% endif %}
-                    </div>
-
-                    <!-- Finder Side -->
-                    <div style="text-align: center; padding: 16px; background: var(--bg-primary); border-radius: 8px; border: 1px solid {% if item.FinderConfirmed %}var(--green){% else %}var(--bg-tertiary){% endif %};">
-                        <div style="margin-bottom: 12px; font-weight: 600; color: var(--text-header); display: flex; align-items: center; justify-content: center; gap: 8px;">
-                            <span class="material-icons" style="font-size: 18px;">search</span> Penemu
-                        </div>
-
-                        {% if item.FinderConfirmed %}
-                             <div style="color: var(--green); font-weight: bold; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 6px;">
-                                <span class="material-icons">check_circle</span> Terkonfirmasi
-                            </div>
-                        {% else %}
-                            {% if is_finder %}
-                                <form action="/item/{{ item.ID }}/return" method="post">
-                                    <button type="submit" class="btn" style="width: 100%; background-color: var(--green);">Konfirmasi Serah</button>
-                                </form>
-                                <p style="margin-top: 8px; font-size: 11px; color: var(--text-muted);">Klik jika barang sudah Anda serahkan.</p>
-                            {% else %}
-                                <div style="color: var(--text-muted); font-size: 13px; font-style: italic;">Menunggu penemu...</div>
-                            {% endif %}
-                        {% endif %}
-                    </div>
+        <!-- Check if Current User is Owner OR Selected Finder -->
+        {% if is_owner or is_finder %}
+        <div
+            style="background: var(--bg-secondary); border-radius: 12px; border: 1px solid var(--bg-tertiary); overflow: hidden;">
+            <div
+                style="background: rgba(250, 166, 26, 0.1); padding: 16px; border-bottom: 1px solid rgba(250, 166, 26, 0.2); display: flex; align-items: center; gap: 12px;">
+                <span class="material-icons" style="color: #faa61a;">warning_amber</span>
+                <div>
+                    <strong style="color: #faa61a; display: block;">
+                        Proses Pengembalian dengan {{ item.Finder.Username}}</strong>
+                    <span style="font-size: 12px; color: var(--text-normal);">Menunggu konfirmasi pemilik untuk
+                        menyelesaikan.</span>
                 </div>
             </div>
-            {% else %}
-                <div style="padding: 16px; background: var(--bg-secondary); border-radius: 8px; color: var(--text-muted); text-align: center;">
-                    Sedang dalam proses pengembalian dengan user <strong>{{ item.Finder.Username }}</strong>.
+
+            <div style="padding: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                <!-- Owner Side -->
+                <div
+                    style="text-align: center; padding: 16px; background: var(--bg-primary); border-radius: 8px; border: 1px solid {% if item.OwnerConfirmed %}var(--green){% else %}var(--bg-tertiary){% endif %};">
+                    <div
+                        style="margin-bottom: 12px; font-weight: 600; color: var(--text-header); display: flex; align-items: center; justify-content: center; gap: 8px;">
+                        <span class="material-icons" style="font-size: 18px;">person</span> Pemilik
+                    </div>
+
+                    {% if item.OwnerConfirmed %}
+                    <div
+                        style="color: var(--green); font-weight: bold; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                        <span class="material-icons">check_circle</span> Terkonfirmasi
+                    </div>
+                    {% else %}
+                    {% if is_owner %}
+                    <form action="/item/{{ item.ID }}/return" method="post">
+                        <button type="submit" class="btn"
+                            style="width: 100%; background-color: var(--green);">Konfirmasi Terima</button>
+                    </form>
+                    <p style="margin-top: 8px; font-size: 11px; color: var(--text-muted);">Klik jika barang sudah
+                        kembali.</p>
+                    {% else %}
+                    <div style="color: var(--text-muted); font-size: 13px; font-style: italic;">Menunggu pemilik...
+                    </div>
+                    {% endif %}
+                    {% endif %}
                 </div>
-            {% endif %}
+
+                <!-- Finder Side -->
+                <div
+                    style="text-align: center; padding: 16px; background: var(--bg-primary); border-radius: 8px; border: 1px solid {% if item.FinderConfirmed %}var(--green){% else %}var(--bg-tertiary){% endif %};">
+                    <div
+                        style="margin-bottom: 12px; font-weight: 600; color: var(--text-header); display: flex; align-items: center; justify-content: center; gap: 8px;">
+                        <span class="material-icons" style="font-size: 18px;">search</span> Penemu
+                    </div>
+
+                    {% if item.FinderConfirmed %}
+                    <div
+                        style="color: var(--green); font-weight: bold; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                        <span class="material-icons">check_circle</span> Terkonfirmasi
+                    </div>
+                    {% else %}
+                    {% if is_finder %}
+                    <form action="/item/{{ item.ID }}/return" method="post">
+                        <button type="submit" class="btn"
+                            style="width: 100%; background-color: var(--green);">Konfirmasi Serah</button>
+                    </form>
+                    <p style="margin-top: 8px; font-size: 11px; color: var(--text-muted);">Klik jika barang sudah Anda
+                        serahkan.</p>
+                    {% else %}
+                    <div style="color: var(--text-muted); font-size: 13px; font-style: italic;">Menunggu penemu...</div>
+                    {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div
+            style="padding: 16px; background: var(--bg-secondary); border-radius: 8px; color: var(--text-muted); text-align: center;">
+            Sedang dalam proses pengembalian dengan user <strong>{{ item.Finder.Username }}</strong>.
+        </div>
+        {% endif %}
 
         {% else %}
         <!-- Condition 2: NO Finder Selected. Claims Phase. -->
-            
-            <!-- Owner View: See List of Claimants -->
-            {% if is_owner %}
-                <div style="background: var(--bg-secondary); padding: 20px; border-radius: 12px; border: 1px solid var(--bg-tertiary);">
-                    <h4 style="margin: 0 0 16px 0; color: var(--text-header);">Kandidat Penemu</h4>
-                    
-                    {% if claims|length > 0 %}
-                        <div style="display: flex; flex-direction: column; gap: 12px;">
-                        {% for claim in claims %}
-                            <div style="display: flex; justify-content: space-between; align-items: center; background: var(--bg-primary); padding: 12px; border-radius: 8px;">
-                                <div>
-                                    <strong style="color: var(--text-header);">{{ claim.User.Username }}</strong>
-                                    <div style="font-size: 12px; color: var(--text-muted);">Klaim masuk: {{ FormatTime(claim.CreatedAt, "02 Jan 15:04") }}</div>
-                                </div>
-                                <form action="/item/{{ item.ID }}/select-finder" method="post" style="margin: 0;">
-                                    <input type="hidden" name="candidate_id" value="{{ claim.UserID }}">
-                                    <button type="submit" class="btn" style="padding: 6px 12px; font-size: 12px;">Pilih Orang Ini</button>
-                                </form>
-                            </div>
-                        {% endfor %}
-                        </div>
-                    {% else %}
-                        <p style="color: var(--text-muted); font-style: italic; margin: 0;">Belum ada yang mengaku menemukan barang ini.</p>
-                    {% endif %}
-                </div>
 
-            <!-- Non-Owner View: Claim Button -->
-            {% else %}
-                <div style="background: var(--bg-secondary); padding: 20px; border-radius: 12px; border: 1px solid var(--bg-tertiary); display: flex; align-items: center; justify-content: space-between;">
+        <!-- Owner View: See List of Claimants -->
+        {% if is_owner %}
+        <div
+            style="background: var(--bg-secondary); padding: 20px; border-radius: 12px; border: 1px solid var(--bg-tertiary);">
+            <h4 style="margin: 0 0 16px 0; color: var(--text-header);">Kandidat Penemu</h4>
+
+            {% if claims|length > 0 %}
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                {% for claim in claims %}
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; background: var(--bg-primary); padding: 12px; border-radius: 8px;">
                     <div>
-                        <h4 style="margin: 0 0 4px 0; color: var(--text-header);">Menemukan barang ini?</h4>
-                        <p style="margin: 0; color: var(--text-muted); font-size: 13px;">Bantu pemilik menemukannya kembali.</p>
+                        <strong style="color: var(--text-header);">{{ claim.User.Username }}</strong>
+                        <div style="font-size: 12px; color: var(--text-muted);">
+                            Klaim masuk: {{FormatTime(claim.CreatedAt, "02 Jan 15:04") }}</div>
                     </div>
-                    
-                    {% if has_claimed %}
-                        <button class="btn" disabled style="background-color: var(--bg-tertiary); cursor: default; opacity: 0.7;">
-                            <span class="material-icons" style="font-size: 16px; margin-right: 4px;">check</span> Sudah Diklaim
-                        </button>
-                    {% else %}
-                        <form action="/item/{{ item.ID }}/found" method="post" style="margin: 0;">
-                            <button type="submit" class="btn" style="background-color: var(--green); display: flex; align-items: center; gap: 8px;">
-                                <span class="material-icons">volunteer_activism</span> Saya Menemukan Ini
-                            </button>
-                        </form>
-                    {% endif %}
+                    <form action="/item/{{ item.ID }}/select-finder" method="post" style="margin: 0;">
+                        <input type="hidden" name="candidate_id" value="{{ claim.UserID }}">
+                        <button type="submit" class="btn" style="padding: 6px 12px; font-size: 12px;">Pilih Orang
+                            Ini</button>
+                    </form>
                 </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p style="color: var(--text-muted); font-style: italic; margin: 0;">Belum ada yang mengaku menemukan barang
+                ini.</p>
             {% endif %}
+        </div>
+
+        <!-- Non-Owner View: Claim Button -->
+        {% else %}
+        <div
+            style="background: var(--bg-secondary); padding: 20px; border-radius: 12px; border: 1px solid var(--bg-tertiary); display: flex; align-items: center; justify-content: space-between;">
+            <div>
+                <h4 style="margin: 0 0 4px 0; color: var(--text-header);">Menemukan barang ini?</h4>
+                <p style="margin: 0; color: var(--text-muted); font-size: 13px;">Bantu pemilik menemukannya kembali.</p>
+            </div>
+
+            {% if has_claimed %}
+            <button class="btn" disabled style="background-color: var(--bg-tertiary); cursor: default; opacity: 0.7;">
+                <span class="material-icons" style="font-size: 16px; margin-right: 4px;">check</span> Sudah Diklaim
+            </button>
+            {% else %}
+            <form action="/item/{{ item.ID }}/found" method="post" style="margin: 0;">
+                <button type="submit" class="btn"
+                    style="background-color: var(--green); display: flex; align-items: center; gap: 8px;">
+                    <span class="material-icons">volunteer_activism</span> Saya Menemukan Ini
+                </button>
+            </form>
+            {% endif %}
+        </div>
+        {% endif %}
 
         {% endif %}
 
@@ -183,23 +265,25 @@
     {% endif %}
 
     <!-- Comments Section -->
-                <h3 style="margin-top: 24px; font-size: 16px; color: var(--text-header);">Komentar</h3>
-                
-                <div class="comments-list" style="flex: 1; overflow-y: auto; padding-right: 8px;">
-                    {% for comment in comments %}
-                    <div style="margin-bottom: 12px; padding: 12px; background: var(--bg-tertiary); border-radius: 8px;">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                            <span style="font-weight: bold; color: var(--text-header); font-size: 13px;">{{ comment.User.Username }}</span>
-                            <span style="font-size: 11px; color: var(--text-muted);">{{ FormatTime(comment.CreatedAt, "02 Jan 15:04") }}</span>
-                        </div>
-                        <p style="margin: 0; font-size: 13px; color: var(--text-normal);">{{ comment.Content }}</p>
-                    </div>
-                    {% empty %}
-                    <div style="text-align: center; color: var(--text-muted); margin-top: 20px;">
-                        Belum ada pesan. Mulai diskusi di sini.
-                    </div>
-                    {% endfor %}
-                </div>
+    <h3 style="margin-top: 24px; font-size: 16px; color: var(--text-header);">Komentar</h3>
+
+    <div class="comments-list" style="flex: 1; overflow-y: auto; padding-right: 8px;">
+        {% for comment in comments %}
+        <div style="margin-bottom: 12px; padding: 12px; background: var(--bg-tertiary); border-radius: 8px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                <span style="font-weight: bold; color: var(--text-header); font-size: 13px;">
+                    {{ comment.User.Username}}</span>
+                <span style="font-size: 11px; color: var(--text-muted);">
+                    {{ FormatTime(comment.CreatedAt, "02 Jan 15:04") }}</span>
+            </div>
+            <p style="margin: 0; font-size: 13px; color: var(--text-normal);">{{ comment.Content }}</p>
+        </div>
+        {% empty %}
+        <div style="text-align: center; color: var(--text-muted); margin-top: 20px;">
+            Belum ada pesan. Mulai diskusi di sini.
+        </div>
+        {% endfor %}
+    </div>
 
     <!-- Input Area -->
     {% if user %}
@@ -207,7 +291,8 @@
         <form action="/item/{{ item.ID }}/comment" method="post" style="display: flex; gap: 10px;">
             <!-- CSRF Token Removed (Not strict in demo) -->
 
-            <textarea name="content" class="form-control" placeholder="Tulis komentar..." required style="flex: 1; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-normal); padding: 10px;"></textarea>
+            <textarea name="content" class="form-control" placeholder="Tulis komentar..." required
+                style="flex: 1; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-normal); padding: 10px;"></textarea>
             <button type="submit" class="btn" style="border-radius: 8px;">Kirim</button>
         </form>
     </div>
@@ -218,4 +303,78 @@
     {% endif %}
 
 </div>
+
+<!-- Report Modal -->
+<div id="reportModal"
+    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2000; align-items: center; justify-content: center;">
+    <div
+        style="background: var(--bg-secondary); border-radius: 12px; width: 90%; max-width: 500px; padding: 24px; border: 1px solid var(--bg-tertiary);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h3 style="margin: 0; color: var(--text-header);">Laporkan Postingan</h3>
+            <button onclick="closeReportModal()" style="background: none; border: none; cursor: pointer;">
+                <span class="material-icons" style="color: var(--text-muted);">close</span>
+            </button>
+        </div>
+
+        <form id="reportForm" onsubmit="submitReport(event)">
+            <input type="hidden" id="reportItemId" value="">
+
+            <div style="margin-bottom: 16px;">
+                <label style="display: block; color: var(--text-header); font-weight: 500; margin-bottom: 8px;">Alasan
+                    Laporan</label>
+                <select name="reason" required
+                    style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-normal);">
+                    <option value="">-- Pilih Alasan --</option>
+                    <option value="fraud">Penipuan</option>
+                    <option value="spam">Spam</option>
+                    <option value="buying_selling">Jual Beli</option>
+                    <option value="inappropriate">Konten Tidak Pantas</option>
+                    <option value="other">Lainnya</option>
+                </select>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label
+                    style="display: block; color: var(--text-header); font-weight: 500; margin-bottom: 8px;">Deskripsi
+                    (Opsional)</label>
+                <textarea name="description" rows="4" placeholder="Jelaskan lebih detail tentang laporan Anda..."
+                    style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-normal); resize: vertical;"></textarea>
+            </div>
+
+            <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                <button type="button" onclick="closeReportModal()" class="btn"
+                    style="background: var(--bg-tertiary);">Batal</button>
+                <button type="submit" class="btn" style="background: #dc3545;">Kirim Laporan</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function banUser(userId) {
+        if (!confirm('⚠️ ADMIN: Yakin ingin ban user ini? User tidak akan bisa posting, edit, atau komentar.')) {
+            return;
+        }
+
+        fetch(`/admin/user/${userId}/ban`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('✅ User berhasil di-ban!');
+                    location.reload();
+                } else {
+                    alert('❌ Error: ' + (data.error || 'Failed to ban user'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('❌ Network error. Please try again.');
+            });
+    }
+</script>
 {% endblock %}
