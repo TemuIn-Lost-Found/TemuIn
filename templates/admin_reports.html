@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laporan - Admin Dashboard</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+
+<body>
+    <div style="max-width: 1200px; margin: 0 auto; padding: 24px;">
+        <!-- Header -->
+        <div style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h1 style="margin: 0 0 8px 0; color: var(--text-header);">Laporan Postingan</h1>
+                <p style="margin: 0; color: var(--text-muted); font-size: 14px;">Kelola laporan dari pengguna</p>
+            </div>
+            <a href="/admin/dashboard" class="btn" style="text-decoration: none;">
+                <span class="material-icons" style="font-size: 16px; margin-right: 4px;">arrow_back</span>
+                Kembali ke Dashboard
+            </a>
+        </div>
+
+        <!-- Stats -->
+        <div
+            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
+            <div
+                style="background: var(--bg-secondary); border: 1px solid var(--bg-tertiary); border-radius: 8px; padding: 16px;">
+                <div style="color: var(--text-muted); font-size: 12px; margin-bottom: 4px;">Total Laporan</div>
+                <div style="color: var(--text-header); font-size: 24px; font-weight: 700;">{{ total_reports }}</div>
+            </div>
+            <div style="background: var(--bg-secondary); border: 1px solid #faa61a; border-radius: 8px; padding: 16px;">
+                <div style="color: var(--text-muted); font-size: 12px; margin-bottom: 4px;">Pending Review</div>
+                <div style="color: #faa61a; font-size: 24px; font-weight: 700;">{{ pending_reports }}</div>
+            </div>
+            <div
+                style="background: var(--bg-secondary); border: 1px solid var(--green); border-radius: 8px; padding: 16px;">
+                <div style="color: var(--text-muted); font-size: 12px; margin-bottom: 4px;">Diselesaikan</div>
+                <div style="color: var(--green); font-size: 24px; font-weight: 700;">{{ resolved_reports }}</div>
+            </div>
+        </div>
+
+        <!-- Reports List -->
+        <div
+            style="background: var(--bg-secondary); border: 1px solid var(--bg-tertiary); border-radius: 8px; overflow: hidden;">
+            <div style="padding: 16px; border-bottom: 1px solid var(--bg-tertiary);">
+                <h3 style="margin: 0; color: var(--text-header); font-size: 16px;">Semua Laporan</h3>
+            </div>
+
+            {% if reports|length > 0 %}
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background: var(--bg-primary); border-bottom: 1px solid var(--bg-tertiary);">
+                            <th
+                                style="padding: 12px; text-align: left; color: var(--text-muted); font-size: 12px; font-weight: 600;">
+                                POSTINGAN</th>
+                            <th
+                                style="padding: 12px; text-align: left; color: var(--text-muted); font-size: 12px; font-weight: 600;">
+                                PELAPOR</th>
+                            <th
+                                style="padding: 12px; text-align: left; color: var(--text-muted); font-size: 12px; font-weight: 600;">
+                                ALASAN</th>
+                            <th
+                                style="padding: 12px; text-align: left; color: var(--text-muted); font-size: 12px; font-weight: 600;">
+                                STATUS</th>
+                            <th
+                                style="padding: 12px; text-align: left; color: var(--text-muted); font-size: 12px; font-weight: 600;">
+                                TANGGAL</th>
+                            <th
+                                style="padding: 12px; text-align: left; color: var(--text-muted); font-size: 12px; font-weight: 600;">
+                                AKSI</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for report in reports %}
+                        <tr id="report-{{ report.ID }}"
+                            style="border-bottom: 1px solid var(--bg-tertiary); {% if highlight_id and highlight_id == report.ID %}background: rgba(250, 166, 26, 0.1);{% endif %}">
+                            <td style="padding: 12px;">
+                                <a href="/item/{{ report.ItemID }}"
+                                    style="color: var(--accent); text-decoration: none; font-weight: 500;">
+                                    {{ report.Item.Title|truncatechars:40 }}
+                                </a>
+                                <div style="color: var(--text-muted); font-size: 11px; margin-top: 2px;">
+                                    Pemilik: {{ report.Item.User.Username }}
+                                </div>
+                            </td>
+                            <td style="padding: 12px; color: var(--text-normal);">{{ report.Reporter.Username }}</td>
+                            <td style="padding: 12px;">
+                                {% if report.Reason == 'fraud' %}
+                                <span
+                                    style="background: rgba(220, 53, 69, 0.2); color: #dc3545; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">Penipuan</span>
+                                {% elif report.Reason == 'spam' %}
+                                <span
+                                    style="background: rgba(255, 193, 7, 0.2); color: #ffc107; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">Spam</span>
+                                {% elif report.Reason == 'buying_selling' %}
+                                <span
+                                    style="background: rgba(0, 123, 255, 0.2); color: #007bff; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">Jual
+                                    Beli</span>
+                                {% elif report.Reason == 'inappropriate' %}
+                                <span
+                                    style="background: rgba(220, 53, 69, 0.2); color: #dc3545; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">Tidak
+                                    Pantas</span>
+                                {% else %}
+                                <span
+                                    style="background: rgba(108, 117, 125, 0.2); color: #6c757d; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">Lainnya</span>
+                                {% endif %}
+                                {% if report.Description %}
+                                <div style="color: var(--text-muted); font-size: 11px; margin-top: 4px;">
+                                    {{ report.Description|truncatechars:50 }}</div>
+                                {% endif %}
+                            </td>
+                            <td style="padding: 12px;">
+                                {% if report.Status == 'pending' %}
+                                <span
+                                    style="background: rgba(250, 166, 26, 0.2); color: #faa61a; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">Pending</span>
+                                {% elif report.Status == 'reviewed' %}
+                                <span
+                                    style="background: rgba(0, 123, 255, 0.2); color: #007bff; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">Reviewed</span>
+                                {% else %}
+                                <span
+                                    style="background: rgba(59, 165, 92, 0.2); color: var(--green); padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">Resolved</span>
+                                {% endif %}
+                            </td>
+                            <td style="padding: 12px; color: var(--text-normal); font-size: 12px;">
+                                {{ FormatTime(report.CreatedAt, "02 Jan 15:04") }}
+                            </td>
+                            <td style="padding: 12px;">
+                                <div style="display: flex; gap: 4px;">
+                                    {% if report.Status == 'pending' or report.Status == 'reviewed' %}
+                                    <button onclick="warnUser({{ report.ID }})" class="btn"
+                                        style="font-size: 11px; padding: 6px 10px; background: #ffc107;">
+                                        <span class="material-icons" style="font-size: 14px;">warning</span>
+                                    </button>
+                                    <button onclick="resolveReport({{ report.ID }})" class="btn"
+                                        style="font-size: 11px; padding: 6px 10px; background: var(--green);">
+                                        <span class="material-icons" style="font-size: 14px;">check</span>
+                                    </button>
+                                    {% endif %}
+                                    <form action="/admin/item/{{ report.ItemID }}/delete" method="post"
+                                        style="margin: 0;"
+                                        onsubmit="return confirm('⚠️ Yakin menghapus postingan ini?');">
+                                        <button type="submit" class="btn"
+                                            style="font-size: 11px; padding: 6px 10px; background: #dc3545;">
+                                            <span class="material-icons" style="font-size: 14px;">delete</span>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div style="padding: 60px 20px; text-align: center;">
+                <span class="material-icons"
+                    style="font-size: 64px; color: var(--text-muted); opacity: 0.5;">report_off</span>
+                <h3 style="margin: 16px 0 8px 0; color: var(--text-header);">Tidak Ada Laporan</h3>
+                <p style="margin: 0; color: var(--text-muted); font-size: 14px;">Belum ada laporan dari pengguna.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        function warnUser(reportId) {
+            if (!confirm('⚠️ Kirim peringatan ke pemilik postingan?')) {
+                return;
+            }
+
+            fetch(`/admin/report/${reportId}/warn`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('✅ Peringatan berhasil dikirim!');
+                        location.reload();
+                    } else {
+                        alert('❌ Error: ' + (data.error || 'Failed to warn user'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('❌ Network error. Please try again.');
+                });
+        }
+
+        function resolveReport(reportId) {
+            if (!confirm('✅ Tandai laporan ini sebagai selesai?')) {
+                return;
+            }
+
+            fetch(`/admin/report/${reportId}/resolve`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('✅ Laporan ditandai selesai!');
+                        location.reload();
+                    } else {
+                        alert('❌ Error: ' + (data.error || 'Failed to resolve report'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('❌ Network error. Please try again.');
+                });
+        }
+
+        // Scroll to highlighted report if exists
+        window.addEventListener('DOMContentLoaded', function () {
+            const highlighted = document.querySelector('[id^="report-"]');
+            if (highlighted && highlighted.style.background.includes('rgba(250, 166, 26')) {
+                highlighted.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        });
+    </script>
+</body>
+
+</html>
