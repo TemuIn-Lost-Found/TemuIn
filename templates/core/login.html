@@ -10,6 +10,19 @@
         <div style="color: var(--text-muted);">We're so excited to see you again!</div>
     </div>
 
+    {% if banned_error %}
+    <div
+        style="background: rgba(220, 53, 69, 0.1); border: 1px solid #dc3545; border-radius: 8px; padding: 16px; margin-bottom: 20px; display: flex; align-items: start; gap: 12px;">
+        <span class="material-icons" style="color: #dc3545; font-size: 24px; flex-shrink: 0;">block</span>
+        <div>
+            <strong style="color: #dc3545; display: block; margin-bottom: 4px; font-size: 14px;">Akun Diblokir</strong>
+            <p style="margin: 0; color: var(--text-normal); font-size: 13px; line-height: 1.5;">
+                {{ banned_error }}
+            </p>
+        </div>
+    </div>
+    {% endif %}
+
     <form method="post">
         <!-- CSRF Removed -->
 
