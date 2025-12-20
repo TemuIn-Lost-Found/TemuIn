@@ -23,6 +23,9 @@ func main() {
 	// 1.5. Initialize Google OAuth
 	config.InitGoogleOAuth()
 
+	// 1.6. Initialize Midtrans
+	config.InitMidtrans()
+
 	// 2. Setup Gin
 	r := gin.Default()
 
