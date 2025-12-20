@@ -24,6 +24,12 @@ func LoginPage(c *gin.Context) {
 		return
 	}
 	ctx := utils.GetGlobalContext(c)
+
+	// Check for banned user error from query parameter
+	if c.Query("error") == "banned" {
+		ctx["banned_error"] = "Akun Anda telah diblokir karena melanggar ketentuan platform (penipuan, jual beli, atau pelanggaran lainnya). Silakan hubungi admin jika ada pertanyaan."
+	}
+
 	out, err := tpl.Execute(ctx)
 	if err != nil {
 		c.String(http.StatusInternalServerError, "Render Error: "+err.Error())
@@ -78,6 +84,16 @@ func Login(c *gin.Context) {
 	if err != nil {
 		ctx["password_error"] = "Password tidak sesuai"
 		ctx["username"] = username // Preserve username
+		tpl := pongo2.Must(pongo2.FromFile("templates/core/login.html"))
+		out, _ := tpl.Execute(ctx)
+		c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(out))
+		return
+	}
+
+	// Check if user is banned
+	if user.IsBanned {
+		ctx["banned_error"] = "Akun Anda telah diblokir karena melanggar ketentuan platform (penipuan, jual beli, atau pelanggaran lainnya). Silakan hubungi admin jika ada pertanyaan."
+		ctx["username"] = username
 		tpl := pongo2.Must(pongo2.FromFile("templates/core/login.html"))
 		out, _ := tpl.Execute(ctx)
 		c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(out))
@@ -312,6 +328,12 @@ func GoogleCallback(c *gin.Context) {
 		}
 	}
 	// If user exists, just login (no need to update anything)
+
+	// Check if user is banned
+	if user.IsBanned {
+		c.Redirect(http.StatusFound, "/login?error=banned")
+		return
+	}
 
 	// Set session
 	session.Set("user_id", user.ID)
