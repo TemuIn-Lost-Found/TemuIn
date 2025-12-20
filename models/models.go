@@ -16,6 +16,7 @@ type User struct {
 	Email       string    `gorm:"size:254;not null"`
 	IsStaff     bool      `gorm:"column:is_staff;default:false"`
 	IsActive    bool      `gorm:"column:is_active;default:true"`
+	IsBanned    bool      `gorm:"column:is_banned;default:false"`
 	DateJoined  time.Time `gorm:"column:date_joined;autoCreateTime"`
 	PhoneNumber string    `gorm:"column:phone_number;size:15;default:null"`
 	CoinBalance int       `gorm:"column:coin_balance;default:0"`
@@ -120,4 +121,43 @@ type ItemClaim struct {
 
 func (ItemClaim) TableName() string {
 	return "core_itemclaim"
+}
+
+type ItemReport struct {
+	ID          int64     `gorm:"primaryKey;autoIncrement"`
+	ItemID      int64     `gorm:"column:item_id;not null"`
+	ReporterID  int64     `gorm:"column:reporter_id;not null"`
+	Reason      string    `gorm:"size:50;not null"` // fraud, spam, buying_selling, inappropriate, other
+	Description string    `gorm:"type:text"`
+	Status      string    `gorm:"size:20;default:'pending'"` // pending, reviewed, resolved
+	CreatedAt   time.Time `gorm:"column:created_at;autoCreateTime"`
+	UpdatedAt   time.Time `gorm:"column:updated_at;autoUpdateTime"`
+
+	Item     LostItem `gorm:"foreignKey:ItemID"`
+	Reporter User     `gorm:"foreignKey:ReporterID"`
+}
+
+func (ItemReport) TableName() string {
+	return "core_itemreport"
+}
+
+type Notification struct {
+	ID              int64     `gorm:"primaryKey;autoIncrement"`
+	UserID          int64     `gorm:"column:user_id;not null"`
+	Type            string    `gorm:"size:30;not null"` // report, warning, system_update
+	Title           string    `gorm:"size:200;not null"`
+	Message         string    `gorm:"type:text;not null"`
+	IsRead          bool      `gorm:"column:is_read;default:false"`
+	ReferenceURL    string    `gorm:"column:reference_url;size:255"`
+	RelatedItemID   *int64    `gorm:"column:related_item_id"`
+	RelatedReportID *int64    `gorm:"column:related_report_id"`
+	CreatedAt       time.Time `gorm:"column:created_at;autoCreateTime"`
+
+	User          User        `gorm:"foreignKey:UserID"`
+	RelatedItem   *LostItem   `gorm:"foreignKey:RelatedItemID"`
+	RelatedReport *ItemReport `gorm:"foreignKey:RelatedReportID"`
+}
+
+func (Notification) TableName() string {
+	return "core_notification"
 }
