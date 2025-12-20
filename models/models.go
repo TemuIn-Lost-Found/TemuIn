@@ -161,3 +161,22 @@ type Notification struct {
 func (Notification) TableName() string {
 	return "core_notification"
 }
+
+type TopUpTransaction struct {
+	ID              int64      `gorm:"primaryKey;autoIncrement"`
+	OrderID         string     `gorm:"column:order_id;size:100;unique;not null"`
+	UserID          int64      `gorm:"column:user_id;not null"`
+	Amount          int        `gorm:"not null"`                  // coin amount (100, 500, 1000)
+	Price           int        `gorm:"not null"`                  // price in IDR
+	Status          string     `gorm:"size:20;default:'pending'"` // pending, success, failed, expired
+	PaymentType     string     `gorm:"column:payment_type;size:50"`
+	TransactionTime *time.Time `gorm:"column:transaction_time"`
+	CreatedAt       time.Time  `gorm:"column:created_at;autoCreateTime"`
+	UpdatedAt       time.Time  `gorm:"column:updated_at;autoUpdateTime"`
+
+	User User `gorm:"foreignKey:UserID"`
+}
+
+func (TopUpTransaction) TableName() string {
+	return "core_topuptransaction"
+}
