@@ -46,5 +46,35 @@ func RegisterRoutes(r *gin.Engine) {
 		authorized.POST("/item/:pk/found", handlers.MarkAsFound)
 		authorized.POST("/item/:pk/select-finder", handlers.SelectFinder) // NEW
 		authorized.POST("/item/:pk/return", handlers.ConfirmReturn)
+
+		// User post management
+		authorized.GET("/item/:pk/edit", handlers.EditItemPage)
+		authorized.POST("/item/:pk/edit", handlers.EditItem)
+		authorized.POST("/item/:pk/delete", handlers.DeleteItem)
+
+		// Report routes
+		authorized.POST("/item/:pk/report", handlers.SubmitReport)
+
+		// Notification routes
+		authorized.GET("/notifications", handlers.NotificationListPage)
+		authorized.GET("/api/notifications", handlers.GetNotifications)
+		authorized.GET("/api/notifications/count", handlers.GetUnreadCount)
+		authorized.POST("/api/notifications/:id/read", handlers.MarkAsRead)
+		authorized.POST("/api/notifications/read-all", handlers.MarkAllAsRead)
+	}
+
+	// Admin Routes
+	admin := r.Group("/admin")
+	admin.Use(middleware.AuthRequired(), middleware.AdminRequired())
+	{
+		admin.GET("/dashboard", handlers.AdminDashboard)
+		admin.POST("/item/:pk/delete", handlers.AdminDeleteItem)
+		admin.POST("/user/:id/ban", handlers.BanUser)
+		admin.POST("/user/:id/unban", handlers.UnbanUser)
+
+		// Report management
+		admin.GET("/reports", handlers.AdminReportList)
+		admin.POST("/report/:id/resolve", handlers.ResolveReport)
+		admin.POST("/report/:id/warn", handlers.WarnUser)
 	}
 }
