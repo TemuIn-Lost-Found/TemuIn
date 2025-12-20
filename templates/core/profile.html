@@ -23,18 +23,30 @@
                 {{ user.CoinBalance }} <span style="font-size: 14px; color: var(--text-normal);">Coins</span>
             </div>
 
-            <form action="/topup" method="post" style="margin-top: 16px;">
-                <!-- CSRF Token Removed -->
-                <div style="display: flex; gap: 8px;">
-                    <select name="amount"
-                        style="flex: 1; padding: 8px; border-radius: 4px; background: var(--bg-primary); color: white; border: none;">
-                        <option value="100">100 Coins</option>
-                        <option value="500">500 Coins</option>
-                        <option value="1000">1000 Coins</option>
-                    </select>
-                    <button type="submit" class="btn" style="background-color: var(--green);">Top Up</button>
+            <!-- TopUp Options -->
+            <div style="margin-top: 16px;">
+                <h4 style="margin: 0 0 12px 0; color: var(--text-header); font-size: 14px;">Top Up Coins</h4>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <button onclick="topUpCoins(100)" class="btn topup-btn"
+                        style="width: 100%; display: flex; justify-content: space-between; align-items: center; background: var(--green);">
+                        <span>💰 100 Coins</span>
+                        <span style="font-weight: bold;">Rp 1.000</span>
+                    </button>
+                    <button onclick="topUpCoins(500)" class="btn topup-btn"
+                        style="width: 100%; display: flex; justify-content: space-between; align-items: center; background: var(--green);">
+                        <span>💰 500 Coins</span>
+                        <span style="font-weight: bold;">Rp 5.000</span>
+                    </button>
+                    <button onclick="topUpCoins(1000)" class="btn topup-btn"
+                        style="width: 100%; display: flex; justify-content: space-between; align-items: center; background: var(--green);">
+                        <span>💰 1.000 Coins</span>
+                        <span style="font-weight: bold;">Rp 10.000</span>
+                    </button>
                 </div>
-            </form>
+                <div style="margin-top: 8px; font-size: 11px; color: var(--text-muted); text-align: center;">
+                    Secure payment powered by Midtrans
+                </div>
+            </div>
         </div>
 
         <div>
@@ -127,4 +139,69 @@
         </div>
     </div>
 </div>
+
+<!-- Midtrans Snap.js  -->
+<script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ midtrans_client_key }}"></script>
+<script>
+    function topUpCoins(amount) {
+        // Get the button that was clicked
+        const buttons = document.querySelectorAll('.topup-btn');
+        const clickedButton = event.target.closest('.topup-btn');
+
+        // Disable all buttons and show loading
+        buttons.forEach(btn => btn.disabled = true);
+        const originalContent = clickedButton.innerHTML;
+        clickedButton.innerHTML = '<span>⏳ Processing...</span>';
+
+        // Call backend to get Snap token
+        fetch('/topup/initiate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ amount: amount })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.snap_token) {
+                    // Open Snap payment popup
+                    snap.pay(data.snap_token, {
+                        onSuccess: function (result) {
+                            console.log('Payment success:', result);
+                            alert('✅ Pembayaran berhasil! Coins Anda telah ditambahkan.');
+                            window.location.reload();
+                        },
+                        onPending: function (result) {
+                            console.log('Payment pending:', result);
+                            alert('⏳ Menunggu pembayaran. Silakan selesaikan pembayaran Anda.');
+                            window.location.reload();
+                        },
+                        onError: function (result) {
+                            console.error('Payment error:', result);
+                            alert('❌ Pembayaran gagal. Silakan coba lagi.');
+                            // Re-enable buttons
+                            buttons.forEach(btn => btn.disabled = false);
+                            clickedButton.innerHTML = originalContent;
+                        },
+                        onClose: function () {
+                            console.log('Payment popup closed');
+                            // Re-enable buttons
+                            buttons.forEach(btn => btn.disabled = false);
+                            clickedButton.innerHTML = originalContent;
+                        }
+                    });
+                } else {
+                    alert('❌ Error: ' + (data.error || 'Gagal memulai pembayaran'));
+                    buttons.forEach(btn => btn.disabled = false);
+                    clickedButton.innerHTML = originalContent;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('❌ Terjadi kesalahan saat memproses pembayaran');
+                buttons.forEach(btn => btn.disabled = false);
+                clickedButton.innerHTML = originalContent;
+            });
+    }
+</script>
 {% endblock %}
