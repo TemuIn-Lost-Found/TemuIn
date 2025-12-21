@@ -143,65 +143,113 @@
 <!-- Midtrans Snap.js  -->
 <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ midtrans_client_key }}"></script>
 <script>
-    function topUpCoins(amount) {
-        // Get the button that was clicked
+    // helper to sleep (optional)
+    const sleep = (ms) => new Promise(res => setTimeout(res, ms));
+
+    async function topUpCoins(amount, evt) {
+        evt = evt || window.event;
         const buttons = document.querySelectorAll('.topup-btn');
-        const clickedButton = event.target.closest('.topup-btn');
+        const clickedButton = evt.target.closest('.topup-btn');
 
         // Disable all buttons and show loading
         buttons.forEach(btn => btn.disabled = true);
         const originalContent = clickedButton.innerHTML;
         clickedButton.innerHTML = '<span>⏳ Processing...</span>';
 
-        // Call backend to get Snap token
-        fetch('/topup/initiate', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ amount: amount })
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.snap_token) {
-                    // Open Snap payment popup
-                    snap.pay(data.snap_token, {
-                        onSuccess: function (result) {
-                            console.log('Payment success:', result);
-                            alert('✅ Pembayaran berhasil! Coins Anda telah ditambahkan.');
-                            window.location.reload();
-                        },
-                        onPending: function (result) {
-                            console.log('Payment pending:', result);
-                            alert('⏳ Menunggu pembayaran. Silakan selesaikan pembayaran Anda.');
-                            window.location.reload();
-                        },
-                        onError: function (result) {
-                            console.error('Payment error:', result);
-                            alert('❌ Pembayaran gagal. Silakan coba lagi.');
-                            // Re-enable buttons
-                            buttons.forEach(btn => btn.disabled = false);
-                            clickedButton.innerHTML = originalContent;
-                        },
-                        onClose: function () {
-                            console.log('Payment popup closed');
-                            // Re-enable buttons
-                            buttons.forEach(btn => btn.disabled = false);
-                            clickedButton.innerHTML = originalContent;
-                        }
-                    });
-                } else {
-                    alert('❌ Error: ' + (data.error || 'Gagal memulai pembayaran'));
+        try {
+            const res = await fetch('/topup/initiate', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ amount: amount })
+            });
+            const data = await res.json();
+            if (!data.snap_token) throw new Error(data.error || 'No token returned');
+
+            const orderId = data.order_id;
+
+            // Open snap popup
+            snap.pay(data.snap_token, {
+                onSuccess: function (result) {
+                    // Immediately confirm with Midtrans core API
+                    confirmAndFinalize(orderId, clickedButton, originalContent, buttons);
+                },
+                onPending: function (result) {
+                    // Start polling to check status (useful for QRIS)
+                    startPollingConfirm(orderId, clickedButton, originalContent, buttons);
+                },
+                onError: function (err) {
+                    console.error('Snap error', err);
+                    alert('❌ Pembayaran gagal. Silakan coba lagi.');
+                    buttons.forEach(btn => btn.disabled = false);
+                    clickedButton.innerHTML = originalContent;
+                },
+                onClose: function () {
+                    // user closed popup — re-enable
                     buttons.forEach(btn => btn.disabled = false);
                     clickedButton.innerHTML = originalContent;
                 }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('❌ Terjadi kesalahan saat memproses pembayaran');
-                buttons.forEach(btn => btn.disabled = false);
-                clickedButton.innerHTML = originalContent;
             });
+        } catch (err) {
+            console.error(err);
+            alert('❌ Gagal memulai pembayaran: ' + (err.message || 'Unknown'));
+            buttons.forEach(btn => btn.disabled = false);
+            if (clickedButton) clickedButton.innerHTML = originalContent;
+        }
+    }
+
+    // Polling helper: ping /topup/confirm every 5s up to 2 minutes
+    function startPollingConfirm(orderId, clickedButton, originalContent, buttons) {
+        let attempts = 0;
+        const maxAttempts = 24; // 24 * 5s = 120s
+        const interval = setInterval(async () => {
+            attempts++;
+            try {
+                const r = await fetch('/topup/confirm', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ order_id: orderId })
+                });
+                const json = await r.json();
+                if (json && json.local_status === 'success') {
+                    clearInterval(interval);
+                    alert('✅ Pembayaran terverifikasi! Coins ditambahkan.');
+                    window.location.reload();
+                    return;
+                }
+            } catch (e) {
+                console.error('Polling error', e);
+            }
+
+            if (attempts >= maxAttempts) {
+                clearInterval(interval);
+                alert('⚠️ Timeout verifikasi. Silakan cek riwayat topup.');
+                buttons.forEach(btn => btn.disabled = false);
+                if (clickedButton) clickedButton.innerHTML = originalContent;
+            }
+        }, 5000);
+    }
+
+    async function confirmAndFinalize(orderId, clickedButton, originalContent, buttons) {
+        try {
+            const r = await fetch('/topup/confirm', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ order_id: orderId })
+            });
+            const json = await r.json();
+            if (json && json.local_status === 'success') {
+                alert('✅ Pembayaran berhasil! Coins Anda telah ditambahkan.');
+                window.location.reload();
+            } else {
+                alert('⚠️ Pembayaran sukses di Midtrans tetapi belum diverifikasi. Silakan cek riwayat topup.');
+                window.location.reload();
+            }
+        } catch (e) {
+            console.error('Confirm error', e);
+            alert('❌ Gagal memverifikasi pembayaran. Cek server logs.');
+            buttons.forEach(btn => btn.disabled = false);
+            if (clickedButton) clickedButton.innerHTML = originalContent;
+        }
     }
 </script>
 {% endblock %}
