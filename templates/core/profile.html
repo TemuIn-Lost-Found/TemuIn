@@ -51,31 +51,9 @@
 
 
         <!-- Witdhrawal Section -->
-        <!-- Under Wallet Balance -->
-        <button id="withdrawBtn" class="btn" style="width:100%; margin-top:8px;">Tukar / Cairkan Coins</button>
-
-        <!-- Modal (simple inline) -->
-        <div id="withdrawModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); align-items:center; justify-content:center;">
-        <div style="background:var(--bg); padding:20px; border-radius:8px; width:360px; max-width:95%;">
-            <h3>Tukar / Cairkan Coins</h3>
-            <form id="withdrawForm">
-            <label>Jumlah Coins (min 100, kelipatan 100)</label>
-            <input type="number" name="coins" min="100" step="100" required style="width:100%; padding:8px; margin-bottom:8px;">
-            <label>Metode (bank/ewallet)</label>
-            <input name="method" required placeholder="bank" style="width:100%; padding:8px; margin-bottom:8px;">
-            <label>Nama Rekening</label>
-            <input name="account_name" required style="width:100%; padding:8px; margin-bottom:8px;">
-            <label>No. Rekening</label>
-            <input name="account_number" required style="width:100%; padding:8px; margin-bottom:12px;">
-            <label>Catatan (opsional)</label>
-            <input name="note" style="width:100%; padding:8px; margin-bottom:12px;">
-            <div style="display:flex; gap:8px;">
-                <button type="submit" class="btn" style="flex:1">Ajukan Penarikan</button>
-                <button type="button" id="withdrawCancel" class="btn" style="flex:1">Batal</button>
-            </div>
-            </form>
-        </div>
-        </div>
+        <a href="/withdraw" class="btn"
+            style="width:100%; margin-top:8px; display:block; text-align:center; text-decoration:none; background-color: var(--accent); color: white;">Tukar
+            / Cairkan Coins</a>
 
         <div>
             <h4 style="color: var(--text-header); border-bottom: 1px solid var(--bg-tertiary); padding-bottom: 8px;">
@@ -166,34 +144,50 @@
             {% endfor %}
         </div>
 
-        <!-- History Topup Section -->
+        <!-- Riwayat Transaksi -->
         <h3 style="color: var(--text-header); margin-top: 32px; margin-bottom: 12px;">Riwayat Transaksi</h3>
         <div style="background: var(--bg-secondary); padding: 12px; border-radius: 8px;">
-            {% if topup_transactions and topup_transactions|length > 0 %}
+            {% if transactions and transactions|length > 0 %}
             <table style="width:100%; border-collapse: collapse; font-size: 13px;">
                 <thead>
                     <tr style="text-align:left; color:var(--text-muted); font-size:12px;">
                         <th style="padding:8px 6px;">Tanggal</th>
+                        <th style="padding:8px 6px;">Tipe</th>
                         <th style="padding:8px 6px;">Coins</th>
-                        <th style="padding:8px 6px;">Harga (Rp)</th>
+                        <th style="padding:8px 6px;">Nominal (Rp)</th>
                         <th style="padding:8px 6px;">Metode</th>
                         <th style="padding:8px 6px;">Status</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for t in topup_transactions %}
+                    {% for t in transactions %}
                     <tr style="border-top:1px solid var(--bg-tertiary);">
-                        <td style="padding:8px 6px;">{{ FormatTime(t.CreatedAt, "02 Jan 2006 15:04") }}</td>
-                        <td style="padding:8px 6px;">{{ t.Amount }}</td>
-                        <td style="padding:8px 6px;">{{ t.Price }}</td>
-                        <td style="padding:8px 6px;">{% if t.PaymentType %}{{ t.PaymentType|upper }}{% else %}-{% endif %}</td>
+                        <td style="padding:8px 6px;">{{ t.Date }}</td>
+                        <td style="padding:8px 6px;">
+                            {% if t.Type == "TopUp" %}
+                            <span style="color: var(--green); font-weight: 500;">Top Up</span>
+                            {% else %}
+                            <span style="color: var(--amber); font-weight: 500;">Withdraw</span>
+                            {% endif %}
+                        </td>
+                        <td style="padding:8px 6px; font-weight: bold; color: var(--gold);">
+                            {% if t.Type == "Withdraw" %}-{% else %}+{% endif %}{{ t.Amount }}
+                        </td>
+                        <td style="padding:8px 6px;">
+                            {% if t.Price > 0 %}Rp {{ t.Price }}{% else %}-{% endif %}
+                        </td>
+                        <td style="padding:8px 6px;">
+                            {% if t.Method %}{{ t.Method|upper }}{% else %}-{% endif %}
+                        </td>
                         <td style="padding:8px 6px;">
                             {% if t.Status == "success" %}
-                                <span style="color:var(--green); font-weight:600;">Sukses</span>
+                            <span style="color:var(--green); font-weight:600;">Sukses</span>
                             {% elif t.Status == "pending" %}
-                                <span style="color:#faa61a; font-weight:600;">Pending</span>
+                            <span style="color:#faa61a; font-weight:600;">Pending</span>
+                            {% elif t.Status == "failed" or t.Status == "rejected" %}
+                            <span style="color:#dc3545; font-weight:600;">Gagal</span>
                             {% else %}
-                                <span style="color:#dc3545; font-weight:600;">Gagal</span>
+                            <span style="color:var(--text-muted);">{{ t.Status|title }}</span>
                             {% endif %}
                         </td>
                     </tr>
@@ -202,7 +196,7 @@
             </table>
             {% else %}
             <div style="color:var(--text-muted); padding: 24px; text-align:center;">
-                Belum ada riwayat topup.
+                Belum ada riwayat transaksi.
             </div>
             {% endif %}
         </div>
@@ -228,7 +222,7 @@
         try {
             const res = await fetch('/topup/initiate', {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json'},
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ amount: amount })
             });
             const data = await res.json();
@@ -275,7 +269,7 @@
             try {
                 const r = await fetch('/topup/confirm', {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ order_id: orderId })
                 });
                 const json = await r.json();
@@ -302,7 +296,7 @@
         try {
             const r = await fetch('/topup/confirm', {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json'},
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ order_id: orderId })
             });
             const json = await r.json();
@@ -321,59 +315,6 @@
         }
     }
 
-    document.getElementById('withdrawBtn').addEventListener('click', () => {
-    document.getElementById('withdrawModal').style.display = 'flex';
-    });
-    document.getElementById('withdrawCancel').addEventListener('click', () => {
-    document.getElementById('withdrawModal').style.display = 'none';
-    });
 
-    document.getElementById('withdrawForm').addEventListener('submit', async (ev) => {
-    ev.preventDefault();
-    const form = ev.target;
-    const coins = parseInt(form.coins.value, 10);
-    const method = form.method.value.trim();
-    const account_name = form.account_name.value.trim();
-    const account_number = form.account_number.value.trim();
-    const note = form.note.value.trim();
-
-    if (!coins || coins < 100 || coins % 100 !== 0) {
-        alert('Jumlah coins minimal 100 dan kelipatan 100.');
-        return;
-    }
-
-    // show loading
-    const submitBtn = form.querySelector('button[type="submit"]');
-    const original = submitBtn.innerText;
-    submitBtn.disabled = true;
-    submitBtn.innerText = 'Mengirim...';
-
-    try {
-        const res = await fetch('/withdraw', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-            coins: coins,
-            method: method,
-            account_name: account_name,
-            account_number: account_number,
-            note: note
-        })
-        });
-        const json = await res.json();
-        if (!res.ok) {
-        alert('Gagal: ' + (json.error || JSON.stringify(json)));
-        } else {
-        alert('✅ Permintaan penarikan berhasil diajukan. Silakan tunggu verifikasi admin.');
-        window.location.reload();
-        }
-    } catch (e) {
-        console.error(e);
-        alert('Terjadi kesalahan saat mengajukan penarikan.');
-    } finally {
-        submitBtn.disabled = false;
-        submitBtn.innerText = original;
-    }
-    });
 </script>
 {% endblock %}
