@@ -180,3 +180,23 @@ type TopUpTransaction struct {
 func (TopUpTransaction) TableName() string {
 	return "core_topuptransaction"
 }
+
+type WithdrawalRequest struct {
+	ID            int64      `gorm:"primaryKey;autoIncrement"`
+	UserID        int64      `gorm:"column:user_id;not null"`
+	Amount        int        `gorm:"not null"` // saldo IDR
+	Coins         int        `gorm:"not null"` // jumlah coin yang direseve/dikonversi
+	Method        string     `gorm:"size:30;not null"`
+	AccountName   string     `gorm:"size:100;not null"`
+	AccountNumber string     `gorm:"size:50;not null"`
+	Status        string     `gorm:"size:20;default:'pending'"`
+	Note          string     `gorm:"type:text"`
+	ProcessedAt   *time.Time `gorm:"column:processed_at"`
+	CreatedAt     time.Time  `gorm:"autoCreateTime"`
+	UpdatedAt     time.Time  `gorm:"autoUpdateTime"`
+	User          User       `gorm:"foreignKey:UserID"`
+}
+
+func (WithdrawalRequest) TableName() string {
+	return "core_withdrawalrequest"
+}
