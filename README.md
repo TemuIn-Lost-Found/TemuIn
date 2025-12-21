@@ -1,75 +1,28 @@
 # TemuIn - Lost & Found Application
 
-Aplikasi Lost & Found berbasis web yang dibangun menggunakan **Go (Golang)**, **MySQL**, dan **Pongo2 Template Engine**.
+Aplikasi Lost & Found yang dibangun menggunakan Go (Golang) dan MySQL.
 
-## 📋 Fitur Utama
+## Prasyarat (Prerequisites)
 
-- 🔐 Autentikasi (Login/Register) dengan validasi form
-- 🔑 Google OAuth 2.0 Sign-In
-- 📝 Lapor barang hilang dengan upload gambar
-- 🔍 Pencarian dan filter barang
-- 💬 Sistem komentar pada item
-- 🏆 Sistem bounty dengan koin
-- ⭐ Highlight item (24 jam)
-- 👁️ Password visibility toggle
-- ✅ Form validation dengan error messages
+Sebelum menjalankan aplikasi, pastikan teman Anda sudah menginstal:
 
-## 🔧 Prasyarat (Prerequisites)
+1.  **Go (Golang)**: Versi 1.18 ke atas.
+2.  **MySQL**: Database server.
 
-Pastikan sudah menginstal:
+## Cara Install & Menjalankan (Project Setup)
 
-1. **Go (Golang)**: Versi 1.18 atau lebih baru
-   - Download: https://go.dev/dl/
-   - Verifikasi: `go version`
+Berikut adalah langkah-langkah untuk teman Anda yang baru selesai melakukan clone:
 
-2. **MySQL**: Database server versi 5.7+ atau MariaDB
-   - Windows: XAMPP, Laragon, atau standalone MySQL
-   - Verifikasi: `mysql --version`
-
-3. **Git**: Untuk clone repository
-   - Download: https://git-scm.com/
-   - Verifikasi: `git --version`
-
-## 🚀 Setup Project untuk Kontributor
-
-### 1. Clone Repository
-
-```bash
-git clone <repository-url>
-cd TemuIn
-```
-
-### 2. Checkout ke Branch yang Sesuai
-
-```bash
-# Jika ingin bekerja pada fitur login/register
-git checkout feat/update-login
-
-# Atau buat branch baru untuk fitur Anda
-git checkout -b feat/nama-fitur-anda
-```
-
-### 3. Konfigurasi Database
-
-**a. Buat Database**
-
-Buka MySQL client (phpMyAdmin, MySQL Workbench, atau command line):
+### 1. Konfigurasi Database
+Pastikan layanan MySQL sudah berjalan. Buat database kosong bernama `temuin_db` (atau sesuai konfigurasi di `config/database.go`).
 
 ```sql
-CREATE DATABASE temuin_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE temuin_db;
 ```
 
-**b. Sesuaikan Koneksi Database** (jika perlu)
+*Catatan: Konfigurasi default di `config/database.go` menggunakan user `root` tanpa password. Jika konfigurasi MySQL teman Anda berbeda, minta mereka menyesuaikan file `config/database.go` baris 11.*
 
-Edit file `config/database.go` baris 15:
-
-```go
-dsn := "root:@tcp(127.0.0.1:3306)/temuin_db?charset=utf8mb4&parseTime=True&loc=Local"
-```
-
-Sesuaikan `root:` dengan kredensial MySQL Anda (`username:password`).
-
-### 4. Konfigurasi Environment Variables
+### 2. Konfigurasi Environment Variables
 
 **Buat file `.env`** di root project:
 
@@ -89,228 +42,62 @@ GOOGLE_REDIRECT_URL=http://localhost:8080/auth/google/callback
 
 > **Catatan**: File `.env` sudah di-gitignore untuk keamanan. Jangan commit file ini!
 
-**Cara mendapatkan Google OAuth credentials:**
-1. Buka [Google Cloud Console](https://console.cloud.google.com/)
-2. Buat project baru atau pilih existing project
-3. Enable Google+ API
-4. Buat OAuth 2.0 credentials
-5. Set redirect URI: `http://localhost:8080/auth/google/callback`
-6. Copy Client ID dan Client Secret ke `.env`
 
-### 5. Install Dependencies
+### 3. Install Dependencies
+Jalankan perintah ini di terminal (di dalam folder project) untuk mengunduh semua library yang dibutuhkan:
 
 ```bash
 go mod tidy
 ```
 
-Perintah ini akan download semua library yang dibutuhkan seperti:
-- Gin (web framework)
-- GORM (ORM)
-- Pongo2 (template engine)
-- OAuth2 libraries
-- dll.
+### 4. Migrasi & Seeding Data (Wajib)
+Project ini memiliki script khusus untuk membuat tabel dan mengisi data awal (dummy data). **Langkah ini wajib dijalankan pertama kali.**
 
-### 6. Database Migration & Seeding
-
-**⚠️ WAJIB** - Jalankan script ini untuk setup tabel dan data awal:
+Jalankan perintah:
 
 ```bash
 go run cmd/reset_db/main.go
 ```
 
-**Output yang diharapkan:**
-```
-Database reset complete and seeded!
-```
+Jika berhasil, akan muncul pesan "Database reset complete and seeded!". Ini akan membuat user default:
+- **Admin**: User `admin` / Pass `admin`
+- **Warga**: User `warga_lokal` / Pass `password`
 
-**User default yang dibuat:**
-- **Admin**: username `admin` / password `admin`
-- **Warga**: username `warga_lokal` / password `password`
-
-> **Note**: Script ini akan **DROP** semua tabel existing dan buat ulang dengan data dummy. Hati-hati saat menjalankan!
-
-### 7. Jalankan Server
+### 5. Menjalankan Aplikasi
+Setelah database siap, jalankan server utama:
 
 ```bash
 go run main.go
 ```
 
-**Output yang diharapkan:**
-```
-Database connection established
-[GIN-debug] Listening and serving HTTP on :8080
-```
+Akses aplikasi di browser melalui: `http://localhost:8080`
 
-Akses aplikasi di browser: **http://localhost:8080**
+## Pertanyaan Umum
 
-## 🎯 Development Workflow
+**Q: Apakah perlu generate key?**
+A: Untuk saat ini **TIDAK**. Secret key untuk session masih di-hardcode di `main.go`. Namun untuk production nanti, disarankan menggunakan environment variable.
 
-### Branch Naming Convention
+**Q: Bagaimana kalau mau reset data lagi?**
+A: Cukup jalankan ulang perintah `go run cmd/reset_db/main.go`. Hati-hati, semua data akan dihapus dan diganti data dummy baru.
+=======
+# TemuIn
 
-- `feat/nama-fitur` - Untuk fitur baru (contoh: `feat/login`, `feat/comment-system`)
-- `fix/nama-bug` - Untuk bug fix (contoh: `fix/login-error`, `fix/image-upload`)
-- `docs/nama-doc` - Untuk dokumentasi
+**File Rules**
+- Segala sesuatu yang berhubungan dengan gambar simpan di dalam folder `public/assets/images/`
+- Folder `layouts` berfungsi untuk menyimpan file kerangka (layout utama) yang digunakan sebagai template dasar.
+- Folder `review/app` berfungsi untuk menyimpan halaman inti aplikasi (fitur utama yang hanya bisa diakses setelah login atau otentikasi).
+- Folder `review/components` berfungsi untuk menyimpan komponen UI pendukung yang dapat digunakan ulang di berbagai halaman.
+- Folder `review/pages` berfungsi untuk menyimpan halaman umum atau public-facing yang bisa diakses tanpa login.
 
-### Commit Guidelines
+**Catatan Penamaan Branch**
+- Silahkan membuat `branch` feat / fix sebelum mengerjakan fitur
+- feat/... untuk push sebuah ftur
+- fix/... untuk fix bug
+- contoh : `feat/nama-fitur` = `feat/login`
 
-Gunakan commit message yang jelas dan deskriptif:
-
-```bash
-# Good commits
-git commit -m "feat: add Google OAuth login integration"
-git commit -m "fix: resolve password validation error"
-git commit -m "refactor: extract validation logic to utils"
-
-# Bad commits  
-git commit -m "update"
-git commit -m "fix bug"
-git commit -m "changes"
-```
-
-### Pull Request Workflow
-
-1. **Pull latest dari main**
-   ```bash
-   git checkout main
-   git pull origin main
-   ```
-
-2. **Merge main ke branch Anda**
-   ```bash
-   git checkout feat/your-feature
-   git merge main
-   ```
-
-3. **Resolve conflicts** jika ada
-
-4. **Test aplikasi** untuk pastikan tidak ada yang rusak
-
-5. **Commit dan push**
-   ```bash
-   git add .
-   git commit -m "feat: your clear commit message"
-   git push origin feat/your-feature
-   ```
-
-6. **Buat Pull Request** ke branch `main` di GitHub
-
-## 📁 Struktur Project
-
-```
-TemuIn/
-├── cmd/                    # Command-line utilities
-│   └── reset_db/          # Database reset & seeding
-├── config/                 # Configuration files
-│   ├── database.go        # Database connection
-│   └── oauth.go           # Google OAuth config
-├── handlers/               # HTTP request handlers
-│   ├── auth.go            # Authentication handlers
-│   ├── browse.go          # Category/subcategory browsing
-│   ├── home.go            # Home page handler
-│   └── items.go           # Item CRUD handlers
-├── middleware/             # Gin middleware
-│   └── auth.go            # Auth middleware
-├── models/                 # Database models (GORM)
-│   └── models.go          # User, LostItem, Category, etc.
-├── routes/                 # Route definitions
-│   └── routes.go          # All app routes
-├── static/                 # Static assets (CSS, JS, images)
-│   ├── css/
-│   ├── images/
-│   └── js/
-├── templates/              # Pongo2 HTML templates
-│   ├── base.html          # Base layout
-│   ├── core/              # Core pages (login, register, home)
-│   └── partials/          # Reusable components (sidebar, navbar)
-├── utils/                  # Utility functions
-│   ├── context.go         # Global template context
-│   ├── filters.go         # Pongo2 custom filters
-│   └── validation.go      # Form validation helpers
-├── .env                    # Environment variables (gitignored)
-├── .env.example           # Environment template
-├── .gitignore             # Git ignore rules
-├── go.mod                 # Go module dependencies
-├── go.sum                 # Dependency checksums
-├── main.go                # Application entry point
-└── README.md              # This file
-```
-
-## 🔐 Security Notes
-
-- ✅ Passwords di-hash menggunakan bcrypt
-- ✅ Google OAuth credentials disimpan di `.env` (tidak di-commit)
-- ✅ Session management dengan secure cookies
-- ✅ Form validation di backend
-- ⚠️ **Development only**: Session secret masih hardcoded di `main.go` (line 26)
-  - Untuk production: gunakan environment variable
-
-## 🐛 Troubleshooting
-
-### Error: "Database connection failed"
-
-**Solusi:**
-1. Pastikan MySQL service running
-2. Check kredensial di `config/database.go`
-3. Pastikan database `temuin_db` sudah dibuat
-
-### Error: "Template not found"
-
-**Solusi:**
-- Pastikan running `go run main.go` dari **root folder project**
-- Path template harus relative dari root
-
-### Error: "OAuth error" atau "Invalid client"
-
-**Solusi:**
-1. Pastikan `.env` file ada dan terisi
-2. Verify Google OAuth credentials benar
-3. Check redirect URI di Google Console sama dengan `GOOGLE_REDIRECT_URL` di `.env`
-4. Restart server setelah update `.env`
-
-### Error: "Port 8080 already in use"
-
-**Solusi:**
-```bash
-# Windows
-netstat -ano | findstr :8080
-taskkill /PID <process-id> /F
-
-# Linux/Mac
-lsof -i :8080
-kill -9 <process-id>
-```
-
-### Migration Error: "Table already exists"
-
-**Solusi:**
-- Drop database manual dan buat ulang:
-  ```sql
-  DROP DATABASE temuin_db;
-  CREATE DATABASE temuin_db;
-  ```
-- Jalankan ulang: `go run cmd/reset_db/main.go`
-
-## 📚 Resources & Documentation
-
-- [Go Documentation](https://go.dev/doc/)
-- [Gin Framework](https://gin-gonic.com/docs/)
-- [GORM](https://gorm.io/docs/)
-- [Pongo2 Template](https://github.com/flosch/pongo2)
-- [Google OAuth 2.0](https://developers.google.com/identity/protocols/oauth2)
-
-## 👥 Contributors
-
-Contributions are welcome! Please follow the development workflow above.
-
-## ⚠️ Important Rules
-
-1. ❌ **Jangan hapus** file atau folder apapun tanpa diskusi dengan tim
-2. ❌ **Jangan push** langsung ke branch `main`
-3. ✅ **Selalu pull** dari `main` sebelum push ke branch Anda
-4. ✅ **Test** perubahan Anda sebelum commit
-5. ✅ **Write clear** commit messages
-6. ✅ **Resolve conflicts** sebelum push
-
-## 📝 License
-
-This project is for educational purposes.
+# Warning
+- Jangan pernah menghapus folder atau file apapun yg sudah ada atau bawaan dari laravel
+- Jika ingin melakukan `git push` dan pull request pada project ini silahkan lakukan `git pull` ke branch `main` terlebih dahulu di lokal komputer
+- Silahkan git push ke branch anda sendiri jangan langsung ke branch `main`
+- Jika terjadi konflik silahkan perbaiki terlebih dahulu sebelum `push` ke branch anda
+- Jika sudah selesai semua silahkan berikan `commit` yang jelas dan `pull request` ke branch `main`
