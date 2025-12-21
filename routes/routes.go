@@ -72,6 +72,7 @@ func RegisterRoutes(r *gin.Engine) {
 		authorized.POST("/api/notifications/read-all", handlers.MarkAllAsRead)
 
 		// witdhrawal
+		authorized.GET("/withdraw", handlers.WithdrawalPage)
 		authorized.POST("/withdraw", handlers.RequestWithdrawal)
 		authorized.GET("/withdrawals", handlers.GetWithdrawalHistory)
 	}
