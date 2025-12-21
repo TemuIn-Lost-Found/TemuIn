@@ -1,6 +1,7 @@
 package config
 
 import (
+	"log"
 	"os"
 
 	"github.com/midtrans/midtrans-go"
@@ -14,23 +15,23 @@ var (
 	MidtransClient string
 )
 
-// InitMidtrans initializes the Midtrans Snap client
 func InitMidtrans() {
 	serverKey := os.Getenv("MIDTRANS_SERVER_KEY")
 	clientKey := os.Getenv("MIDTRANS_CLIENT_KEY")
-	env := os.Getenv("MIDTRANS_ENVIRONMENT")
+	env := os.Getenv("MIDTRANS_ENV")
 
-	// Store keys for later use
+	if serverKey == "" || clientKey == "" {
+		log.Println("Warning: MIDTRANS keys not set. Midtrans integration will not work properly.")
+	}
+
 	MidtransServer = serverKey
 	MidtransClient = clientKey
 
-	// Set environment
 	if env == "production" {
 		MidtransEnv = midtrans.Production
 	} else {
 		MidtransEnv = midtrans.Sandbox
 	}
 
-	// Initialize Snap client
 	SnapClient.New(serverKey, MidtransEnv)
 }
