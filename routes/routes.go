@@ -70,6 +70,11 @@ func RegisterRoutes(r *gin.Engine) {
 		authorized.GET("/api/notifications/count", handlers.GetUnreadCount)
 		authorized.POST("/api/notifications/:id/read", handlers.MarkAsRead)
 		authorized.POST("/api/notifications/read-all", handlers.MarkAllAsRead)
+
+		// witdhrawal
+		authorized.GET("/withdraw", handlers.WithdrawalPage)
+		authorized.POST("/withdraw", handlers.RequestWithdrawal)
+		authorized.GET("/withdrawals", handlers.GetWithdrawalHistory)
 	}
 
 	// Admin Routes
@@ -85,5 +90,10 @@ func RegisterRoutes(r *gin.Engine) {
 		admin.GET("/reports", handlers.AdminReportList)
 		admin.POST("/report/:id/resolve", handlers.ResolveReport)
 		admin.POST("/report/:id/warn", handlers.WarnUser)
+
+		// Withdrawal management
+		admin.GET("/withdrawals", handlers.AdminWithdrawalsPage)
+		admin.POST("/withdrawals/:id/approve", handlers.AdminApproveWithdrawal)
+		admin.POST("/withdrawals/:id/reject", handlers.AdminRejectWithdrawal)
 	}
 }

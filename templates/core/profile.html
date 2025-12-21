@@ -49,6 +49,12 @@
             </div>
         </div>
 
+
+        <!-- Witdhrawal Section -->
+        <a href="/withdraw" class="btn"
+            style="width:100%; margin-top:8px; display:block; text-align:center; text-decoration:none; background-color: var(--accent); color: white;">Tukar
+            / Cairkan Coins</a>
+
         <div>
             <h4 style="color: var(--text-header); border-bottom: 1px solid var(--bg-tertiary); padding-bottom: 8px;">
                 Account Stats</h4>
@@ -138,34 +144,50 @@
             {% endfor %}
         </div>
 
-        <!-- History Topup Section -->
-        <h3 style="color: var(--text-header); margin-top: 32px; margin-bottom: 12px;">Riwayat Top-up</h3>
+        <!-- Riwayat Transaksi -->
+        <h3 style="color: var(--text-header); margin-top: 32px; margin-bottom: 12px;">Riwayat Transaksi</h3>
         <div style="background: var(--bg-secondary); padding: 12px; border-radius: 8px;">
-            {% if topup_transactions and topup_transactions|length > 0 %}
+            {% if transactions and transactions|length > 0 %}
             <table style="width:100%; border-collapse: collapse; font-size: 13px;">
                 <thead>
                     <tr style="text-align:left; color:var(--text-muted); font-size:12px;">
                         <th style="padding:8px 6px;">Tanggal</th>
+                        <th style="padding:8px 6px;">Tipe</th>
                         <th style="padding:8px 6px;">Coins</th>
-                        <th style="padding:8px 6px;">Harga (Rp)</th>
+                        <th style="padding:8px 6px;">Nominal (Rp)</th>
                         <th style="padding:8px 6px;">Metode</th>
                         <th style="padding:8px 6px;">Status</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for t in topup_transactions %}
+                    {% for t in transactions %}
                     <tr style="border-top:1px solid var(--bg-tertiary);">
-                        <td style="padding:8px 6px;">{{ FormatTime(t.CreatedAt, "02 Jan 2006 15:04") }}</td>
-                        <td style="padding:8px 6px;">{{ t.Amount }}</td>
-                        <td style="padding:8px 6px;">{{ t.Price }}</td>
-                        <td style="padding:8px 6px;">{% if t.PaymentType %}{{ t.PaymentType|upper }}{% else %}-{% endif %}</td>
+                        <td style="padding:8px 6px;">{{ t.Date }}</td>
+                        <td style="padding:8px 6px;">
+                            {% if t.Type == "TopUp" %}
+                            <span style="color: var(--green); font-weight: 500;">Top Up</span>
+                            {% else %}
+                            <span style="color: var(--amber); font-weight: 500;">Withdraw</span>
+                            {% endif %}
+                        </td>
+                        <td style="padding:8px 6px; font-weight: bold; color: var(--gold);">
+                            {% if t.Type == "Withdraw" %}-{% else %}+{% endif %}{{ t.Amount }}
+                        </td>
+                        <td style="padding:8px 6px;">
+                            {% if t.Price > 0 %}Rp {{ t.Price }}{% else %}-{% endif %}
+                        </td>
+                        <td style="padding:8px 6px;">
+                            {% if t.Method %}{{ t.Method|upper }}{% else %}-{% endif %}
+                        </td>
                         <td style="padding:8px 6px;">
                             {% if t.Status == "success" %}
-                                <span style="color:var(--green); font-weight:600;">Sukses</span>
+                            <span style="color:var(--green); font-weight:600;">Sukses</span>
                             {% elif t.Status == "pending" %}
-                                <span style="color:#faa61a; font-weight:600;">Pending</span>
+                            <span style="color:#faa61a; font-weight:600;">Pending</span>
+                            {% elif t.Status == "failed" or t.Status == "rejected" %}
+                            <span style="color:#dc3545; font-weight:600;">Gagal</span>
                             {% else %}
-                                <span style="color:#dc3545; font-weight:600;">Gagal</span>
+                            <span style="color:var(--text-muted);">{{ t.Status|title }}</span>
                             {% endif %}
                         </td>
                     </tr>
@@ -174,7 +196,7 @@
             </table>
             {% else %}
             <div style="color:var(--text-muted); padding: 24px; text-align:center;">
-                Belum ada riwayat topup.
+                Belum ada riwayat transaksi.
             </div>
             {% endif %}
         </div>
@@ -200,7 +222,7 @@
         try {
             const res = await fetch('/topup/initiate', {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json'},
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ amount: amount })
             });
             const data = await res.json();
@@ -247,7 +269,7 @@
             try {
                 const r = await fetch('/topup/confirm', {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ order_id: orderId })
                 });
                 const json = await r.json();
@@ -274,7 +296,7 @@
         try {
             const r = await fetch('/topup/confirm', {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json'},
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ order_id: orderId })
             });
             const json = await r.json();
@@ -292,5 +314,7 @@
             if (clickedButton) clickedButton.innerHTML = originalContent;
         }
     }
+
+
 </script>
 {% endblock %}

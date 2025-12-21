@@ -24,59 +24,52 @@
         <header class="top-bar">
             <h3>{% block header_title %}Beranda{% endblock %}</h3>
 
-            <!-- Notification Icon (Only for logged in users) -->
-            {% if user %}
-            <div class="notification-container" style="position: relative; margin-right: 16px;">
-                <button id="notificationBtn" class="notification-btn"
-                    style="background: none; border: none; cursor: pointer; position: relative; padding: 8px;">
-                    <span class="material-icons" style="color: var(--text-muted); font-size: 24px;">notifications</span>
-                    <span id="notificationBadge" class="notification-badge"
-                        style="display: none; position: absolute; top: 4px; right: 4px; background: #dc3545; color: white; border-radius: 50%; min-width: 18px; height: 18px; font-size: 11px; font-weight: bold; display: flex; align-items: center; justify-content: center; padding: 2px;">0</span>
-                </button>
+            <div class="topbar-right">
+                {% if user %}
+                <!-- Notification -->
+                <div class="notification-container">
+                    <button id="notificationBtn" class="notification-btn">
+                        <span class="material-icons">notifications</span>
+                        <span id="notificationBadge" class="notification-badge">0</span>
+                    </button>
 
-                <!-- Notification Dropdown -->
-                <div id="notificationDropdown" class="notification-dropdown"
-                    style="display: none; position: absolute; top: 100%; right: 0; width: 360px; max-height: 500px; background: var(--bg-secondary); border: 1px solid var(--bg-tertiary); border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1000; overflow: hidden;">
+                    <div id="notificationDropdown" class="notification-dropdown"
+                            style="display: none; position: absolute; top: 100%; right: 0; width: 360px; max-height: 500px; background: var(--bg-secondary); border: 1px solid var(--bg-tertiary); border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1000; overflow: hidden;">
 
-                    <!-- Dropdown Header -->
-                    <div
-                        style="padding: 12px 16px; border-bottom: 1px solid var(--bg-tertiary); display: flex; justify-content: space-between; align-items: center;">
-                        <h4 style="margin: 0; color: var(--text-header); font-size: 14px; font-weight: 600;">Notifikasi
-                        </h4>
-                        <button id="markAllReadBtn" class="btn"
-                            style="font-size: 11px; padding: 4px 8px; background: var(--bg-tertiary);">Tandai Semua
-                            Dibaca</button>
-                    </div>
+                            <!-- Dropdown Header -->
+                            <div style="padding: 12px 16px; border-bottom: 1px solid var(--bg-tertiary); display: flex; justify-content: space-between; align-items: center;">
+                                <h4 style="margin: 0; color: var(--text-header); font-size: 14px; font-weight: 600;">Notifikasi
+                                </h4>
+                                <button id="markAllReadBtn" class="btn"
+                                    style="font-size: 11px; padding: 8px 8px; background: var(--accent);">Tandai Semua Dibaca</button>
+                            </div>
 
-                    <!-- Notifications List -->
-                    <div id="notificationsList" style="max-height: 400px; overflow-y: auto;">
-                        <div style="padding: 40px 20px; text-align: center; color: var(--text-muted);">
-                            <span class="material-icons"
-                                style="font-size: 48px; opacity: 0.5;">notifications_none</span>
-                            <p style="margin: 8px 0 0 0; font-size: 13px;">Memuat notifikasi...</p>
+                            <!-- Notifications List -->
+                            <div id="notificationsList" style="max-height: 400px; overflow-y: auto;">
+                                <div style="padding: 40px 20px; text-align: center; color: var(--text-muted);">
+                                    <span class="material-icons"style="font-size: 48px; opacity: 0.5;">notifications_none</span>
+                                    <p style="margin: 8px 0 0 0; font-size: 13px;">Memuat notifikasi...</p>
+                                </div>
+                            </div>
+
+                            <!-- View All Link -->
+                            <div style="padding: 12px 16px; border-top: 1px solid var(--bg-tertiary); text-align: center;">
+                                <a href="/notifications"
+                                    style="color: var(--accent); text-decoration: none; font-size: 13px; font-weight: 500;">Lihat
+                                    Semua Notifikasi</a>
+                            </div>
                         </div>
-                    </div>
-
-                    <!-- View All Link -->
-                    <div style="padding: 12px 16px; border-top: 1px solid var(--bg-tertiary); text-align: center;">
-                        <a href="/notifications"
-                            style="color: var(--accent); text-decoration: none; font-size: 13px; font-weight: 500;">Lihat
-                            Semua Notifikasi</a>
-                    </div>
                 </div>
-            </div>
-            {% endif %}
+                {% endif %}
 
-            <!-- Setup simple search form -->
-            <form action="/" method="GET"
-                style="display: flex; align-items: center; background: var(--bg-tertiary); padding: 4px 8px; border-radius: 4px;">
-                <input type="text" name="q" placeholder="Cari..."
-                    style="background: transparent; border: none; color: white; outline: none;">
-                <button type="submit"
-                    style="background: none; border: none; color: var(--text-muted); cursor: pointer;">
-                    <span class="material-icons" style="font-size: 18px;">search</span>
-                </button>
-            </form>
+                <!-- Search -->
+                <form action="/" method="GET" class="search-box">
+                    <input type="text" name="q" placeholder="Cari...">
+                    <button type="submit">
+                        <span class="material-icons">search</span>
+                    </button>
+                </form>
+            </div>
         </header>
 
         <div class="content-feed">

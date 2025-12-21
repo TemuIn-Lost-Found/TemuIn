@@ -31,6 +31,7 @@ func main() {
 	dropTable(db, &models.Category{})
 	dropTable(db, &models.User{})
 	dropTable(db, &models.TopUpTransaction{})
+	dropTable(db, &models.WithdrawalRequest{})
 
 	log.Println("✅ All tables dropped.")
 
@@ -47,6 +48,7 @@ func main() {
 		&models.ItemReport{},
 		&models.Notification{},
 		&models.TopUpTransaction{},
+		&models.WithdrawalRequest{},
 	)
 	if err != nil {
 		log.Fatalf("❌ Migration failed: %v", err)
