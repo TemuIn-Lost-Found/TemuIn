@@ -192,7 +192,7 @@ func Profile(c *gin.Context) {
 	config.DB.Where("user_id = ?", user.ID).Find(&items)
 	config.DB.Where("finder_id = ?", user.ID).Find(&foundItems)
 
-	// --- NEW: ambil riwayat topup (terbaru 20)
+	// --- NEW: ambil riwayat topup & withdrawal
 	var topups []models.TopUpTransaction
 	config.DB.
 		Where("user_id = ?", user.ID).
@@ -200,11 +200,68 @@ func Profile(c *gin.Context) {
 		Limit(20).
 		Find(&topups)
 
+	var withdrawals []models.WithdrawalRequest
+	config.DB.
+		Where("user_id = ?", user.ID).
+		Order("created_at DESC").
+		Limit(20).
+		Find(&withdrawals)
+
+	// Combine and sort
+	type TransactionHistoryItem struct {
+		Type     string // "TopUp" or "Withdraw"
+		Amount   int    // Coins
+		Price    int    // RP (for topup) or Amount (for withdraw)
+		Method   string
+		Status   string
+		Date     string
+		Original interface{}
+	}
+
+	var allTransactions []TransactionHistoryItem
+
+	for _, t := range topups {
+		allTransactions = append(allTransactions, TransactionHistoryItem{
+			Type:     "TopUp",
+			Amount:   t.Amount,
+			Price:    t.Price,
+			Method:   t.PaymentType,
+			Status:   t.Status,
+			Date:     t.CreatedAt.Format("2006-01-02 15:04:05"),
+			Original: t,
+		})
+	}
+
+	for _, w := range withdrawals {
+		allTransactions = append(allTransactions, TransactionHistoryItem{
+			Type:     "Withdraw",
+			Amount:   w.Coins,
+			Price:    w.Amount, // IDR value
+			Method:   w.Method,
+			Status:   w.Status,
+			Date:     w.CreatedAt.Format("2006-01-02 15:04:05"),
+			Original: w,
+		})
+	}
+
+	// Sort desc by Date string (simple ISO format sort works)
+	// Or simplistic bubble sort / slice sort since list is small (max 40)
+	// Better: just sort by string comparison since format is YYYY-MM-DD HH:MM:SS
+	// We'll use a simple manual sort or rely on client side? No, server side best.
+	// Since imports might be tricky for "sort", let's do a simple bubble sort or insertion sort for this small list.
+	for i := 0; i < len(allTransactions); i++ {
+		for j := i + 1; j < len(allTransactions); j++ {
+			if allTransactions[j].Date > allTransactions[i].Date {
+				allTransactions[i], allTransactions[j] = allTransactions[j], allTransactions[i]
+			}
+		}
+	}
+
 	// set ctx (sesuaikan nama kunci dengan template)
 	ctx["user"] = user
 	ctx["items"] = items
 	ctx["found_items"] = foundItems
-	ctx["topup_transactions"] = topups
+	ctx["transactions"] = allTransactions
 
 	tpl := pongo2.Must(pongo2.FromFile("templates/core/profile.html"))
 	out, _ := tpl.Execute(ctx)
