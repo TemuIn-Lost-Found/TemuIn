@@ -80,6 +80,16 @@ func (LostItem) TableName() string {
 	return "core_lostitem"
 }
 
+type LostItemImage struct {
+	ItemID      int64  `gorm:"primaryKey"`
+	ImageData   []byte `gorm:"type:longblob"`
+	ContentType string `gorm:"size:50"`
+}
+
+func (LostItemImage) TableName() string {
+	return "core_lostitem_image"
+}
+
 type Comment struct {
 	ID        int64     `gorm:"primaryKey;autoIncrement"`
 	Content   string    `gorm:"type:longtext;not null"`

@@ -14,6 +14,7 @@ func RegisterRoutes(r *gin.Engine) {
 	{
 		public.GET("/", handlers.LandingPage)
 		public.GET("/dashboard", handlers.Home)
+		public.GET("/images/:pk", handlers.GetItemImage) // New Image Route
 		public.GET("/login", handlers.LoginPage)
 		public.POST("/login", handlers.Login)
 		public.GET("/register", handlers.RegisterPage)

@@ -21,12 +21,54 @@ func AdminDeleteItem(c *gin.Context) {
 	}
 
 	// Admin can delete any post - no ownership check needed
-	if err := config.DB.Delete(&item).Error; err != nil {
+	// Use transaction to ensure full cleanup (Manual Cascade)
+	tx := config.DB.Begin()
+
+	// 1. Delete Image
+	if err := tx.Where("item_id = ?", item.ID).Delete(&models.LostItemImage{}).Error; err != nil {
+		tx.Rollback()
+		c.String(http.StatusInternalServerError, "Failed to delete item image")
+		return
+	}
+
+	// 2. Delete Comments
+	if err := tx.Where("item_id = ?", item.ID).Delete(&models.Comment{}).Error; err != nil {
+		tx.Rollback()
+		c.String(http.StatusInternalServerError, "Failed to delete comments")
+		return
+	}
+
+	// 3. Delete Claims
+	if err := tx.Where("item_id = ?", item.ID).Delete(&models.ItemClaim{}).Error; err != nil {
+		tx.Rollback()
+		c.String(http.StatusInternalServerError, "Failed to delete claims")
+		return
+	}
+
+	// 4. Delete Reports
+	if err := tx.Where("item_id = ?", item.ID).Delete(&models.ItemReport{}).Error; err != nil {
+		tx.Rollback()
+		c.String(http.StatusInternalServerError, "Failed to delete reports")
+		return
+	}
+
+	// 5. Delete Notifications linked to this item
+	if err := tx.Where("related_item_id = ?", item.ID).Delete(&models.Notification{}).Error; err != nil {
+		tx.Rollback()
+		c.String(http.StatusInternalServerError, "Failed to delete notifications")
+		return
+	}
+
+	// 6. Finally, Delete the Item
+	if err := tx.Delete(&item).Error; err != nil {
+		tx.Rollback()
 		c.String(http.StatusInternalServerError, "Failed to delete item")
 		return
 	}
 
-	c.Redirect(http.StatusFound, "/")
+	tx.Commit()
+
+	c.Redirect(http.StatusFound, "/dashboard")
 }
 
 // BanUser allows admin to ban a user account

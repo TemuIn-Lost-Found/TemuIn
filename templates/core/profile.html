@@ -72,7 +72,7 @@
             {% for item in items %}
             <div class="thread-card">
                 {% if item.Image %}
-                <img src="/static/{{ item.Image }}" alt="{{ item.Title }}" class="card-image">
+                <img src="/images/{{ item.ID }}" alt="{{ item.Title }}" class="card-image">
                 {% else %}
                 <div class="card-image"
                     style="display: flex; align-items: center; justify-content: center; color: #72767d;">
@@ -115,7 +115,7 @@
             {% for item in found_items %}
             <div class="thread-card">
                 {% if item.Image %}
-                <img src="/static/{{ item.Image }}" alt="{{ item.Title }}" class="card-image">
+                <img src="/images/{{ item.ID }}" alt="{{ item.Title }}" class="card-image">
                 {% else %}
                 <div class="card-image"
                     style="display: flex; align-items: center; justify-content: center; color: var(--text-muted); background: var(--bg-tertiary);">

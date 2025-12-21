@@ -31,7 +31,9 @@ func main() {
 	dropTable(db, &models.Category{})
 	dropTable(db, &models.User{})
 	dropTable(db, &models.TopUpTransaction{})
+	dropTable(db, &models.TopUpTransaction{})
 	dropTable(db, &models.WithdrawalRequest{})
+	dropTable(db, &models.LostItemImage{}) // Drop image table
 
 	log.Println("✅ All tables dropped.")
 
@@ -42,6 +44,7 @@ func main() {
 		&models.Category{},
 		&models.SubCategory{},
 		&models.LostItem{},
+		&models.LostItemImage{}, // Migrate image table
 		&models.Comment{},
 		&models.CoinTransaction{},
 		&models.ItemClaim{},

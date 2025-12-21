@@ -16,7 +16,7 @@
     </div>
     <div class="category-list">
         <div class="category-section-label">Menu</div>
-        <a href="/" class="category-item {% if request.URL.Path == '/' %}active{% endif %}">
+        <a href="/dashboard" class="category-item {% if request.URL.Path == '/dashboard' %}active{% endif %}">
             <span class="material-icons" style="font-size: 20px; margin-right: 8px;">home</span>
             Home
         </a>
@@ -28,22 +28,24 @@
         <div class="category-section-label">Kategori</div>
         {% for category in sidebar_categories %}
         <div class="category-group">
-            <!-- Using capitalized struct fields -->
+            <!-- Added onclick handler -->
             <a href="/category/{{ category.ID }}"
                 class="category-item {% if active_category and active_category.ID == category.ID %}active{% endif %}"
-                style="justify-content: space-between;">
+                style="justify-content: space-between;"
+                onclick="toggleCategory(event)">
                 <span style="display: flex; align-items: center; gap: 8px;">
                     <span class="material-icons" style="font-size: 20px;">{{ category.Icon|default:'folder' }}</span>
                     {{ category.Name }}
                 </span>
                 {% if category.SubCategories %}
-                <span class="material-icons" style="font-size: 16px;">keyboard_arrow_down</span>
+                <span class="material-icons arrow-icon" style="font-size: 16px; transition: transform 0.2s;">keyboard_arrow_down</span>
                 {% endif %}
             </a>
 
-            {% if active_category and active_category.ID == category.ID %}
+            <!-- Render subcategories ALWAYS, but hide if not active -->
+            {% if category.SubCategories %}
             <div class="subcategory-list"
-                style="margin-left: 12px; border-left: 2px solid var(--accent); padding-left: 8px; margin-bottom: 8px;">
+                style="margin-left: 12px; border-left: 2px solid var(--accent); padding-left: 8px; margin-bottom: 8px; {% if active_category and active_category.ID == category.ID %}display: block;{% else %}display: none;{% endif %}">
                 {% for sub in category.SubCategories %}
                 <a href="/subcategory/{{ sub.ID }}"
                     class="category-item {% if active_subcategory and active_subcategory.ID == sub.ID %}active-channel{% endif %}"
@@ -58,6 +60,30 @@
         {% empty %}
         <div style="padding: 0 10px; color: var(--text-muted); font-size: 12px;">Belum ada kategori</div>
         {% endfor %}
+    </div>
+
+    <!-- Toggle Script -->
+    <script>
+        function toggleCategory(e) {
+            const link = e.currentTarget;
+            
+            // If it is the currently active category, toggle close/open
+            if (link.classList.contains('active')) {
+                e.preventDefault(); // Prevent reloading the page
+                const parent = link.closest('.category-group');
+                const subList = parent.querySelector('.subcategory-list');
+                
+                if (subList) {
+                    if (subList.style.display === 'none') {
+                        subList.style.display = 'block';
+                    } else {
+                        subList.style.display = 'none';
+                    }
+                }
+            }
+            // If not active, let it propagate (navigate to the category page)
+        }
+    </script>
     </div>
 
     <div class="user-panel">

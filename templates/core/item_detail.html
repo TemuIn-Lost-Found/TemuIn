@@ -5,13 +5,13 @@
 {% endblock %}
 
 {% block content %}
-<div class="thread-container" style="display: flex; flex-direction: column; height: 100%;">
+<div class="thread-container" style="display: flex; flex-direction: column;">
 
     <!-- Item Header (Pinned Message Style) -->
     <div style="padding: 16px; border-bottom: 1px solid var(--bg-tertiary); margin-bottom: 16px;">
         <div style="display: flex; gap: 16px; flex-wrap: wrap;">
             {% if item.Image %}
-            <img src="/static/{{ item.Image }}" style="max-width: 300px; max-height: 300px; border-radius: 8px;">
+            <img src="/images/{{ item.ID }}" style="max-width: 300px; max-height: 300px; border-radius: 8px;">
             {% endif %}
 
             <div style="flex: 1;">
@@ -267,7 +267,7 @@
     <!-- Comments Section -->
     <h3 style="margin-top: 24px; font-size: 16px; color: var(--text-header);">Komentar</h3>
 
-    <div class="comments-list" style="flex: 1; overflow-y: auto; padding-right: 8px;">
+    <div class="comments-list" style="padding-right: 8px;">
         {% for comment in comments %}
         <div style="margin-bottom: 12px; padding: 12px; background: var(--bg-tertiary); border-radius: 8px;">
             <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
