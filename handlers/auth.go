@@ -196,6 +196,7 @@ func Profile(c *gin.Context) {
 	ctx["items"] = myItems
 	ctx["found_items"] = foundItems
 	ctx["user"] = user
+	ctx["midtrans_client_key"] = config.MidtransClient
 	// Assuming simple profile that lists user's posts
 	// We might need a profile.html, or reuse home/dashboard?
 	// Let's reuse home with a filter or a specific profile template?

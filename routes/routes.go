@@ -29,6 +29,9 @@ func RegisterRoutes(r *gin.Engine) {
 
 		public.GET("/category/:pk", handlers.CategoryPage)
 		public.GET("/subcategory/:pk", handlers.SubCategoryPage)
+
+		// Midtrans payment notification callback (public, no auth)
+		public.POST("/topup/notification", handlers.MidtransNotification)
 	}
 
 	// Protected Routes
@@ -41,7 +44,13 @@ func RegisterRoutes(r *gin.Engine) {
 		authorized.POST("/item/:pk/comment", handlers.PostComment)
 
 		authorized.GET("/profile", handlers.Profile)
-		authorized.POST("/topup", handlers.TopUp)
+
+		// TopUp routes
+		authorized.POST("/topup/initiate", handlers.InitiateTopUp)
+		authorized.POST("/topup/confirm", handlers.ConfirmTopUp)
+		authorized.GET("/topup/history", handlers.GetTopUpHistory)
+		authorized.GET("/topup/status/:order_id", handlers.CheckTopUpStatus)
+
 		authorized.POST("/item/:pk/highlight", handlers.HighlightItem)
 		authorized.POST("/item/:pk/found", handlers.MarkAsFound)
 		authorized.POST("/item/:pk/select-finder", handlers.SelectFinder) // NEW
