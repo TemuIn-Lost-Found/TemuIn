@@ -70,6 +70,10 @@ func RegisterRoutes(r *gin.Engine) {
 		authorized.GET("/api/notifications/count", handlers.GetUnreadCount)
 		authorized.POST("/api/notifications/:id/read", handlers.MarkAsRead)
 		authorized.POST("/api/notifications/read-all", handlers.MarkAllAsRead)
+
+		// witdhrawal
+		authorized.POST("/withdraw", handlers.RequestWithdrawal)
+		authorized.GET("/withdrawals", handlers.GetWithdrawalHistory)
 	}
 
 	// Admin Routes
