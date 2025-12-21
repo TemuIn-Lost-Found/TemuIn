@@ -6,6 +6,7 @@ import (
 
 	"temuin/config"
 	"temuin/models"
+	"temuin/utils"
 
 	"github.com/gin-gonic/gin"
 )
@@ -22,6 +23,10 @@ type WithdrawalRequestBody struct {
 }
 
 const RATE_RP_PER_COIN = 10
+
+func WithdrawalPage(c *gin.Context) {
+	utils.RenderTemplate(c, "templates/core/withdrawal.html", nil)
+}
 
 func RequestWithdrawal(c *gin.Context) {
 	user := c.MustGet("user").(*models.User)
