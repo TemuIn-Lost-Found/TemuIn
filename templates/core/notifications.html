@@ -111,5 +111,30 @@
                 console.error('Error marking notification as read:', error);
             });
     }
+
+    function markAllNotificationsAsRead() {
+        if (!confirm('Tandai semua notifikasi sebagai sudah dibaca?')) {
+            return;
+        }
+
+        fetch('/api/notifications/read-all', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Gagal menandai semua dibaca');
+                }
+            })
+            .catch(error => {
+                console.error('Error marking all as read:', error);
+                alert('Terjadi kesalahan network');
+            });
+    }
 </script>
 {% endblock %}

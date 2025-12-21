@@ -1,0 +1,148 @@
+{% extends "core/base.html" %}
+
+{% block header_title %}Withdrawal Requests{% endblock %}
+
+{% block content %}
+<div style="max-width: 1100px; margin: 0 auto; padding: 24px;">
+
+    <!-- Header -->
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+        <h2 style="margin:0; color:var(--text-header);">Withdrawal Requests</h2>
+        <a href="/admin/dashboard" class="btn"
+           style="background:var(--bg-tertiary); color:var(--text-normal); text-decoration:none;">
+            ← Back
+        </a>
+    </div>
+
+    <!-- Table Card -->
+    <div style="background:var(--bg-secondary); border-radius:12px; padding:16px;">
+
+        {% if withdrawals %}
+        <div style="overflow-x:auto;">
+            <table style="width:100%; border-collapse:collapse; font-size:13px;">
+                <thead>
+                    <tr style="color:var(--text-muted); text-align:left;">
+                        <th style="padding:10px;">ID</th>
+                        <th style="padding:10px;">User</th>
+                        <th style="padding:10px;">Amount</th>
+                        <th style="padding:10px;">Coins</th>
+                        <th style="padding:10px;">Method</th>
+                        <th style="padding:10px;">Account</th>
+                        <th style="padding:10px;">Status</th>
+                        <th style="padding:10px;">Date</th>
+                        <th style="padding:10px;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for w in withdrawals %}
+                    <tr style="border-top:1px solid var(--bg-tertiary);">
+                        <td style="padding:10px;">#{{ w.ID }}</td>
+
+                        <td style="padding:10px;">
+                            <div style="font-weight:600;">{{ w.User.Username }}</div>
+                            <div style="font-size:11px; color:var(--text-muted);">{{ w.User.Email }}</div>
+                        </td>
+
+                        <td style="padding:10px;">Rp {{ w.Amount }}</td>
+                        <td style="padding:10px;">{{ w.Coins }}</td>
+                        <td style="padding:10px;">{{ w.Method|upper }}</td>
+
+                        <td style="padding:10px;">
+                            <div>{{ w.AccountName }}</div>
+                            <div style="font-size:11px; color:var(--text-muted);">{{ w.AccountNumber }}</div>
+                        </td>
+
+                        <td style="padding:10px;">
+                            {% if w.Status == "pending" %}
+                                <span style="color:#f0ad4e; font-weight:600;">Pending</span>
+                            {% elif w.Status == "approved" %}
+                                <span style="color:var(--green); font-weight:600;">Approved</span>
+                            {% elif w.Status == "rejected" %}
+                                <span style="color:#dc3545; font-weight:600;">Rejected</span>
+                            {% endif %}
+                        </td>
+
+                        <td style="padding:10px; font-size:12px;">
+                            {{ w.CreatedAt.Format("02 Jan 2006 15:04") }}
+                        </td>
+
+                        <td style="padding:10px;">
+                            {% if w.Status == "pending" %}
+                            <div style="display:flex; gap:6px;">
+                                <button class="btn"
+                                    style="background:var(--green); font-size:11px;"
+                                    onclick="approveWithdrawal({{ w.ID }})">
+                                    Approve
+                                </button>
+                                <button class="btn"
+                                    style="background:#dc3545; font-size:11px;"
+                                    onclick="rejectWithdrawal({{ w.ID }})">
+                                    Reject
+                                </button>
+                            </div>
+                            {% else %}
+                                <span style="font-size:11px; color:var(--text-muted);">Done</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div style="padding:32px; text-align:center; color:var(--text-muted);">
+            Belum ada request withdrawal.
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+async function approveWithdrawal(id) {
+    if (!confirm('Approve withdrawal ini?')) return;
+
+    try {
+        const res = await fetch(`/admin/withdrawals/${id}/approve`, {
+            method: 'POST'
+        });
+
+        const json = await res.json();
+
+        if (!res.ok) {
+            alert(json.error || 'Gagal approve');
+            return;
+        }
+
+        alert('Withdrawal approved');
+        location.reload();
+    } catch (e) {
+        console.error(e);
+        alert('Server error');
+    }
+}
+
+async function rejectWithdrawal(id) {
+    if (!confirm('Reject withdrawal? Coins akan dikembalikan.')) return;
+
+    try {
+        const res = await fetch(`/admin/withdrawals/${id}/reject`, {
+            method: 'POST'
+        });
+
+        const json = await res.json();
+
+        if (!res.ok) {
+            alert(json.error || 'Gagal reject');
+            return;
+        }
+
+        alert('Withdrawal rejected & coins refunded');
+        location.reload();
+    } catch (e) {
+        console.error(e);
+        alert('Server error');
+    }
+}
+</script>
+
+{% endblock %}
