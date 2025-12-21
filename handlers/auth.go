@@ -182,51 +182,32 @@ func Logout(c *gin.Context) {
 }
 
 func Profile(c *gin.Context) {
+	ctx := utils.GetGlobalContext(c)
+
 	user := c.MustGet("user").(*models.User)
 
-	// Fetch user items
-	var myItems []models.LostItem
-	config.DB.Where("user_id = ?", user.ID).Order("created_at desc").Find(&myItems)
-
-	// Fetch items found by user
+	// ambil items & found_items (logika mu sekarang)...
+	var items []models.LostItem
 	var foundItems []models.LostItem
-	config.DB.Where("finder_id = ? AND finder_confirmed = ?", user.ID, true).Order("updated_at desc").Find(&foundItems)
+	config.DB.Where("user_id = ?", user.ID).Find(&items)
+	config.DB.Where("finder_id = ?", user.ID).Find(&foundItems)
 
-	ctx := utils.GetGlobalContext(c)
-	ctx["items"] = myItems
-	ctx["found_items"] = foundItems
+	// --- NEW: ambil riwayat topup (terbaru 20)
+	var topups []models.TopUpTransaction
+	config.DB.
+		Where("user_id = ?", user.ID).
+		Order("created_at DESC").
+		Limit(20).
+		Find(&topups)
+
+	// set ctx (sesuaikan nama kunci dengan template)
 	ctx["user"] = user
-	ctx["midtrans_client_key"] = config.MidtransClient
-	// Assuming simple profile that lists user's posts
-	// We might need a profile.html, or reuse home/dashboard?
-	// Let's reuse home with a filter or a specific profile template?
-	// User previously had profile logic. Let's assume there is a profile.html or we use dashboard.
-	// Let's create a basic profile render.
+	ctx["items"] = items
+	ctx["found_items"] = foundItems
+	ctx["topup_transactions"] = topups
 
-	// Check if profile.html exists? If not, use home logic but filtered.
-	// For this migration, let's use a dedicated simplistic render or error if template missing.
-	// Or better: Re-use home template but just passing 'items' as myItems is what dashboard basically is.
-
-	// Let's try loading profile.html. If it fails (panic in Must), we know.
-	// Actually, let's just render a simple view.
-	// Wait, the sidebar links to /profile/.
-
-	tpl, err := pongo2.FromFile("templates/core/profile.html")
-	if err != nil {
-		// Fallback to home template with title "My Profile"
-		ctx["header_title"] = "My Profile"
-		tpl, err = pongo2.FromFile("templates/core/home.html")
-		if err != nil {
-			c.String(http.StatusInternalServerError, "Template Error (Home Fallback): "+err.Error())
-			return
-		}
-	}
-
-	out, err := tpl.Execute(ctx)
-	if err != nil {
-		c.String(http.StatusInternalServerError, "Render Error: "+err.Error())
-		return
-	}
+	tpl := pongo2.Must(pongo2.FromFile("templates/core/profile.html"))
+	out, _ := tpl.Execute(ctx)
 	c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(out))
 }
 
