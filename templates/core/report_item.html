@@ -13,7 +13,7 @@
                 style="display: block; color: var(--text-normal); margin-bottom: 8px; font-size: 12px; text-transform: uppercase;">Judul
                 Barang</label>
             <input type="text" name="title" class="form-control" placeholder="Contoh: Dompet Hilang di Parkiran"
-                required
+                required value="{{ title|default:'' }}"
                 style="width: 100%; padding: 12px; background: var(--bg-secondary); border: 1px solid var(--bg-tertiary); border-radius: 4px; color: var(--text-normal);">
         </div>
 
@@ -46,7 +46,7 @@
                 style="display: block; color: var(--text-normal); margin-bottom: 8px; font-size: 12px; text-transform: uppercase;">Deskripsi
                 Detail</label>
             <textarea name="description" rows="4" placeholder="Jelaskan ciri-ciri barang, kronologi, dll..." required
-                style="width: 100%; padding: 12px; background: var(--bg-secondary); border: none; border-radius: 4px; color: var(--text-normal); font-family: inherit;"></textarea>
+                style="width: 100%; padding: 12px; background: var(--bg-secondary); border: none; border-radius: 4px; color: var(--text-normal); font-family: inherit;">{{ description|default:'' }}</textarea>
         </div>
 
         <!-- Location -->
@@ -54,7 +54,7 @@
             <label
                 style="display: block; color: var(--text-normal); margin-bottom: 8px; font-size: 12px; text-transform: uppercase;">Lokasi
                 Terakhir</label>
-            <input type="text" name="location" placeholder="Contoh: Gedung A, Kantin, dll" required
+            <input type="text" name="location" placeholder="Contoh: Gedung A, Kantin, dll" required value="{{ location|default:'' }}"
                 style="width: 100%; padding: 12px; background: var(--bg-secondary); border: none; border-radius: 4px; color: var(--text-normal);">
         </div>
 
@@ -63,7 +63,7 @@
             <label
                 style="display: block; color: var(--text-normal); margin-bottom: 8px; font-size: 12px; text-transform: uppercase;">Imbalan
                 (Coins)</label>
-            <input type="number" name="bounty_coins" value="0" min="0"
+            <input type="number" name="bounty_coins" value="{{ bounty_coins|default:'0' }}" min="0"
                 style="width: 100%; padding: 12px; background: var(--bg-secondary); border: none; border-radius: 4px; color: var(--text-normal);">
             <small style="color: var(--text-muted); font-size: 11px;">Opsional. Berikan imbalan untuk penemu.</small>
         </div>
@@ -75,6 +75,15 @@
                 Barang</label>
             <input type="file" name="image" accept="image/*"
                 style="width: 100%; padding: 12px; background: var(--bg-secondary); border-radius: 4px; color: var(--text-muted);">
+            
+            {% if image_path %}
+            <div style="margin-top: 8px; padding: 12px; background: var(--bg-secondary); border-radius: 4px;">
+                <p style="color: var(--text-normal); font-size: 12px; margin-bottom: 4px;">Foto yang sudah diunggah:</p>
+                <img src="{{ image_path }}" style="max-height: 100px; border-radius: 4px; border: 1px solid var(--bg-tertiary);">
+                <input type="hidden" name="previous_image" value="{{ image_path }}">
+                <p style="color: var(--text-muted); font-size: 11px; margin-top: 4px;">*Unggah foto baru hanya jika ingin menggantinya.</p>
+            </div>
+            {% endif %}
         </div>
 
         <button type="submit" class="btn btn-primary"
@@ -84,14 +93,21 @@
     </form>
 </div>
 
+<!-- Data container to keep JS clean -->
+<script id="subcategories-data" type="application/json">
+[
+    {% for s in subcategories %}
+    { "id": {{ s.ID }}, "name": "{{s.Name}}", "category_id": {{ s.CategoryID }} }{% if not forloop.Last %},{% endif %}
+    {% endfor %}
+]
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // Construct standard JS array from Pongo2 context
-        const subData = [
-            {% for s in subcategories %}
-            { id: {{ s.ID }}, name: "{{s.Name}}", category_id: {{ s.CategoryID }}},
-        {% endfor %}
-        ];
+    // Data injection via JSON block to avoid JS lint errors
+    const subDataScript = document.getElementById('subcategories-data');
+    const subData = subDataScript ? JSON.parse(subDataScript.textContent) : [];
 
     const catSelect = document.getElementById('id_category');
     const subSelect = document.getElementById('id_subcategory');
@@ -125,6 +141,19 @@
         }
     }
 
+    // Restore previous selection if error happened
+    const prevCat = "{{ selected_category|default:'' }}";
+    const prevSub = "{{ selected_subcategory|default:'' }}";
+
+    if (prevCat) {
+        catSelect.value = prevCat;
+        updateSubcategories(); // Trigger update manually
+        
+        if (prevSub) {
+            subSelect.value = prevSub;
+        }
+    }
+
     if (catSelect) {
         catSelect.addEventListener('change', updateSubcategories);
     }
@@ -138,19 +167,46 @@
 
             if (!catValue) {
                 e.preventDefault();
-                alert('Silakan pilih kategori!');
-                catSelect.focus();
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Perhatian',
+                    text: 'Silakan pilih kategori!',
+                    confirmButtonColor: '#5865F2'
+                });
                 return false;
             }
 
             if (!subValue) {
                 e.preventDefault();
-                alert('Silakan pilih sub-kategori!');
-                subSelect.focus();
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Perhatian',
+                    text: 'Silakan pilih sub-kategori!',
+                    confirmButtonColor: '#5865F2'
+                });
                 return false;
             }
         });
     }
+
     });
 </script>
+
+<!-- Error Handling (Hidden element to pass data to JS) -->
+{% if error %}
+<div id="server-error" data-message="{{ error }}" style="display: none;"></div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const errorDiv = document.getElementById('server-error');
+        if (errorDiv) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: errorDiv.dataset.message,
+                confirmButtonColor: '#ed4245'
+            });
+        }
+    });
+</script>
+{% endif %}
 {% endblock %}

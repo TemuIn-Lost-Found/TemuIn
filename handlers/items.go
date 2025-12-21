@@ -1,10 +1,12 @@
 package handlers
 
 import (
-	"fmt"
+	"encoding/base64"
+	"io/ioutil"
 	"net/http"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"temuin/config"
 	"temuin/models"
 	"temuin/utils"
@@ -54,21 +56,86 @@ func ReportItem(c *gin.Context) {
 	subCatID, _ := strconv.ParseInt(subCatIDStr, 10, 64)
 
 	// Handle Image Upload
-	file, err := c.FormFile("image")
-	var imagePath string
+	fileHeader, err := c.FormFile("image")
+	var imageBytes []byte
+	var imageContentType string
+	var imagePathForTemplate string // Data URI or existing path
+
 	if err == nil {
-		filename := fmt.Sprintf("%d_%s", time.Now().Unix(), filepath.Base(file.Filename))
-		// Save to static/images for simplicity in Go app structure
-		dst := "static/images/" + filename
-		if err := c.SaveUploadedFile(file, dst); err == nil {
-			imagePath = "images/" + filename
+		// New file uploaded
+		file, _ := fileHeader.Open()
+		defer file.Close()
+		imageBytes, _ = ioutil.ReadAll(file)
+
+		// Determine content type
+		ext := strings.ToLower(filepath.Ext(fileHeader.Filename))
+		if ext == ".png" {
+			imageContentType = "image/png"
+		} else if ext == ".webp" {
+			imageContentType = "image/webp"
+		} else if ext == ".gif" {
+			imageContentType = "image/gif"
+		} else {
+			imageContentType = "image/jpeg"
+		}
+
+		// Create Data URI for preview
+		encoded := base64.StdEncoding.EncodeToString(imageBytes)
+		imagePathForTemplate = "data:" + imageContentType + ";base64," + encoded
+	} else {
+		// Fallback to previous image if exists (Data URI or DB path?)
+		// If it comes from "previous_image" hidden field, it's likely a Data URI.
+		imagePathForTemplate = c.PostForm("previous_image")
+		
+		// If we have a previous image string that is a Data URI, decode it to bytes
+		if strings.HasPrefix(imagePathForTemplate, "data:") {
+			parts := strings.Split(imagePathForTemplate, ",")
+			if len(parts) == 2 {
+				// extract content type
+				mimeParts := strings.Split(parts[0], ";")
+				if len(mimeParts) > 0 {
+					imageContentType = strings.TrimPrefix(mimeParts[0], "data:")
+				}
+				
+				decoded, err := base64.StdEncoding.DecodeString(parts[1])
+				if err == nil {
+					imageBytes = decoded
+				}
+			}
 		}
 	}
 
 	// Logic: Check coin balance
 	if bounty > 0 {
 		if user.CoinBalance < bounty {
-			c.String(http.StatusBadRequest, "Insufficient coins")
+			// Re-render template with error
+			var categories []models.SubCategory
+			config.DB.Find(&categories)
+
+			ctx := utils.GetGlobalContext(c)
+			ctx["subcategories"] = categories
+			ctx["error"] = "Saldo Coins Tidak Cukup!"
+			ctx["title"] = title
+			ctx["description"] = desc
+			ctx["location"] = location
+			ctx["bounty_coins"] = bountyStr
+			// Persist dropdowns
+			ctx["selected_category"] = c.PostForm("category")
+			ctx["selected_subcategory"] = subCatIDStr
+			// Persist image (pass Data URI)
+			ctx["image_path"] = imagePathForTemplate
+
+			tpl, err := pongo2.FromFile("templates/core/report_item.html")
+			if err != nil {
+				c.String(http.StatusInternalServerError, "Template Error: "+err.Error())
+				return
+			}
+			out, err := tpl.Execute(ctx)
+			if err != nil {
+				c.String(http.StatusInternalServerError, "Render Error: "+err.Error())
+				return
+			}
+			c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(out))
 			return
 		}
 		user.CoinBalance -= bounty
@@ -82,20 +149,37 @@ func ReportItem(c *gin.Context) {
 		catID = subCat.CategoryID
 	}
 
+	// Determine generic status for 'Image' field (just a flag now)
+	imageFlag := ""
+	if len(imageBytes) > 0 {
+		imageFlag = "stored"
+	}
+
 	item := models.LostItem{
 		Title:         title,
 		Description:   desc,
 		Location:      location,
 		BountyCoins:   bounty,
 		UserID:        user.ID,
-		Image:         imagePath,
+		Image:         imageFlag, // Just a flag, or we can leave it empty and check LostItemImage table. But 'imageFlag' is useful for quick checks.
 		Status:        "LOST",
 		SubCategoryID: &subCatID,
 		CategoryID:    catID,
 	}
 
 	config.DB.Create(&item)
-	c.Redirect(http.StatusFound, "/")
+	
+	// Create Image Record
+	if len(imageBytes) > 0 {
+		imgRec := models.LostItemImage{
+			ItemID:      item.ID,
+			ImageData:   imageBytes,
+			ContentType: imageContentType,
+		}
+		config.DB.Create(&imgRec)
+	}
+
+	c.Redirect(http.StatusFound, "/dashboard")
 }
 
 func ItemDetail(c *gin.Context) {
@@ -381,13 +465,38 @@ func EditItem(c *gin.Context) {
 	subCatID, _ := strconv.ParseInt(subCatIDStr, 10, 64)
 
 	// Handle Image Upload (if new image provided)
-	file, err := c.FormFile("image")
+	fileHeader, err := c.FormFile("image")
 	if err == nil {
-		filename := fmt.Sprintf("%d_%s", time.Now().Unix(), filepath.Base(file.Filename))
-		dst := "static/images/" + filename
-		if err := c.SaveUploadedFile(file, dst); err == nil {
-			item.Image = "images/" + filename
+		file, _ := fileHeader.Open()
+		defer file.Close()
+		data, _ := ioutil.ReadAll(file)
+
+		ext := strings.ToLower(filepath.Ext(fileHeader.Filename))
+		contentType := "image/jpeg"
+		if ext == ".png" {
+			contentType = "image/png"
+		} else if ext == ".webp" {
+			contentType = "image/webp"
+		} else if ext == ".gif" {
+			contentType = "image/gif"
 		}
+
+		var imgRec models.LostItemImage
+		if err := config.DB.First(&imgRec, item.ID).Error; err == nil {
+			// Update
+			imgRec.ImageData = data
+			imgRec.ContentType = contentType
+			config.DB.Save(&imgRec)
+		} else {
+			// Create
+			imgRec = models.LostItemImage{
+				ItemID:      item.ID,
+				ImageData:   data,
+				ContentType: contentType,
+			}
+			config.DB.Create(&imgRec)
+		}
+		item.Image = "stored"
 	}
 
 	// Fetch Category ID from SubCategory
@@ -426,11 +535,64 @@ func DeleteItem(c *gin.Context) {
 		return
 	}
 
-	// Delete the item
-	if err := config.DB.Delete(&item).Error; err != nil {
+	// Use transaction to ensure full cleanup (Manual Cascade)
+	tx := config.DB.Begin()
+
+	// 1. Delete Image
+	if err := tx.Where("item_id = ?", item.ID).Delete(&models.LostItemImage{}).Error; err != nil {
+		tx.Rollback()
+		c.String(http.StatusInternalServerError, "Failed to delete item image")
+		return
+	}
+
+	// 2. Delete Comments
+	if err := tx.Where("item_id = ?", item.ID).Delete(&models.Comment{}).Error; err != nil {
+		tx.Rollback()
+		c.String(http.StatusInternalServerError, "Failed to delete comments")
+		return
+	}
+
+	// 3. Delete Claims
+	if err := tx.Where("item_id = ?", item.ID).Delete(&models.ItemClaim{}).Error; err != nil {
+		tx.Rollback()
+		c.String(http.StatusInternalServerError, "Failed to delete claims")
+		return
+	}
+
+	// 4. Delete Reports
+	if err := tx.Where("item_id = ?", item.ID).Delete(&models.ItemReport{}).Error; err != nil {
+		tx.Rollback()
+		c.String(http.StatusInternalServerError, "Failed to delete reports")
+		return
+	}
+
+	// 5. Delete Notifications linked to this item
+	if err := tx.Where("related_item_id = ?", item.ID).Delete(&models.Notification{}).Error; err != nil {
+		tx.Rollback()
+		c.String(http.StatusInternalServerError, "Failed to delete notifications")
+		return
+	}
+
+	// 6. Finally, Delete the Item
+	if err := tx.Delete(&item).Error; err != nil {
+		tx.Rollback()
 		c.String(http.StatusInternalServerError, "Failed to delete item")
 		return
 	}
 
-	c.Redirect(http.StatusFound, "/")
+	tx.Commit()
+
+	c.Redirect(http.StatusFound, "/dashboard")
+}
+
+// GetItemImage serves the image from database
+func GetItemImage(c *gin.Context) {
+	id := c.Param("pk")
+	var imgRec models.LostItemImage
+	if err := config.DB.First(&imgRec, id).Error; err != nil {
+		c.Status(http.StatusNotFound)
+		return
+	}
+
+	c.Data(http.StatusOK, imgRec.ContentType, imgRec.ImageData)
 }

@@ -40,7 +40,7 @@ Latest Items
             style="padding: 0 16px; height: 32px; font-size: 13px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background-color: #5865F2;">Search</button>
 
         {% if status or location %}
-        <a href="/"
+        <a href="/dashboard"
             style="color: #ed4245; font-size: 12px; text-decoration: none; display: flex; align-items: center; white-space: nowrap; margin-left: auto;">
             <span class="material-icons" style="font-size: 14px; margin-right: 2px;">close</span> Hapus
         </a>
@@ -64,7 +64,7 @@ Latest Items
             style="border: 2px solid var(--gold); text-decoration: none; color: inherit; display: block;">
             <div class="card-image">
                 {% if item.Image %}
-                <img src="/static/{{ item.Image }}" alt="{{ item.Title }}"
+                <img src="/images/{{ item.ID }}" alt="{{ item.Title }}"
                     style="width: 100%; height: 100%; object-fit: cover;">
                 {% else %}
                 <div
@@ -124,7 +124,7 @@ Latest Items
     <a href="/item/{{ item.ID }}" class="thread-card" style="text-decoration: none; color: inherit; display: block;">
         <div class="card-image">
             {% if item.Image %}
-            <img src="/static/{{ item.Image }}" alt="{{ item.Title }}"
+            <img src="/images/{{ item.ID }}" alt="{{ item.Title }}"
                 style="width: 100%; height: 100%; object-fit: cover;">
             {% else %}
             <div
@@ -147,7 +147,7 @@ Latest Items
 
             <div
                 style="display: flex; align-items: center; gap: 4px; color: var(--text-muted); font-size: 12px; margin-bottom: 12px;">
-                <span class="material-icons" style="font-size: 14px;">place</span>d
+                <span class="material-icons" style="font-size: 14px;">place</span>
                 {{ item.Location|truncatechars:25 }}
             </div>
 
