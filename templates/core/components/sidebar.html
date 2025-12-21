@@ -43,11 +43,11 @@
 
             {% if active_category and active_category.ID == category.ID %}
             <div class="subcategory-list"
-                style="margin-left: 12px; border-left: 2px solid #4f545c; padding-left: 8px; margin-bottom: 8px;">
+                style="margin-left: 12px; border-left: 2px solid var(--accent); padding-left: 8px; margin-bottom: 8px;">
                 {% for sub in category.SubCategories %}
                 <a href="/subcategory/{{ sub.ID }}"
                     class="category-item {% if active_subcategory and active_subcategory.ID == sub.ID %}active-channel{% endif %}"
-                    style="padding: 4px 8px; font-size: 13px; color: #b9bbbe; height: auto; margin-bottom: 2px;">
+                    style="padding: 4px 8px; font-size: 13px; color: var(--text-muted); height: auto; margin-bottom: 2px;">
                     <span class="material-icons" style="font-size: 14px; margin-right: 6px;">tag</span>
                     {{ sub.Name }}
                 </a>
@@ -64,7 +64,7 @@
         {% if user %}
         <div style="flex: 1;">
             <a href="/profile"
-                style="color: white; text-decoration: none; font-weight: bold; display: block; margin-bottom: 2px;">
+                style="color: var(--text-header); text-decoration: none; font-weight: bold; display: block; margin-bottom: 2px;">
                 {{user.Username }}</a>
             <div
                 style="font-size: 12px; color: var(--gold); display: flex; align-items: center; font-family: monospace;">

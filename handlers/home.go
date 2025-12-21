@@ -63,3 +63,23 @@ func Home(c *gin.Context) {
 	}
 	c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(out))
 }
+
+func LandingPage(c *gin.Context) {
+	// If user is already logged in, we might want to let them stay on landing
+	// or show a "Go to Dashboard" button. The template handles this with {% if user %}.
+	// Just render the static landing page.
+
+	ctx := utils.GetGlobalContext(c) // Put useful globals like user info into context
+
+	tpl, err := pongo2.FromFile("templates/core/landing.html")
+	if err != nil {
+		c.String(http.StatusInternalServerError, "Template Error: "+err.Error())
+		return
+	}
+	out, err := tpl.Execute(ctx)
+	if err != nil {
+		c.String(http.StatusInternalServerError, "Render Error: "+err.Error())
+		return
+	}
+	c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(out))
+}

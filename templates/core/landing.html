@@ -1,134 +1,237 @@
 <!DOCTYPE html>
-<!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TemuIN - Lost & Found</title>
-    <link rel="stylesheet" href="/static/css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
+        :root {
+            --primary: #6366F1;
+            --primary-hover: #4f46e5;
+            --text-main: #111827;
+            --text-secondary: #4B5563;
+            --bg-gradient: radial-gradient(circle at 50% 0%, #E0E7FF 0%, #F3F4F6 60%);
+            --white: #F5F5F5;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
         body {
-            background-color: var(--bg-primary);
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-gradient);
+            background-color: #F3F4F6;
             margin: 0;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            min-height: 100vh;
+            color: var(--text-main);
         }
+
         .navbar {
-            padding: 20px 40px;
+            padding: 24px 60px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            max-width: 1200px;
+            max-width: 1280px;
             margin: 0 auto;
             width: 100%;
             box-sizing: border-box;
         }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+            letter-spacing: -0.5px;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 16px;
+        }
+
+        .btn {
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-outline {
+            color: var(--primary);
+            background: transparent;
+            border: 1px solid var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: var(--white);
+            border: none;
+            box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 8px -1px rgba(99, 102, 241, 0.4);
+        }
+
         .hero-section {
             flex: 1;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: space-between;
-            max-width: 1200px;
+            justify-content: center;
+            /* Centered nicely */
+            text-align: center;
+            padding: 80px 20px 40px;
+            max-width: 1000px;
             margin: 0 auto;
             width: 100%;
-            padding: 40px;
             box-sizing: border-box;
-            gap: 40px;
         }
-        .hero-text h1 {
-            font-size: 48px;
-            color: var(--text-header);
-            margin-bottom: 20px;
+
+        .hero-title {
+            font-size: 56px;
+            line-height: 1.1;
             font-weight: 800;
+            margin-bottom: 10px;
+            letter-spacing: -1px;
+            color: #000;
         }
-        .hero-text p {
+
+        .hero-subtitle {
             font-size: 18px;
-            color: var(--text-normal);
+            color: #000;
             margin-bottom: 30px;
             line-height: 1.6;
+            max-width: 700px;
         }
-        .hero-image {
-            background-color: var(--bg-secondary);
+
+        .cta-button {
+            background-color: var(--primary);
+            color: white;
+            padding: 16px 16px;
             border-radius: 20px;
-            padding: 40px;
-            text-align: center;
-            position: relative;
-        }
-        .feature-item {
-            display: flex;
+            /* Slightly rounder as per design */
+            font-size: 16px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
             align-items: center;
-            gap: 12px;
-            background: var(--bg-tertiary);
-            padding: 12px 20px;
-            border-radius: 12px;
-            margin-bottom: 12px;
-            color: var(--text-header);
-            font-weight: 500;
+            gap: 8px;
+            box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.4);
+            transition: all 0.3s ease;
+            margin-bottom: 80px;
+        }
+
+        .cta-icon {
+            width: 20px;
+            height: 20px;
+            object-fit: contain;
+        }
+
+        .cta-button:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 14px 20px -5px rgba(99, 102, 241, 0.5);
+        }
+
+        .placeholder-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            width: 100%;
+            max-width: 1200px;
+            margin-top: auto;
+            /* Push to bottom if needed, but flex column handles it */
+        }
+
+        .placeholder-card {
+            background-color: #9CA3AF;
+            /* Gray placeholder color */
+            border-radius: 16px;
+            aspect-ratio: 4/3;
+            /* Adjust based on image look */
+            width: 100%;
+            opacity: 0.6;
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 20px;
+            }
+
+            .hero-section {
+                padding-top: 40px;
+            }
+
+            .hero-title {
+                font-size: 36px;
+            }
+
+            .placeholder-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
+
 <body>
     <nav class="navbar">
-        <div style="font-size: 24px; font-weight: bold; color: var(--text-header); display: flex; align-items: center; gap: 8px;">
-            <span class="material-icons" style="color: var(--accent);">search</span>
-            TemuIN
-        </div>
-        <div style="display: flex; gap: 20px;">
+        <a href="/" class="logo">TemuIn</a>
+        <div class="nav-buttons">
             {% if user %}
-                <a href="/" class="btn">Dashboard</a>
+            <a href="/dashboard" class="btn btn-primary">Dashboard</a>
             {% else %}
-                <a href="/login" style="color: var(--text-normal); text-decoration: none; padding: 8px 16px;">Login</a>
-                <a href="/register" class="btn">Register</a>
+            <a href="/register" class="btn btn-outline">Register</a>
+            <a href="/login" class="btn btn-primary">Login</a>
             {% endif %}
         </div>
     </nav>
 
     <div class="hero-section">
-        <div class="hero-text" style="max-width: 550px;">
-            <h1>Temukan Barang yang Hilang</h1>
-            <p>Platform komunitas modern untuk melaporkan dan menemukan barang hilang di sekitarmu. Bergabunglah dengan ribuan pengguna lain dan dapatkan reward saat membantu sesama.</p>
-            <div style="display: flex; gap: 16px;">
-                <a href="/" class="btn" style="padding: 12px 32px; font-size: 16px;">Cari Barang</a>
-                {% if not user %}
-                <a href="/register" class="btn" style="background-color: var(--bg-tertiary); color: var(--text-header); padding: 12px 32px; font-size: 16px;">Daftar Sekarang</a>
-                {% endif %}
-            </div>
-            <div style="margin-top: 40px; display: flex; gap: 40px; color: var(--text-muted);">
-                <div>
-                    <strong style="color: var(--text-header); font-size: 24px; display: block;">2k+</strong>
-                    Items Listed
-                </div>
-                <div>
-                    <strong style="color: var(--text-header); font-size: 24px; display: block;">1.5k</strong>
-                    Found Items
-                </div>
-                <div>
-                    <strong style="color: var(--text-header); font-size: 24px; display: block;">500+</strong>
-                    Active Users
-                </div>
-            </div>
-        </div>
-        
-        <div class="hero-image">
-            <div class="feature-item">
-                <span class="material-icons" style="color: #faa61a;">monetization_on</span>
-                Dapatkan Reward Koin
-            </div>
-            <div class="feature-item">
-                <span class="material-icons" style="color: #3ba55c;">verified</span>
-                Verifikasi Aman
-            </div>
-            <div class="feature-item">
-                <span class="material-icons" style="color: #5865F2;">chat</span>
-                Live Chat Owner
-            </div>
-            <div style="margin-top: 20px; color: var(--text-muted); font-size: 14px;">
-                Mulai cari barang hilangmu sekarang!
-            </div>
-        </div>
+        <h1 class="hero-title">Platform Digital Membantu<br>Sebarkan Informasi Barang Hilang</h1>
+        <p class="hero-subtitle">
+            TemuIN menghubungkan penemu dan pemilik barang melalui satu platform digital untuk pencarian yang cepat,
+            aman, dan transparan.
+        </p>
+
+        {% if user %}
+        <a href="/dashboard" class="cta-button">
+            <img src="/static/images/asset/TemuIn.png" alt="Cari Barang" class="cta-icon" />
+            Mulai Temukan Barang!
+        </a>
+        {% else %}
+        <a href="/login" class="cta-button">
+            <img src="/static/images/asset/TemuIn.png" alt="Cari Barang" class="cta-icon" />
+            Mulai Temukan Barang!
+        </a>
+        {% endif %}
+
+        <!-- <div class="placeholder-grid">
+            <div class="placeholder-card"></div>
+            <div class="placeholder-card"></div>
+            <div class="placeholder-card"></div>
+        </div> -->
     </div>
 </body>
+
 </html>

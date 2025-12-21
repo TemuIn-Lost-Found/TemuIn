@@ -9,7 +9,7 @@
         style="flex: 1; min-width: 300px; background: var(--bg-secondary); padding: 24px; border-radius: 8px; height: fit-content;">
         <div style="text-align: center; margin-bottom: 24px;">
             <div
-                style="width: 80px; height: 80px; background: var(--accent); border-radius: 50%; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: bold; color: white;">
+                style="width: 80px; height: 80px; background: var(--accent); border-radius: 50%; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: bold; color: white; box-shadow: var(--shadow-md);">
                 {{ user.Username|slice:":1"|upper }}
             </div>
             <h2 style="margin: 0; color: var(--text-header);">{{ user.Username }}</h2>
@@ -28,17 +28,17 @@
                 <h4 style="margin: 0 0 12px 0; color: var(--text-header); font-size: 14px;">Top Up Coins</h4>
                 <div style="display: flex; flex-direction: column; gap: 8px;">
                     <button onclick="topUpCoins(100)" class="btn topup-btn"
-                        style="width: 100%; display: flex; justify-content: space-between; align-items: center; background: var(--green);">
+                        style="width: 100%; display: flex; justify-content: space-between; align-items: center; background: var(--accent-secondary);">
                         <span>💰 100 Coins</span>
                         <span style="font-weight: bold;">Rp 1.000</span>
                     </button>
                     <button onclick="topUpCoins(500)" class="btn topup-btn"
-                        style="width: 100%; display: flex; justify-content: space-between; align-items: center; background: var(--green);">
+                        style="width: 100%; display: flex; justify-content: space-between; align-items: center; background: var(--accent-secondary);">
                         <span>💰 500 Coins</span>
                         <span style="font-weight: bold;">Rp 5.000</span>
                     </button>
                     <button onclick="topUpCoins(1000)" class="btn topup-btn"
-                        style="width: 100%; display: flex; justify-content: space-between; align-items: center; background: var(--green);">
+                        style="width: 100%; display: flex; justify-content: space-between; align-items: center; background: var(--accent-secondary);">
                         <span>💰 1.000 Coins</span>
                         <span style="font-weight: bold;">Rp 10.000</span>
                     </button>
@@ -90,7 +90,7 @@
                     <form action="/item/{{ item.ID }}/highlight" method="post" style="margin-top: 8px;">
 
                         <button type="submit" class="btn"
-                            style="width: 100%; font-size: 12px; background-color: var(--gold); color: black;">
+                            style="width: 100%; font-size: 12px;font-weight: bold; background-color: var(--gold); color: black;">
                             Boost (50 Coins)
                         </button>
                     </form>
@@ -118,7 +118,7 @@
                 <img src="/static/{{ item.Image }}" alt="{{ item.Title }}" class="card-image">
                 {% else %}
                 <div class="card-image"
-                    style="display: flex; align-items: center; justify-content: center; color: #72767d; background: #2f3136;">
+                    style="display: flex; align-items: center; justify-content: center; color: var(--text-muted); background: var(--bg-tertiary);">
                     <span class="material-icons">volunteer_activism</span>
                 </div>
                 {% endif %}
@@ -185,7 +185,7 @@
                             {% elif t.Status == "pending" %}
                             <span style="color:#faa61a; font-weight:600;">Pending</span>
                             {% elif t.Status == "failed" or t.Status == "rejected" %}
-                            <span style="color:#dc3545; font-weight:600;">Gagal</span>
+                            <span style="color: var(--red); font-weight:600;">Gagal</span>
                             {% else %}
                             <span style="color:var(--text-muted);">{{ t.Status|title }}</span>
                             {% endif %}
