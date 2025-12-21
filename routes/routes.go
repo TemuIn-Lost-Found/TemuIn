@@ -47,6 +47,7 @@ func RegisterRoutes(r *gin.Engine) {
 
 		// TopUp routes
 		authorized.POST("/topup/initiate", handlers.InitiateTopUp)
+		authorized.POST("/topup/confirm", handlers.ConfirmTopUp)
 		authorized.GET("/topup/history", handlers.GetTopUpHistory)
 		authorized.GET("/topup/status/:order_id", handlers.CheckTopUpStatus)
 
