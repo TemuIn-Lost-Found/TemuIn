@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 	"temuin/config"
 	"temuin/routes"
 
@@ -42,5 +43,8 @@ func main() {
 	// 5. Routes
 	routes.RegisterRoutes(r)
 
-	r.Run(":8080")
-}
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+	r.Run(":" + port)}
