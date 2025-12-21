@@ -105,7 +105,7 @@ func Login(c *gin.Context) {
 	session.Set("user_id", user.ID)
 	session.Save()
 
-	c.Redirect(http.StatusFound, "/")
+	c.Redirect(http.StatusFound, "/dashboard")
 }
 
 func RegisterPage(c *gin.Context) {
@@ -171,7 +171,7 @@ func Register(c *gin.Context) {
 	session.Set("user_id", user.ID)
 	session.Save()
 
-	c.Redirect(http.StatusFound, "/")
+	c.Redirect(http.StatusFound, "/dashboard")
 }
 
 func Logout(c *gin.Context) {
@@ -379,5 +379,5 @@ func GoogleCallback(c *gin.Context) {
 	session.Delete("oauth_state")
 	session.Save()
 
-	c.Redirect(http.StatusFound, "/")
+	c.Redirect(http.StatusFound, "/dashboard")
 }

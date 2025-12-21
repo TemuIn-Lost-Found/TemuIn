@@ -34,31 +34,35 @@
                     </button>
 
                     <div id="notificationDropdown" class="notification-dropdown"
-                            style="display: none; position: absolute; top: 100%; right: 0; width: 360px; max-height: 500px; background: var(--bg-secondary); border: 1px solid var(--bg-tertiary); border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1000; overflow: hidden;">
+                        style="display: none; position: absolute; top: 100%; right: 0; width: 360px; max-width: calc(100vw - 16px); max-height: 500px; background: var(--bg-secondary); border: 1px solid var(--bg-tertiary); border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1000; overflow: hidden;">
 
-                            <!-- Dropdown Header -->
-                            <div style="padding: 12px 16px; border-bottom: 1px solid var(--bg-tertiary); display: flex; justify-content: space-between; align-items: center;">
-                                <h4 style="margin: 0; color: var(--text-header); font-size: 14px; font-weight: 600;">Notifikasi
-                                </h4>
-                                <button id="markAllReadBtn" class="btn"
-                                    style="font-size: 11px; padding: 8px 8px; background: var(--accent);">Tandai Semua Dibaca</button>
-                            </div>
+                        <!-- Dropdown Header -->
+                        <div
+                            style="padding: 12px 16px; border-bottom: 1px solid var(--bg-tertiary); display: flex; justify-content: space-between; align-items: center;">
+                            <h4 style="margin: 0; color: var(--text-header); font-size: 14px; font-weight: 600;">
+                                Notifikasi
+                            </h4>
+                            <button id="markAllReadBtn" class="btn"
+                                style="font-size: 11px; padding: 8px 8px; background: var(--accent);">Tandai Semua
+                                Dibaca</button>
+                        </div>
 
-                            <!-- Notifications List -->
-                            <div id="notificationsList" style="max-height: 400px; overflow-y: auto;">
-                                <div style="padding: 40px 20px; text-align: center; color: var(--text-muted);">
-                                    <span class="material-icons"style="font-size: 48px; opacity: 0.5;">notifications_none</span>
-                                    <p style="margin: 8px 0 0 0; font-size: 13px;">Memuat notifikasi...</p>
-                                </div>
-                            </div>
-
-                            <!-- View All Link -->
-                            <div style="padding: 12px 16px; border-top: 1px solid var(--bg-tertiary); text-align: center;">
-                                <a href="/notifications"
-                                    style="color: var(--accent); text-decoration: none; font-size: 13px; font-weight: 500;">Lihat
-                                    Semua Notifikasi</a>
+                        <!-- Notifications List -->
+                        <div id="notificationsList" style="max-height: 400px; overflow-y: auto;">
+                            <div style="padding: 40px 20px; text-align: center; color: var(--text-muted);">
+                                <span class="material-icons"
+                                    style="font-size: 48px; opacity: 0.5;">notifications_none</span>
+                                <p style="margin: 8px 0 0 0; font-size: 13px;">Memuat notifikasi...</p>
                             </div>
                         </div>
+
+                        <!-- View All Link -->
+                        <div style="padding: 12px 16px; border-top: 1px solid var(--bg-tertiary); text-align: center;">
+                            <a href="/notifications"
+                                style="color: var(--accent); text-decoration: none; font-size: 13px; font-weight: 500;">Lihat
+                                Semua Notifikasi</a>
+                        </div>
+                    </div>
                 </div>
                 {% endif %}
 

@@ -12,7 +12,8 @@ func RegisterRoutes(r *gin.Engine) {
 	public := r.Group("/")
 	public.Use(middleware.AuthOptional())
 	{
-		public.GET("/", handlers.Home)
+		public.GET("/", handlers.LandingPage)
+		public.GET("/dashboard", handlers.Home)
 		public.GET("/login", handlers.LoginPage)
 		public.POST("/login", handlers.Login)
 		public.GET("/register", handlers.RegisterPage)

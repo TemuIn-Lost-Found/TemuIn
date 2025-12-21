@@ -84,7 +84,7 @@ func seedCategories(db *gorm.DB) {
 		"Dokumen":    {"KTP", "SIM", "STNK", "Paspor", "Kartu ATM"},
 		"Aksesoris":  {"Dompet", "Kacamata", "Jam Tangan", "Tas", "Perhiasan"},
 		"Pakaian":    {"Jaket", "Topi", "Sepatu", "Baju", "Celana"},
-		"Lainnya":    {"Kunci", "Mainan", "Alat Tulis", "Payung", "Botol Minum"},
+		"Lainnya":    {"Kunci", "Mainan", "Alat Tulis", "Payung", "Botol Minum", "Lainnya"},
 	}
 
 	iconMap := map[string]string{
