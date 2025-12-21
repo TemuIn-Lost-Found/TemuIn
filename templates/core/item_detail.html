@@ -9,7 +9,7 @@
 
     <!-- Item Header (Pinned Message Style) -->
     <div style="padding: 16px; border-bottom: 1px solid var(--bg-tertiary); margin-bottom: 16px;">
-        <div style="display: flex; gap: 16px;">
+        <div style="display: flex; gap: 16px; flex-wrap: wrap;">
             {% if item.Image %}
             <img src="/static/{{ item.Image }}" style="max-width: 300px; max-height: 300px; border-radius: 8px;">
             {% endif %}
@@ -78,17 +78,17 @@
                 <!-- Admin Actions (Delete/Ban) -->
                 {% if user and user.IsSuperuser %}
                 <div
-                    style="margin-top: 16px; padding: 12px; background: rgba(220, 53, 69, 0.1); border: 1px solid rgba(220, 53, 69, 0.3); border-radius: 8px;">
+                    style="margin-top: 16px; padding: 12px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px;">
                     <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
                         <span class="material-icons"
-                            style="color: #dc3545; font-size: 18px;">admin_panel_settings</span>
-                        <strong style="color: #dc3545; font-size: 13px;">ADMIN ACTIONS</strong>
+                            style="color: var(--red); font-size: 18px;">admin_panel_settings</span>
+                        <strong style="color: var(--red); font-size: 13px;">ADMIN ACTIONS</strong>
                     </div>
                     <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                         <form action="/admin/item/{{ item.ID }}/delete" method="post" style="margin: 0;"
                             onsubmit="return confirm('⚠️ ADMIN: Yakin menghapus postingan ini?');">
                             <button type="submit" class="btn"
-                                style="background: #dc3545; font-size: 12px; padding: 6px 12px; display: flex; align-items: center; gap: 4px;">
+                                style="background: var(--red); font-size: 12px; padding: 6px 12px; display: flex; align-items: center; gap: 4px;">
                                 <span class="material-icons" style="font-size: 14px;">delete_forever</span> Delete Post
                             </button>
                         </form>
@@ -292,7 +292,7 @@
             <!-- CSRF Token Removed (Not strict in demo) -->
 
             <textarea name="content" class="form-control" placeholder="Tulis komentar..." required
-                style="flex: 1; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-normal); padding: 10px;"></textarea>
+                style="flex: 1; border-radius: 8px; border: 1px solid var(--bg-tertiary); background: var(--bg-secondary); color: var(--text-normal); padding: 10px;"></textarea>
             <button type="submit" class="btn" style="border-radius: 8px;">Kirim</button>
         </form>
     </div>
@@ -323,7 +323,7 @@
                 <label style="display: block; color: var(--text-header); font-weight: 500; margin-bottom: 8px;">Alasan
                     Laporan</label>
                 <select name="reason" required
-                    style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-normal);">
+                    style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--bg-tertiary); background: var(--bg-secondary); color: var(--text-normal);">
                     <option value="">-- Pilih Alasan --</option>
                     <option value="fraud">Penipuan</option>
                     <option value="spam">Spam</option>
@@ -338,13 +338,13 @@
                     style="display: block; color: var(--text-header); font-weight: 500; margin-bottom: 8px;">Deskripsi
                     (Opsional)</label>
                 <textarea name="description" rows="4" placeholder="Jelaskan lebih detail tentang laporan Anda..."
-                    style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-normal); resize: vertical;"></textarea>
+                    style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--bg-tertiary); background: var(--bg-secondary); color: var(--text-normal); resize: vertical;"></textarea>
             </div>
 
             <div style="display: flex; gap: 12px; justify-content: flex-end;">
                 <button type="button" onclick="closeReportModal()" class="btn"
-                    style="background: var(--bg-tertiary);">Batal</button>
-                <button type="submit" class="btn" style="background: #dc3545;">Kirim Laporan</button>
+                    style="background: var(--accent);">Batal</button>
+                <button type="submit" class="btn" style="background: var(--red);">Kirim Laporan</button>
             </div>
         </form>
     </div>

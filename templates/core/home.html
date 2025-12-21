@@ -23,7 +23,7 @@ Latest Items
         {% endif %}
 
         <select name="status"
-            style="background: #202225; color: #dcddde; border: 1px solid #202225; padding: 0 12px; border-radius: 4px; outline: none; cursor: pointer; height: 32px; font-size: 13px;">
+            style="background: var(--bg-secondary); color: var(--text-normal); border: 1px solid var(--bg-tertiary); padding: 0 12px; border-radius: 6px; outline: none; cursor: pointer; height: 32px; font-size: 13px;">
             <option value="">All Status</option>
             <option value="LOST" {% if status=='LOST' %}selected{% endif %}>Lost (Hilang)</option>
             <option value="FOUND" {% if status=='FOUND' %}selected{% endif %}>Found (Ditemukan)</option>
@@ -33,7 +33,7 @@ Latest Items
             <span class="material-icons"
                 style="position: absolute; left: 8px; top: 50%; transform: translateY(-50%); font-size: 16px; color: #72767d; pointer-events: none;">place</span>
             <input type="text" name="location" placeholder="Lokasi..." value="{{ location|default:'' }}"
-                style="width: 100%; background: #202225; border: 1px solid #202225; padding: 0 10px 0 30px; border-radius: 4px; color: #dcddde; height: 32px; font-size: 13px;">
+                style="width: 100%; background: var(--bg-secondary); border: 1px solid var(--bg-tertiary); padding: 0 10px 0 30px; border-radius: 6px; color: var(--text-normal); height: 32px; font-size: 13px;">
         </div>
 
         <button type="submit" class="btn"
@@ -61,26 +61,26 @@ Latest Items
     <div class="card-grid">
         {% for item in pinned_items %}
         <a href="/item/{{ item.ID }}" class="thread-card"
-            style="border: 2px solid #faa61a; background: linear-gradient(135deg, #2f3136 0%, #40444b 100%); text-decoration: none; color: inherit; display: block;">
+            style="border: 2px solid var(--gold); text-decoration: none; color: inherit; display: block;">
             <div class="card-image">
                 {% if item.Image %}
                 <img src="/static/{{ item.Image }}" alt="{{ item.Title }}"
                     style="width: 100%; height: 100%; object-fit: cover;">
                 {% else %}
                 <div
-                    style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #72767d; background: #202225;">
+                    style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: var(--text-muted); background: var(--bg-tertiary);">
                     <span class="material-icons" style="font-size: 48px;">image_not_supported</span>
                 </div>
                 {% endif %}
                 <div
-                    style="position: absolute; top: 8px; right: 8px; background: #faa61a; color: black; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                    style="position: absolute; top: 8px; right: 8px; background: var(--gold); color: white; padding: 4px 8px; border-radius: 6px; font-weight: bold; font-size: 11px; box-shadow: var(--shadow-md);">
                     PINNED</div>
             </div>
 
             <div class="card-content">
                 <h4 class="card-title" style="margin: 0 0 8px 0; font-size: 16px;">{{ item.Title }}</h4>
 
-                <div style="margin-bottom: 12px; font-size: 13px; color: #b9bbbe;">
+                <div style="margin-bottom: 12px; font-size: 13px; color: var(--text-normal);">
                     {{ item.Description|truncatewords:15 }}
                 </div>
 
@@ -128,7 +128,7 @@ Latest Items
                 style="width: 100%; height: 100%; object-fit: cover;">
             {% else %}
             <div
-                style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #72767d; background: #202225;">
+                style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: var(--text-muted); background: var(--bg-tertiary);">
                 <span class="material-icons" style="font-size: 48px;">image_not_supported</span>
             </div>
             {% endif %}
