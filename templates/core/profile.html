@@ -5,43 +5,66 @@
 {% block content %}
 <div class="profile-container" style="display: flex; gap: 24px; flex-wrap: wrap;">
     <!-- Profile Info -->
-    <div style="flex: 1; min-width: 300px; background: var(--bg-secondary); padding: 24px; border-radius: 8px; height: fit-content;">
+    <div
+        style="flex: 1; min-width: 300px; background: var(--bg-secondary); padding: 24px; border-radius: 8px; height: fit-content;">
         <div style="text-align: center; margin-bottom: 24px;">
-            <div style="width: 80px; height: 80px; background: var(--accent); border-radius: 50%; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: bold; color: white;">
+            <div
+                style="width: 80px; height: 80px; background: var(--accent); border-radius: 50%; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: bold; color: white; box-shadow: var(--shadow-md);">
                 {{ user.Username|slice:":1"|upper }}
             </div>
             <h2 style="margin: 0; color: var(--text-header);">{{ user.Username }}</h2>
             <div style="color: var(--text-muted);">Member since {{ FormatTime(user.DateJoined, "Jan 2006") }}</div>
         </div>
-        
+
         <div style="background: var(--bg-tertiary); padding: 16px; border-radius: 8px; margin-bottom: 24px;">
-            <div style="font-size: 12px; color: var(--text-muted); text-transform: uppercase; font-weight: bold;">Wallet Balance</div>
+            <div style="font-size: 12px; color: var(--text-muted); text-transform: uppercase; font-weight: bold;">Wallet
+                Balance</div>
             <div style="font-size: 24px; color: var(--gold); font-weight: bold; margin: 4px 0;">
                 {{ user.CoinBalance }} <span style="font-size: 14px; color: var(--text-normal);">Coins</span>
             </div>
-            
-            <form action="/topup" method="post" style="margin-top: 16px;">
-                <!-- CSRF Token Removed -->
-                <div style="display: flex; gap: 8px;">
-                    <select name="amount" style="flex: 1; padding: 8px; border-radius: 4px; background: var(--bg-primary); color: white; border: none;">
-                        <option value="100">100 Coins</option>
-                        <option value="500">500 Coins</option>
-                        <option value="1000">1000 Coins</option>
-                    </select>
-                    <button type="submit" class="btn" style="background-color: var(--green);">Top Up</button>
+
+            <!-- TopUp Options -->
+            <div style="margin-top: 16px;">
+                <h4 style="margin: 0 0 12px 0; color: var(--text-header); font-size: 14px;">Top Up Coins</h4>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <button onclick="topUpCoins(100)" class="btn topup-btn"
+                        style="width: 100%; display: flex; justify-content: space-between; align-items: center; background: var(--accent-secondary);">
+                        <span>💰 100 Coins</span>
+                        <span style="font-weight: bold;">Rp 1.000</span>
+                    </button>
+                    <button onclick="topUpCoins(500)" class="btn topup-btn"
+                        style="width: 100%; display: flex; justify-content: space-between; align-items: center; background: var(--accent-secondary);">
+                        <span>💰 500 Coins</span>
+                        <span style="font-weight: bold;">Rp 5.000</span>
+                    </button>
+                    <button onclick="topUpCoins(1000)" class="btn topup-btn"
+                        style="width: 100%; display: flex; justify-content: space-between; align-items: center; background: var(--accent-secondary);">
+                        <span>💰 1.000 Coins</span>
+                        <span style="font-weight: bold;">Rp 10.000</span>
+                    </button>
                 </div>
-            </form>
+                <div style="margin-top: 8px; font-size: 11px; color: var(--text-muted); text-align: center;">
+                    Secure payment powered by Midtrans
+                </div>
+            </div>
         </div>
-        
+
+
+        <!-- Witdhrawal Section -->
+        <a href="/withdraw" class="btn"
+            style="width:100%; margin-top:8px; display:block; text-align:center; text-decoration:none; background-color: var(--accent); color: white;">Tukar
+            / Cairkan Coins</a>
+
         <div>
-            <h4 style="color: var(--text-header); border-bottom: 1px solid var(--bg-tertiary); padding-bottom: 8px;">Account Stats</h4>
+            <h4 style="color: var(--text-header); border-bottom: 1px solid var(--bg-tertiary); padding-bottom: 8px;">
+                Account Stats</h4>
             <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
                 <span>Reports Posted</span>
                 <span style="color: var(--text-header);">{{ items|length }}</span>
             </div>
         </div>
     </div>
-    
+
     <!-- My Reports -->
     <div style="flex: 2; min-width: 300px;">
         <h3 style="color: var(--text-header); margin-top: 0; margin-bottom: 16px;">My Reports</h3>
@@ -49,13 +72,14 @@
             {% for item in items %}
             <div class="thread-card">
                 {% if item.Image %}
-                <img src="/static/{{ item.Image }}" alt="{{ item.Title }}" class="card-image">
+                <img src="/images/{{ item.ID }}" alt="{{ item.Title }}" class="card-image">
                 {% else %}
-                <div class="card-image" style="display: flex; align-items: center; justify-content: center; color: #72767d;">
+                <div class="card-image"
+                    style="display: flex; align-items: center; justify-content: center; color: #72767d;">
                     <span class="material-icons">image_not_supported</span>
                 </div>
                 {% endif %}
-                
+
                 <div class="card-content">
                     <h4 class="card-title">{{ item.Title }}</h4>
                     <div class="card-meta">
@@ -64,19 +88,22 @@
                     </div>
                     {% if not item.IsHighlighted and item.Status == 'LOST' %}
                     <form action="/item/{{ item.ID }}/highlight" method="post" style="margin-top: 8px;">
-                        
-                        <button type="submit" class="btn" style="width: 100%; font-size: 12px; background-color: var(--gold); color: black;">
+
+                        <button type="submit" class="btn"
+                            style="width: 100%; font-size: 12px;font-weight: bold; background-color: var(--gold); color: black;">
                             Boost (50 Coins)
                         </button>
                     </form>
                     {% endif %}
-                     {% if item.IsHighlighted %}
-                    <div style="margin-top: 8px; font-size: 12px; color: var(--gold); text-align: center;">Target Highlighted!</div>
+                    {% if item.IsHighlighted %}
+                    <div style="margin-top: 8px; font-size: 12px; color: var(--gold); text-align: center;">Target
+                        Highlighted!</div>
                     {% endif %}
                 </div>
             </div>
             {% empty %}
-            <div style="color: var(--text-muted); padding: 20px; text-align: center; background: var(--bg-secondary); border-radius: 8px; width: 100%;">
+            <div
+                style="color: var(--text-muted); padding: 20px; text-align: center; background: var(--bg-secondary); border-radius: 8px; width: 100%;">
                 You haven't posted any items yet.
             </div>
             {% endfor %}
@@ -88,31 +115,206 @@
             {% for item in found_items %}
             <div class="thread-card">
                 {% if item.Image %}
-                <img src="/static/{{ item.Image }}" alt="{{ item.Title }}" class="card-image">
+                <img src="/images/{{ item.ID }}" alt="{{ item.Title }}" class="card-image">
                 {% else %}
-                <div class="card-image" style="display: flex; align-items: center; justify-content: center; color: #72767d; background: #2f3136;">
+                <div class="card-image"
+                    style="display: flex; align-items: center; justify-content: center; color: var(--text-muted); background: var(--bg-tertiary);">
                     <span class="material-icons">volunteer_activism</span>
                 </div>
                 {% endif %}
-                
+
                 <div class="card-content">
                     <h4 class="card-title">{{ item.Title }}</h4>
                     <div class="card-meta">
                         <span class="card-badge badge-found">FOUND</span>
                         <a href="/item/{{ item.ID }}" style="color: var(--accent); text-decoration: none;">View</a>
                     </div>
-                    <div style="margin-top: 8px; font-size: 12px; color: var(--green); display: flex; align-items: center; gap: 4px;">
+                    <div
+                        style="margin-top: 8px; font-size: 12px; color: var(--green); display: flex; align-items: center; gap: 4px;">
                         <span class="material-icons" style="font-size: 14px;">check_circle</span>
                         You found this!
                     </div>
                 </div>
             </div>
             {% empty %}
-            <div style="color: var(--text-muted); padding: 20px; text-align: center; background: var(--bg-secondary); border-radius: 8px; width: 100%;">
+            <div
+                style="color: var(--text-muted); padding: 20px; text-align: center; background: var(--bg-secondary); border-radius: 8px; width: 100%;">
                 You haven't found any items yet.
             </div>
             {% endfor %}
         </div>
+
+        <!-- Riwayat Transaksi -->
+        <h3 style="color: var(--text-header); margin-top: 32px; margin-bottom: 12px;">Riwayat Transaksi</h3>
+        <div style="background: var(--bg-secondary); padding: 12px; border-radius: 8px;">
+            {% if transactions and transactions|length > 0 %}
+            <table style="width:100%; border-collapse: collapse; font-size: 13px;">
+                <thead>
+                    <tr style="text-align:left; color:var(--text-muted); font-size:12px;">
+                        <th style="padding:8px 6px;">Tanggal</th>
+                        <th style="padding:8px 6px;">Tipe</th>
+                        <th style="padding:8px 6px;">Coins</th>
+                        <th style="padding:8px 6px;">Nominal (Rp)</th>
+                        <th style="padding:8px 6px;">Metode</th>
+                        <th style="padding:8px 6px;">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t in transactions %}
+                    <tr style="border-top:1px solid var(--bg-tertiary);">
+                        <td style="padding:8px 6px;">{{ t.Date }}</td>
+                        <td style="padding:8px 6px;">
+                            {% if t.Type == "TopUp" %}
+                            <span style="color: var(--green); font-weight: 500;">Top Up</span>
+                            {% else %}
+                            <span style="color: var(--amber); font-weight: 500;">Withdraw</span>
+                            {% endif %}
+                        </td>
+                        <td style="padding:8px 6px; font-weight: bold; color: var(--gold);">
+                            {% if t.Type == "Withdraw" %}-{% else %}+{% endif %}{{ t.Amount }}
+                        </td>
+                        <td style="padding:8px 6px;">
+                            {% if t.Price > 0 %}Rp {{ t.Price }}{% else %}-{% endif %}
+                        </td>
+                        <td style="padding:8px 6px;">
+                            {% if t.Method %}{{ t.Method|upper }}{% else %}-{% endif %}
+                        </td>
+                        <td style="padding:8px 6px;">
+                            {% if t.Status == "success" %}
+                            <span style="color:var(--green); font-weight:600;">Sukses</span>
+                            {% elif t.Status == "pending" %}
+                            <span style="color:#faa61a; font-weight:600;">Pending</span>
+                            {% elif t.Status == "failed" or t.Status == "rejected" %}
+                            <span style="color: var(--red); font-weight:600;">Gagal</span>
+                            {% else %}
+                            <span style="color:var(--text-muted);">{{ t.Status|title }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div style="color:var(--text-muted); padding: 24px; text-align:center;">
+                Belum ada riwayat transaksi.
+            </div>
+            {% endif %}
+        </div>
     </div>
 </div>
+
+<!-- Midtrans Snap.js  -->
+<script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ midtrans_client_key }}"></script>
+<script>
+    // helper to sleep (optional)
+    const sleep = (ms) => new Promise(res => setTimeout(res, ms));
+
+    async function topUpCoins(amount, evt) {
+        evt = evt || window.event;
+        const buttons = document.querySelectorAll('.topup-btn');
+        const clickedButton = evt.target.closest('.topup-btn');
+
+        // Disable all buttons and show loading
+        buttons.forEach(btn => btn.disabled = true);
+        const originalContent = clickedButton.innerHTML;
+        clickedButton.innerHTML = '<span>⏳ Processing...</span>';
+
+        try {
+            const res = await fetch('/topup/initiate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ amount: amount })
+            });
+            const data = await res.json();
+            if (!data.snap_token) throw new Error(data.error || 'No token returned');
+
+            const orderId = data.order_id;
+
+            // Open snap popup
+            snap.pay(data.snap_token, {
+                onSuccess: function (result) {
+                    // Immediately confirm with Midtrans core API
+                    confirmAndFinalize(orderId, clickedButton, originalContent, buttons);
+                },
+                onPending: function (result) {
+                    // Start polling to check status (useful for QRIS)
+                    startPollingConfirm(orderId, clickedButton, originalContent, buttons);
+                },
+                onError: function (err) {
+                    console.error('Snap error', err);
+                    alert('❌ Pembayaran gagal. Silakan coba lagi.');
+                    buttons.forEach(btn => btn.disabled = false);
+                    clickedButton.innerHTML = originalContent;
+                },
+                onClose: function () {
+                    // user closed popup — re-enable
+                    buttons.forEach(btn => btn.disabled = false);
+                    clickedButton.innerHTML = originalContent;
+                }
+            });
+        } catch (err) {
+            console.error(err);
+            alert('❌ Gagal memulai pembayaran: ' + (err.message || 'Unknown'));
+            buttons.forEach(btn => btn.disabled = false);
+            if (clickedButton) clickedButton.innerHTML = originalContent;
+        }
+    }
+
+    // Polling helper: ping /topup/confirm every 5s up to 2 minutes
+    function startPollingConfirm(orderId, clickedButton, originalContent, buttons) {
+        let attempts = 0;
+        const maxAttempts = 24; // 24 * 5s = 120s
+        const interval = setInterval(async () => {
+            attempts++;
+            try {
+                const r = await fetch('/topup/confirm', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ order_id: orderId })
+                });
+                const json = await r.json();
+                if (json && json.local_status === 'success') {
+                    clearInterval(interval);
+                    alert('✅ Pembayaran terverifikasi! Coins ditambahkan.');
+                    window.location.reload();
+                    return;
+                }
+            } catch (e) {
+                console.error('Polling error', e);
+            }
+
+            if (attempts >= maxAttempts) {
+                clearInterval(interval);
+                alert('⚠️ Timeout verifikasi. Silakan cek riwayat topup.');
+                buttons.forEach(btn => btn.disabled = false);
+                if (clickedButton) clickedButton.innerHTML = originalContent;
+            }
+        }, 5000);
+    }
+
+    async function confirmAndFinalize(orderId, clickedButton, originalContent, buttons) {
+        try {
+            const r = await fetch('/topup/confirm', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ order_id: orderId })
+            });
+            const json = await r.json();
+            if (json && json.local_status === 'success') {
+                alert('✅ Pembayaran berhasil! Coins Anda telah ditambahkan.');
+                window.location.reload();
+            } else {
+                alert('⚠️ Pembayaran sukses di Midtrans tetapi belum diverifikasi. Silakan cek riwayat topup.');
+                window.location.reload();
+            }
+        } catch (e) {
+            console.error('Confirm error', e);
+            alert('❌ Gagal memverifikasi pembayaran. Cek server logs.');
+            buttons.forEach(btn => btn.disabled = false);
+            if (clickedButton) clickedButton.innerHTML = originalContent;
+        }
+    }
+
+
+</script>
 {% endblock %}

@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+
+{% block header_title %}tukar / cairkan coins{% endblock %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 0 auto; padding: 24px;">
+    <div
+        style="background: var(--bg-secondary); border-radius: 12px; padding: 32px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+
+        <div style="text-align: center; margin-bottom: 32px;">
+            <div
+                style="width: 64px; height: 64px; background: var(--accent); border-radius: 50%; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center;">
+                <span class="material-icons" style="font-size: 32px; color: white;">redeem</span>
+            </div>
+            <h2 style="color: var(--text-header); margin: 0 0 8px 0;">Tukar / Cairkan Coins</h2>
+            <p style="color: var(--text-muted); margin: 0;">Tukar koin anda menjadi saldo uang tunai</p>
+        </div>
+
+        <div
+            style="background: var(--bg-tertiary); padding: 16px; border-radius: 8px; margin-bottom: 24px; text-align: center;">
+            <span style="display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">Saldo Koin
+                Anda</span>
+            <span style="font-size: 24px; font-weight: bold; color: var(--gold);">{{ user.CoinBalance }} Coins</span>
+        </div>
+
+        <form id="withdrawForm">
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; color: var(--text-header); margin-bottom: 8px; font-size: 14px;">Jumlah
+                    Coins</label>
+                <div style="position: relative;">
+                    <span
+                        style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--gold);">💰</span>
+                    <input type="number" name="coins" min="100" step="100" required placeholder="Min. 100"
+                        style="width: 100%; padding: 12px 12px 12px 40px; background: var(--bg-primary); border: 1px solid var(--bg-tertiary); border-radius: 8px; color: var(--text-normal); font-size: 14px;">
+                </div>
+                <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">
+                    *Minimal 100 coins, kelipatan 100. (1 Coin = Rp 10)
+                </div>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; color: var(--text-header); margin-bottom: 8px; font-size: 14px;">Metode
+                    Pencairan</label>
+                <select name="method" required
+                    style="width: 100%; padding: 12px; background: var(--bg-primary); border: 1px solid var(--bg-tertiary); border-radius: 8px; color: var(--text-normal); font-size: 14px;">
+                    <option value="" disabled selected>Pilih Metode</option>
+                    <option value="bank_transfer">Transfer Bank (BCA, Mandiri, BRI, BNI)</option>
+                    <option value="gopay">GoPay</option>
+                    <option value="ovo">OVO</option>
+                    <option value="dana">DANA</option>
+                    <option value="shopeepay">ShopeePay</option>
+                </select>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+                <div>
+                    <label style="display: block; color: var(--text-header); margin-bottom: 8px; font-size: 14px;">Nama
+                        Pemilik</label>
+                    <input type="text" name="account_name" required placeholder="Atas Nama"
+                        style="width: 100%; padding: 12px; background: var(--bg-primary); border: 1px solid var(--bg-tertiary); border-radius: 8px; color: var(--text-normal); font-size: 14px;">
+                </div>
+                <div>
+                    <label style="display: block; color: var(--text-header); margin-bottom: 8px; font-size: 14px;">Nomor
+                        Rekening/HP</label>
+                    <input type="text" name="account_number" required placeholder="No. Rek/HP"
+                        style="width: 100%; padding: 12px; background: var(--bg-primary); border: 1px solid var(--bg-tertiary); border-radius: 8px; color: var(--text-normal); font-size: 14px;">
+                </div>
+            </div>
+
+            <div style="margin-bottom: 32px;">
+                <label style="display: block; color: var(--text-header); margin-bottom: 8px; font-size: 14px;">Catatan
+                    (Opsional)</label>
+                <textarea name="note" rows="2" placeholder="Contoh: Transfer ke Bank BCA"
+                    style="width: 100%; padding: 12px; background: var(--bg-primary); border: 1px solid var(--bg-tertiary); border-radius: 8px; color: var(--text-normal); font-size: 14px; resize: vertical;"></textarea>
+            </div>
+
+            <div style="display: flex; gap: 12px;">
+                <a href="/profile" class="btn"
+                    style="flex: 1; background: var(--bg-tertiary); color: var(--text-normal); text-align: center; text-decoration: none; padding: 12px;">Batal</a>
+                <button type="submit" class="btn"
+                    style="flex: 2; background: var(--accent); color: white; padding: 12px;">Ajukan Penarikan</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<script>
+    document.getElementById('withdrawForm').addEventListener('submit', async (ev) => {
+        ev.preventDefault();
+        const form = ev.target;
+
+        const coins = parseInt(form.coins.value, 10);
+        const maxCoins = {{ user.CoinBalance }};
+
+    if (coins > maxCoins) {
+        alert('Saldo coin tidak mencukupi!');
+        return;
+    }
+
+    if (!coins || coins < 100 || coins % 100 !== 0) {
+        alert('Jumlah coins minimal 100 dan kelipatan 100.');
+        return;
+    }
+
+    const formData = {
+        coins: coins,
+        method: form.method.value,
+        account_name: form.account_name.value.trim(),
+        account_number: form.account_number.value.trim(),
+        note: form.note.value.trim()
+    };
+
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerText;
+    submitBtn.disabled = true;
+    submitBtn.innerText = 'Mengirim...';
+
+    try {
+        const res = await fetch('/withdraw', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+        });
+        const json = await res.json();
+
+        if (!res.ok) {
+            alert('Gagal: ' + (json.error || 'Terjadi kesalahan sistem'));
+        } else {
+            alert('✅ Permintaan penarikan berhasil diajukan! Cek status di Profil.');
+            window.location.href = '/profile';
+        }
+    } catch (e) {
+        console.error(e);
+        alert('Terjadi kesalahan koneksi.');
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerText = originalText;
+    }
+    });
+</script>
+{% endblock %}

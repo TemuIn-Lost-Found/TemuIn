@@ -22,14 +22,35 @@ CREATE DATABASE temuin_db;
 
 *Catatan: Konfigurasi default di `config/database.go` menggunakan user `root` tanpa password. Jika konfigurasi MySQL teman Anda berbeda, minta mereka menyesuaikan file `config/database.go` baris 11.*
 
-### 2. Install Dependencies
+### 2. Konfigurasi Environment Variables
+
+**Buat file `.env`** di root project:
+
+```bash
+# Copy dari template
+cp .env.example .env
+```
+
+**Edit `.env`** dengan kredensial Google OAuth Anda:
+
+```env
+# Google OAuth Configuration
+GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=your-client-secret
+GOOGLE_REDIRECT_URL=http://localhost:8080/auth/google/callback
+```
+
+> **Catatan**: File `.env` sudah di-gitignore untuk keamanan. Jangan commit file ini!
+
+
+### 3. Install Dependencies
 Jalankan perintah ini di terminal (di dalam folder project) untuk mengunduh semua library yang dibutuhkan:
 
 ```bash
 go mod tidy
 ```
 
-### 3. Migrasi & Seeding Data (Wajib)
+### 4. Migrasi & Seeding Data (Wajib)
 Project ini memiliki script khusus untuk membuat tabel dan mengisi data awal (dummy data). **Langkah ini wajib dijalankan pertama kali.**
 
 Jalankan perintah:
@@ -42,7 +63,7 @@ Jika berhasil, akan muncul pesan "Database reset complete and seeded!". Ini akan
 - **Admin**: User `admin` / Pass `admin`
 - **Warga**: User `warga_lokal` / Pass `password`
 
-### 4. Menjalankan Aplikasi
+### 5. Menjalankan Aplikasi
 Setelah database siap, jalankan server utama:
 
 ```bash

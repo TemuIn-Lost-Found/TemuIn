@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+
+{% block header_title %}Notifikasi{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto;">
+    <div style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
+        <h2 style="margin: 0; color: var(--text-header);">Notifikasi Anda</h2>
+        <button onclick="markAllNotificationsAsRead()" class="btn" style="font-size: 13px; padding: 8px 16px;">
+            <span class="material-icons" style="font-size: 16px; margin-right: 4px;">done_all</span>
+            Tandai Semua Dibaca
+        </button>
+    </div>
+
+    <div id="notificationListContainer">
+        {% if notifications|length > 0 %}
+        {% for notification in notifications %}
+        <div class="notification-card" data-id="{{ notification.ID }}"
+            style="background: var(--bg-secondary); border: 1px solid var(--bg-tertiary); border-radius: 8px; padding: 16px; margin-bottom: 12px; {% if not notification.IsRead %}border-left: 4px solid #faa61a;{% endif %}">
+
+            <div style="display: flex; gap: 16px;">
+                <!-- Icon -->
+                <div style="flex-shrink: 0;">
+                    {% if notification.Type == 'report' %}
+                    <div
+                        style="width: 40px; height: 40px; border-radius: 50%; background: rgba(250, 166, 26, 0.1); display: flex; align-items: center; justify-content: center;">
+                        <span class="material-icons" style="color: #faa61a; font-size: 20px;">report</span>
+                    </div>
+                    {% elif notification.Type == 'warning' %}
+                    <div
+                        style="width: 40px; height: 40px; border-radius: 50%; background: rgba(220, 53, 69, 0.1); display: flex; align-items: center; justify-content: center;">
+                        <span class="material-icons" style="color: #dc3545; font-size: 20px;">warning</span>
+                    </div>
+                    {% elif notification.Type == 'system_update' %}
+                    <div
+                        style="width: 40px; height: 40px; border-radius: 50%; background: rgba(0, 123, 255, 0.1); display: flex; align-items: center; justify-content: center;">
+                        <span class="material-icons" style="color: #007bff; font-size: 20px;">info</span>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Content -->
+                <div style="flex: 1;">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                        <h4
+                            style="margin: 0; color: var(--text-header); font-size: 15px; {% if not notification.IsRead %}font-weight: 600;{% else %}font-weight: 500;{% endif %}">
+                            {{ notification.Title }}
+                        </h4>
+                        {% if not notification.IsRead %}
+                        <span
+                            style="background: #faa61a; color: white; font-size: 10px; padding: 2px 8px; border-radius: 12px; font-weight: 600;">BARU</span>
+                        {% endif %}
+                    </div>
+
+                    <p style="margin: 0 0 8px 0; color: var(--text-normal); font-size: 14px;">
+                        {{ notification.Message }}
+                    </p>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="color: var(--text-muted); font-size: 12px;">
+                            {{ FormatTime(notification.CreatedAt, "02 Jan 2006 15:04") }}
+                        </span>
+
+                        <div style="display: flex; gap: 8px;">
+                            {% if notification.ReferenceURL %}
+                            <a href="{{ notification.ReferenceURL }}" class="btn"
+                                style="font-size: 12px; padding: 6px 12px; background: var(--accent); text-decoration: none;"
+                                onclick="markNotificationAsRead({{ notification.ID }})">
+                                Lihat Detail
+                            </a>
+                            {% endif %}
+                            {% if not notification.IsRead %}
+                            <button onclick="markSingleAsRead({{ notification.ID }})" class="btn"
+                                style="font-size: 12px; padding: 6px 12px; background: var(--bg-tertiary);">
+                                Tandai Dibaca
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div
+            style="text-align: center; padding: 60px 20px; background: var(--bg-secondary); border-radius: 12px; border: 1px solid var(--bg-tertiary);">
+            <span class="material-icons"
+                style="font-size: 64px; color: var(--text-muted); opacity: 0.5;">notifications_none</span>
+            <h3 style="margin: 16px 0 8px 0; color: var(--text-header); font-size: 18px;">Tidak Ada Notifikasi</h3>
+            <p style="margin: 0; color: var(--text-muted); font-size: 14px;">Anda belum memiliki notifikasi apapun.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    function markSingleAsRead(notificationId) {
+        fetch(`/api/notifications/${notificationId}/read`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                }
+            })
+            .catch(error => {
+                console.error('Error marking notification as read:', error);
+            });
+    }
+
+    function markAllNotificationsAsRead() {
+        if (!confirm('Tandai semua notifikasi sebagai sudah dibaca?')) {
+            return;
+        }
+
+        fetch('/api/notifications/read-all', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Gagal menandai semua dibaca');
+                }
+            })
+            .catch(error => {
+                console.error('Error marking all as read:', error);
+                alert('Terjadi kesalahan network');
+            });
+    }
+</script>
+{% endblock %}

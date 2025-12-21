@@ -1,63 +1,109 @@
-    <nav class="sidebar">
-        <div class="sidebar-header">
-            <span class="material-icons">search</span>
-            TemuIN
-        </div>
-        <div class="category-list">
-            <div class="category-section-label">Menu</div>
-            <a href="/" class="category-item {% if request.URL.Path == '/' %}active{% endif %}">
-                <span class="material-icons" style="font-size: 20px; margin-right: 8px;">home</span>
-                Home
-            </a>
-            <a href="/report" class="category-item {% if request.URL.Path == '/report' %}active{% endif %}">
-                <span class="material-icons" style="font-size: 20px; margin-right: 8px;">add_circle</span>
-                Buat Laporan / Report
-            </a>
-            
-            <div class="category-section-label">Kategori</div>
-            {% for category in sidebar_categories %}
-            <div class="category-group">
-                <!-- Using capitalized struct fields -->
-                <a href="/category/{{ category.ID }}" class="category-item {% if active_category and active_category.ID == category.ID %}active{% endif %}" style="justify-content: space-between;">
-                    <span style="display: flex; align-items: center; gap: 8px;">
-                        <span class="material-icons" style="font-size: 20px;">{{ category.Icon|default:'folder' }}</span>
-                        {{ category.Name }}
-                    </span>
-                    {% if category.SubCategories %}
-                    <span class="material-icons" style="font-size: 16px;">keyboard_arrow_down</span>
-                    {% endif %}
-                </a>
-                
-                {% if active_category and active_category.ID == category.ID %}
-                <div class="subcategory-list" style="margin-left: 12px; border-left: 2px solid #4f545c; padding-left: 8px; margin-bottom: 8px;">
-                    {% for sub in category.SubCategories %}
-                    <a href="/subcategory/{{ sub.ID }}" class="category-item {% if active_subcategory and active_subcategory.ID == sub.ID %}active-channel{% endif %}" style="padding: 4px 8px; font-size: 13px; color: #b9bbbe; height: auto; margin-bottom: 2px;">
-                        <span class="material-icons" style="font-size: 14px; margin-right: 6px;">tag</span>
-                        {{ sub.Name }}
-                    </a>
-                    {% endfor %}
-                </div>
+<!-- Mobile Menu Toggle Button -->
+<button class="menu-toggle" aria-label="Toggle Menu">
+    <span class="material-icons">menu</span>
+</button>
+
+<!-- Sidebar Overlay for mobile -->
+<div class="sidebar-overlay"></div>
+
+<nav class="sidebar">
+    <div class="sidebar-header">
+        <span class="material-icons">search</span>
+        TemuIN
+        <button class="sidebar-close" aria-label="Close Menu">
+            <span class="material-icons">close</span>
+        </button>
+    </div>
+    <div class="category-list">
+        <div class="category-section-label">Menu</div>
+        <a href="/dashboard" class="category-item {% if request.URL.Path == '/dashboard' %}active{% endif %}">
+            <span class="material-icons" style="font-size: 20px; margin-right: 8px;">home</span>
+            Home
+        </a>
+        <a href="/report" class="category-item {% if request.URL.Path == '/report' %}active{% endif %}">
+            <span class="material-icons" style="font-size: 20px; margin-right: 8px;">add_circle</span>
+            Buat Laporan / Report
+        </a>
+
+        <div class="category-section-label">Kategori</div>
+        {% for category in sidebar_categories %}
+        <div class="category-group">
+            <!-- Added onclick handler -->
+            <a href="/category/{{ category.ID }}"
+                class="category-item {% if active_category and active_category.ID == category.ID %}active{% endif %}"
+                style="justify-content: space-between;"
+                onclick="toggleCategory(event)">
+                <span style="display: flex; align-items: center; gap: 8px;">
+                    <span class="material-icons" style="font-size: 20px;">{{ category.Icon|default:'folder' }}</span>
+                    {{ category.Name }}
+                </span>
+                {% if category.SubCategories %}
+                <span class="material-icons arrow-icon" style="font-size: 16px; transition: transform 0.2s;">keyboard_arrow_down</span>
                 {% endif %}
-            </div>
-            {% empty %}
-            <div style="padding: 0 10px; color: var(--text-muted); font-size: 12px;">Belum ada kategori</div>
-            {% endfor %}
-        </div>
-        
-        <div class="user-panel">
-             {% if user %}
-                <div style="flex: 1;">
-                    <a href="/profile" style="color: white; text-decoration: none; font-weight: bold; display: block; margin-bottom: 2px;">{{ user.Username }}</a>
-                    <div style="font-size: 12px; color: var(--gold); display: flex; align-items: center; font-family: monospace;">
-                        <span class="material-icons" style="font-size: 14px; margin-right: 4px;">monetization_on</span>
-                        {{ user.CoinBalance }} Coins
-                    </div>
-                </div>
-                <a href="/logout" style="color: var(--text-muted); padding: 8px; border-radius: 4px; transition: 0.2s;" title="Logout">
-                    <span class="material-icons">logout</span>
+            </a>
+
+            <!-- Render subcategories ALWAYS, but hide if not active -->
+            {% if category.SubCategories %}
+            <div class="subcategory-list"
+                style="margin-left: 12px; border-left: 2px solid var(--accent); padding-left: 8px; margin-bottom: 8px; {% if active_category and active_category.ID == category.ID %}display: block;{% else %}display: none;{% endif %}">
+                {% for sub in category.SubCategories %}
+                <a href="/subcategory/{{ sub.ID }}"
+                    class="category-item {% if active_subcategory and active_subcategory.ID == sub.ID %}active-channel{% endif %}"
+                    style="padding: 4px 8px; font-size: 13px; color: var(--text-muted); height: auto; margin-bottom: 2px;">
+                    <span class="material-icons" style="font-size: 14px; margin-right: 6px;">tag</span>
+                    {{ sub.Name }}
                 </a>
-             {% else %}
-                <a href="/login" class="btn" style="width: 100%; text-align: center; font-weight: 600;">Login / Register</a>
-             {% endif %}
+                {% endfor %}
+            </div>
+            {% endif %}
         </div>
-    </nav>
+        {% empty %}
+        <div style="padding: 0 10px; color: var(--text-muted); font-size: 12px;">Belum ada kategori</div>
+        {% endfor %}
+    </div>
+
+    <!-- Toggle Script -->
+    <script>
+        function toggleCategory(e) {
+            const link = e.currentTarget;
+            
+            // If it is the currently active category, toggle close/open
+            if (link.classList.contains('active')) {
+                e.preventDefault(); // Prevent reloading the page
+                const parent = link.closest('.category-group');
+                const subList = parent.querySelector('.subcategory-list');
+                
+                if (subList) {
+                    if (subList.style.display === 'none') {
+                        subList.style.display = 'block';
+                    } else {
+                        subList.style.display = 'none';
+                    }
+                }
+            }
+            // If not active, let it propagate (navigate to the category page)
+        }
+    </script>
+    </div>
+
+    <div class="user-panel">
+        {% if user %}
+        <div style="flex: 1;">
+            <a href="/profile"
+                style="color: var(--text-header); text-decoration: none; font-weight: bold; display: block; margin-bottom: 2px;">
+                {{user.Username }}</a>
+            <div
+                style="font-size: 12px; color: var(--gold); display: flex; align-items: center; font-family: monospace;">
+                <span class="material-icons" style="font-size: 14px; margin-right: 4px;">monetization_on</span>
+                {{ user.CoinBalance }} Coins
+            </div>
+        </div>
+        <a href="/logout" style="color: var(--text-muted); padding: 8px; border-radius: 4px; transition: 0.2s;"
+            title="Logout">
+            <span class="material-icons">logout</span>
+        </a>
+        {% else %}
+        <a href="/login" class="btn" style="width: 100%; text-align: center; font-weight: 600;">Login / Register</a>
+        {% endif %}
+    </div>
+</nav>
