@@ -49,6 +49,34 @@
             </div>
         </div>
 
+
+        <!-- Witdhrawal Section -->
+        <!-- Under Wallet Balance -->
+        <button id="withdrawBtn" class="btn" style="width:100%; margin-top:8px;">Tukar / Cairkan Coins</button>
+
+        <!-- Modal (simple inline) -->
+        <div id="withdrawModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); align-items:center; justify-content:center;">
+        <div style="background:var(--bg); padding:20px; border-radius:8px; width:360px; max-width:95%;">
+            <h3>Tukar / Cairkan Coins</h3>
+            <form id="withdrawForm">
+            <label>Jumlah Coins (min 100, kelipatan 100)</label>
+            <input type="number" name="coins" min="100" step="100" required style="width:100%; padding:8px; margin-bottom:8px;">
+            <label>Metode (bank/ewallet)</label>
+            <input name="method" required placeholder="bank" style="width:100%; padding:8px; margin-bottom:8px;">
+            <label>Nama Rekening</label>
+            <input name="account_name" required style="width:100%; padding:8px; margin-bottom:8px;">
+            <label>No. Rekening</label>
+            <input name="account_number" required style="width:100%; padding:8px; margin-bottom:12px;">
+            <label>Catatan (opsional)</label>
+            <input name="note" style="width:100%; padding:8px; margin-bottom:12px;">
+            <div style="display:flex; gap:8px;">
+                <button type="submit" class="btn" style="flex:1">Ajukan Penarikan</button>
+                <button type="button" id="withdrawCancel" class="btn" style="flex:1">Batal</button>
+            </div>
+            </form>
+        </div>
+        </div>
+
         <div>
             <h4 style="color: var(--text-header); border-bottom: 1px solid var(--bg-tertiary); padding-bottom: 8px;">
                 Account Stats</h4>
@@ -139,7 +167,7 @@
         </div>
 
         <!-- History Topup Section -->
-        <h3 style="color: var(--text-header); margin-top: 32px; margin-bottom: 12px;">Riwayat Top-up</h3>
+        <h3 style="color: var(--text-header); margin-top: 32px; margin-bottom: 12px;">Riwayat Transaksi</h3>
         <div style="background: var(--bg-secondary); padding: 12px; border-radius: 8px;">
             {% if topup_transactions and topup_transactions|length > 0 %}
             <table style="width:100%; border-collapse: collapse; font-size: 13px;">
@@ -292,5 +320,60 @@
             if (clickedButton) clickedButton.innerHTML = originalContent;
         }
     }
+
+    document.getElementById('withdrawBtn').addEventListener('click', () => {
+    document.getElementById('withdrawModal').style.display = 'flex';
+    });
+    document.getElementById('withdrawCancel').addEventListener('click', () => {
+    document.getElementById('withdrawModal').style.display = 'none';
+    });
+
+    document.getElementById('withdrawForm').addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    const form = ev.target;
+    const coins = parseInt(form.coins.value, 10);
+    const method = form.method.value.trim();
+    const account_name = form.account_name.value.trim();
+    const account_number = form.account_number.value.trim();
+    const note = form.note.value.trim();
+
+    if (!coins || coins < 100 || coins % 100 !== 0) {
+        alert('Jumlah coins minimal 100 dan kelipatan 100.');
+        return;
+    }
+
+    // show loading
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const original = submitBtn.innerText;
+    submitBtn.disabled = true;
+    submitBtn.innerText = 'Mengirim...';
+
+    try {
+        const res = await fetch('/withdraw', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            coins: coins,
+            method: method,
+            account_name: account_name,
+            account_number: account_number,
+            note: note
+        })
+        });
+        const json = await res.json();
+        if (!res.ok) {
+        alert('Gagal: ' + (json.error || JSON.stringify(json)));
+        } else {
+        alert('✅ Permintaan penarikan berhasil diajukan. Silakan tunggu verifikasi admin.');
+        window.location.reload();
+        }
+    } catch (e) {
+        console.error(e);
+        alert('Terjadi kesalahan saat mengajukan penarikan.');
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerText = original;
+    }
+    });
 </script>
 {% endblock %}
