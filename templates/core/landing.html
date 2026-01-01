@@ -13,6 +13,7 @@
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 
     <style>
         :root {
@@ -164,36 +165,43 @@
     {% include 'components/navbar.html' %}
 
     <!-- Hero Section -->
-    <div class="hero-section text-center">
-        <!-- Replaced inline style with utility class -->
-        <h1 class="hero-title mb-2 text-brand">Platform Digital Membantu<br>Sebarkan Informasi Barang Hilang</h1>
+    <div id="hero" class="hero-section text-center d-flex flex-column justify-content-center align-items-center" style="min-height: 100vh; padding: 0 20px;">
+        <h1 class="hero-title mb-3 text-brand fw-bold display-4">Platform Digital Membantu<br>Sebarkan Informasi Barang Hilang</h1>
 
-        <p class="hero-subtitle mb-2">
+        <p class="hero-subtitle mb-4 text-secondary" style="max-width: 650px; font-size: 1.1rem; line-height: 1.6;">
             TemuIN menghubungkan penemu dan pemilik barang melalui satu platform digital untuk pencarian yang cepat,
             aman, dan transparan.
         </p>
 
         {% if user %}
-        <a href="/dashboard" class="cta-button">
-            <img src="/static/images/asset/icon-search.png" alt="Cari Barang" class="cta-icon px-2" />
+        <a href="/dashboard" class="cta-button btn btn-warning btn-lg rounded-pill px-5 py-3 shadow-lg fw-bold d-inline-flex align-items-center gap-2">
+            <img src="/static/images/asset/icon-search.png" alt="Cari Barang" class="cta-icon" style="width: 24px; height: 24px; object-fit: contain;" />
             Mulai Temukan Barang!
         </a>
         {% else %}
-        <button type="button" class="cta-button border-0 pointer" data-bs-toggle="modal" data-bs-target="#loginModal">
-            <img src="/static/images/asset/icon-search.png" alt="Cari Barang" class="cta-icon px-2" />
+        <button type="button" class="cta-button btn btn-warning btn-lg rounded-pill px-5 py-3 shadow-lg fw-bold d-inline-flex align-items-center gap-2 pointer" data-bs-toggle="modal" data-bs-target="#loginModal">
+            <img src="/static/images/asset/icon-search.png" alt="Cari Barang" class="cta-icon" style="width: 24px; height: 24px; object-fit: contain;" />
             Mulai Temukan Barang!
         </button>
         {% endif %}
     </div>
 
     <!-- Browse Section -->
-    {% include 'components/browse_section.html' %}
+    <section id="browse" class="py-5 my-5 bg-white">
+        <div class="container">
+           {% include 'components/browse_section.html' %}
+        </div>
+    </section>
 
     <!-- Promo Section -->
-    {% include 'components/promo_section.html' %}
+    <section class="py-5 my-5">
+        {% include 'components/promo_section.html' %}
+    </section>
 
     <!-- FAQ Section -->
-    {% include 'components/faq_section.html' %}
+    <section id="faq" class="py-5 my-5">
+        {% include 'components/faq_section.html' %}
+    </section>
 
     <!-- Footer Section -->
     {% include 'components/footer.html' %}
