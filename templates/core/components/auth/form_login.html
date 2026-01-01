@@ -17,7 +17,9 @@
 </div>
 {% endif %}
 
-<form method="post" action="/login">
+<div id="login-alerts"></div>
+
+<form id="login-form" onsubmit="handleLogin(event)">
     <div style="margin-bottom: 20px;">
         <label
             style="display: block; color: var(--text-muted); font-size: 12px; font-weight: bold; text-transform: uppercase; margin-bottom: 8px;">
@@ -25,13 +27,8 @@
         </label>
         <div
             style="background: var(--bg-tertiary); border: 1px solid var(--bg-tertiary); border-radius: 8px; padding: 10px;">
-            <input type="text" name="username" value="{{ username }}" placeholder="Enter your username" style="background: transparent; border: none; color: var(--text-normal); width: 100%; outline: none;">
+            <input type="text" name="username" value="{{ username }}" placeholder="Enter your username" style="background: transparent; border: none; color: var(--text-normal); width: 100%; outline: none;" required>
         </div>
-        {% if username_error %}
-        <div style="color: #f04747; font-size: 12px; margin-top: 6px;">
-            {{ username_error }}
-        </div>
-        {% endif %}
     </div>
 
     <div style="margin-bottom: 20px;">
@@ -42,7 +39,7 @@
         <div
             style="background: var(--bg-tertiary); border: 1px solid var(--bg-tertiary); border-radius: 8px; padding: 10px; position: relative;">
             <input type="password" name="password" id="password-login" placeholder="Enter your password"
-                style="padding-right: 35px; background: transparent; border: none; color: var(--text-normal); width: 100%; outline: none;">
+                style="padding-right: 35px; background: transparent; border: none; color: var(--text-normal); width: 100%; outline: none;" required>
             <button type="button" onclick="togglePasswordLogin()"
                 style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; padding: 5px; color: var(--text-muted);">
                 <svg id="eye-icon-login" width="20" height="20" viewBox="0 0 24 24" fill="none"
@@ -52,15 +49,53 @@
                 </svg>
             </button>
         </div>
-        {% if password_error %}
-        <div style="color: #f04747; font-size: 12px; margin-top: 6px;">
-            {{ password_error }}
-        </div>
-        {% endif %}
     </div>
 
     <button type="submit" class="btn" style="width: 100%; padding: 12px; font-size: 16px; background-color: var(--primary); color: white;">Log In</button>
 </form>
+
+<script>
+    function handleLogin(event) {
+        event.preventDefault();
+        
+        const form = document.getElementById('login-form');
+        const formData = new FormData(form);
+        const alertContainer = document.getElementById('login-alerts');
+        
+        // Clear previous alerts
+        alertContainer.innerHTML = '';
+        
+        fetch('/login', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.href = data.redirect;
+            } else {
+                // Show error alert
+                const errorHtml = `
+                    <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; border-radius: 8px; pad: 12px; margin-bottom: 20px; color: #ef4444; font-size: 13px; padding: 12px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="material-icons" style="font-size: 18px;">error</span>
+                            <strong>Login Failed</strong>
+                        </div>
+                        <div style="margin-top: 4px;">${data.error}</div>
+                    </div>
+                `;
+                alertContainer.innerHTML = errorHtml;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alertContainer.innerHTML = `<div style="color: red; margin-bottom: 15px;">Network error. Please try again.</div>`;
+        });
+    }
+</script>
 
 <div style="margin: 20px 0; text-align: center; position: relative;">
     <div style="border-top: 1px solid var(--bg-tertiary); position: absolute; width: 100%; top: 50%;"></div>
