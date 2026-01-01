@@ -24,11 +24,16 @@ func LoginPage(c *gin.Context) {
 func Login(c *gin.Context) {
 	username := c.PostForm("username")
 	password := c.PostForm("password")
+	isJSON := c.GetHeader("Accept") == "application/json"
 
 	ctx := utils.GetGlobalContext(c)
 
 	// Validate username is not empty
 	if valid, errMsg := utils.ValidateNotEmpty(username, "Username"); !valid {
+		if isJSON {
+			c.JSON(http.StatusBadRequest, gin.H{"success": false, "error": errMsg})
+			return
+		}
 		ctx["username_error"] = errMsg
 		ctx["username"] = username
 		tpl := pongo2.Must(pongo2.FromFile("templates/core/login.html"))
@@ -39,6 +44,10 @@ func Login(c *gin.Context) {
 
 	// Validate password is not empty
 	if valid, errMsg := utils.ValidateNotEmpty(password, "Password"); !valid {
+		if isJSON {
+			c.JSON(http.StatusBadRequest, gin.H{"success": false, "error": errMsg})
+			return
+		}
 		ctx["password_error"] = errMsg
 		ctx["username"] = username // Preserve username
 		tpl := pongo2.Must(pongo2.FromFile("templates/core/login.html"))
@@ -50,6 +59,10 @@ func Login(c *gin.Context) {
 	// Check if user exists
 	var user models.User
 	if err := config.DB.Where("username = ?", username).First(&user).Error; err != nil {
+		if isJSON {
+			c.JSON(http.StatusUnauthorized, gin.H{"success": false, "error": "Username tidak ditemukan"})
+			return
+		}
 		ctx["username_error"] = "Username tidak ditemukan"
 		ctx["username"] = username
 		tpl := pongo2.Must(pongo2.FromFile("templates/core/login.html"))
@@ -65,6 +78,10 @@ func Login(c *gin.Context) {
 	// Verify password
 	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 	if err != nil {
+		if isJSON {
+			c.JSON(http.StatusUnauthorized, gin.H{"success": false, "error": "Password tidak sesuai"})
+			return
+		}
 		ctx["password_error"] = "Password tidak sesuai"
 		ctx["username"] = username // Preserve username
 		tpl := pongo2.Must(pongo2.FromFile("templates/core/login.html"))
@@ -75,7 +92,12 @@ func Login(c *gin.Context) {
 
 	// Check if user is banned
 	if user.IsBanned {
-		ctx["banned_error"] = "Akun Anda telah diblokir karena melanggar ketentuan platform (penipuan, jual beli, atau pelanggaran lainnya). Silakan hubungi admin jika ada pertanyaan."
+		errMsg := "Akun Anda telah diblokir karena melanggar ketentuan platform (penipuan, jual beli, atau pelanggaran lainnya). Silakan hubungi admin jika ada pertanyaan."
+		if isJSON {
+			c.JSON(http.StatusForbidden, gin.H{"success": false, "error": errMsg})
+			return
+		}
+		ctx["banned_error"] = errMsg
 		ctx["username"] = username
 		tpl := pongo2.Must(pongo2.FromFile("templates/core/login.html"))
 		out, _ := tpl.Execute(ctx)
@@ -87,6 +109,11 @@ func Login(c *gin.Context) {
 	session := sessions.Default(c)
 	session.Set("user_id", user.ID)
 	session.Save()
+
+	if isJSON {
+		c.JSON(http.StatusOK, gin.H{"success": true, "redirect": "/dashboard"})
+		return
+	}
 
 	c.Redirect(http.StatusFound, "/dashboard")
 }

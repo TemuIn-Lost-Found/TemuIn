@@ -52,43 +52,41 @@
         <!-- Items Grid (Dynamic - Reusing home.html styles) -->
         <div class="card-grid">
             {% for item in items %}
-            <a href="/item/{{ item.ID }}" class="thread-card text-decoration-none d-block text-inherit">
-                <div class="card-image position-relative">
+            <a href="/item/{{ item.ID }}" class="thread-card text-decoration-none d-block text-inherit" style="color: inherit;">
+                <div class="card-image">
                     {% if item.Image %}
                     <img src="/images/{{ item.ID }}" alt="{{ item.Title }}"
                         style="width: 100%; height: 100%; object-fit: cover;">
                     {% else %}
-                    <div class="w-100 h-100 d-flex align-items-center justify-content-center bg-light text-muted">
+                    <div class="w-100 h-100 d-flex align-items-center justify-content-center bg-light text-muted"
+                        style="background-color: var(--bg-tertiary); color: var(--text-muted);">
                         <span class="material-icons" style="font-size: 48px;">image_not_supported</span>
                     </div>
                     {% endif %}
                 </div>
 
-                <div class="d-flex flex-column p-3 flex-grow-1">
+                <div class="card-content">
                     <div class="d-flex justify-content-between align-items-start mb-2">
                         <span class="card-badge badge-{{ item.Status|lower }}">{{ item.Status }}</span>
-                        <span class="text-muted small">{{ FormatTime(item.CreatedAt, "Jan 02") }}</span>
+                        <span class="text-muted small" style="font-size: 12px;">{{ FormatTime(item.CreatedAt, "Jan 02") }}</span>
                     </div>
 
-                    <h4 class="fw-bold mb-2 text-dark" style="font-size: 16px; line-height: 1.4;">
+                    <h4 class="card-title">
                         {{ item.Title|truncatechars:40 }}
                     </h4>
 
-                    <div class="d-flex align-items-center gap-1 text-muted small mb-3">
+                    <div class="d-flex align-items-center gap-1 text-muted small mb-3" style="font-size: 12px;">
                         <span class="material-icons" style="font-size: 14px;">place</span>
                         {{ item.Location|truncatechars:25 }}
                     </div>
 
-                    <div class="mt-auto pt-3 border-top d-flex justify-content-between align-items-center">
+                    <div class="card-meta" style="margin-top: auto; padding-top: 12px; border-top: 1px solid var(--bg-tertiary);">
                         <div class="d-flex align-items-center small text-dark">
-                            <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center text-white me-2"
-                                style="width: 24px; height: 24px;">
-                                <span class="material-icons" style="font-size: 14px;">person</span>
-                            </div>
+                            <span class="material-icons me-1" style="font-size: 16px; color: var(--accent);">account_circle</span>
                             {{ item.User.Username|default:'User' }}
                         </div>
                         {% if item.BountyCoins > 0 %}
-                        <div style="color: #F59E0B; font-weight: bold; font-size: 12px;">
+                        <div style="color: var(--gold); font-weight: bold; font-size: 12px;">
                             {{ item.BountyCoins }} Coins
                         </div>
                         {% endif %}
@@ -106,12 +104,12 @@
         <!-- View More Button -->
         <div class="text-center mt-5">
             {% if user %}
-            <a href="/dashboard" class="btn btn-outline-secondary px-5 py-2 rounded-pill fw-medium bg-white"
+            <a href="/dashboard" class="btn btn-outline-secondary px-5 py-2 rounded-pill fw-medium "
                 style="border-color: #E5E7EB;">
                 View More
             </a>
             {% else %}
-            <a href="/login" class="btn btn-outline-secondary px-5 py-2 rounded-pill fw-medium bg-white"
+            <a href="/login" class="btn btn-outline-secondary px-5 py-2 rounded-pill fw-medium "
                 style="border-color: #E5E7EB;">
                 View More
             </a>
@@ -120,46 +118,3 @@
     </div>
 </section>
 
-<style>
-    /* Ensure home.html grid classes work if not fully loaded from style.css */
-    .card-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 16px;
-    }
-
-    .thread-card {
-        background-color: white;
-        border-radius: 12px;
-        overflow: hidden;
-        transition: all 0.2s ease;
-        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-        border: 1px solid #E5E7EB;
-        color: inherit;
-    }
-
-    .thread-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    }
-
-    .badge-lost {
-        color: #EF4444;
-        background-color: rgba(239, 68, 68, 0.1);
-        border: 1px solid #EF4444;
-        padding: 2px 8px;
-        border-radius: 4px;
-        font-size: 11px;
-        font-weight: 600;
-    }
-
-    .badge-found {
-        color: #10B981;
-        background-color: rgba(16, 185, 129, 0.1);
-        border: 1px solid #10B981;
-        padding: 2px 8px;
-        border-radius: 4px;
-        font-size: 11px;
-        font-weight: 600;
-    }
-</style>
