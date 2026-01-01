@@ -9,7 +9,7 @@
                 <span class="material-icons text-muted">filter_list</span>
             </button>
 
-            <form action="/" method="GET"
+            <form action="/#browse" method="GET"
                 class="d-flex flex-grow-1 align-items-center gap-2 m-0 w-100 flex-wrap flex-md-nowrap">
                 <!-- Status Dropdown -->
                 <div class="dropdown flex-grow-0">
@@ -21,12 +21,12 @@
                         Status{% endif %}
                     </button>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="?status=&location={{ location|default:'' }}&q={{ q }}">All
+                        <li><a class="dropdown-item" href="?status=&location={{ location|default:'' }}&q={{ q }}#browse">All
                                 Status</a></li>
                         <li><a class="dropdown-item"
-                                href="?status=LOST&location={{ location|default:'' }}&q={{ q }}">Lost (Hilang)</a></li>
+                                href="?status=LOST&location={{ location|default:'' }}&q={{ q }}#browse">Lost (Hilang)</a></li>
                         <li><a class="dropdown-item"
-                                href="?status=FOUND&location={{ location|default:'' }}&q={{ q }}">Found (Ditemukan)</a>
+                                href="?status=FOUND&location={{ location|default:'' }}&q={{ q }}#browse">Found (Ditemukan)</a>
                         </li>
                     </ul>
                     <input type="hidden" name="status" value="{{ status|default:'' }}">
