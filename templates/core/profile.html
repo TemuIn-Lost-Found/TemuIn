@@ -8,12 +8,108 @@
     <div
         style="flex: 1; min-width: 300px; background: var(--bg-secondary); padding: 24px; border-radius: 8px; height: fit-content;">
         <div style="text-align: center; margin-bottom: 24px;">
-            <div
-                style="width: 80px; height: 80px; background: var(--accent); border-radius: 50%; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: bold; color: white; box-shadow: var(--shadow-md);">
-                {{ user.Username|slice:":1"|upper }}
+            <!-- Profile Picture -->
+            <div style="position: relative; display: inline-block;">
+                {% if user.ProfilePicture %}
+                <img src="/profile/picture/{{ user.ID }}" alt="{{ user.Username }}"
+                    style="width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 16px; object-fit: cover; box-shadow: var(--shadow-md);">
+                {% else %}
+                <div
+                    style="width: 80px; height: 80px; background: var(--accent); border-radius: 50%; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: bold; color: white; box-shadow: var(--shadow-md);">
+                    {{ user.Username|slice:":1"|upper }}
+                </div>
+                {% endif %}
             </div>
-            <h2 style="margin: 0; color: var(--text-header);">{{ user.Username }}</h2>
-            <div style="color: var(--text-muted);">Member since {{ FormatTime(user.DateJoined, "Jan 2006") }}</div>
+
+            <!-- User Info - Different for admin and regular users -->
+            {% if user.IsSuperuser %}
+                <!-- Admin view -->
+                <h2 style="margin: 0; color: var(--text-header); font-size: 24px;">{{ user.Username }}</h2>
+                <div style="display:flex; align-items:center; justify-content:center; gap:6px; margin-top:8px;">
+                    <span class="badge badge-admin" style="background:#faa61a; color:black;">Admin</span>
+                </div>
+                <div style="color: var(--text-muted); margin-top: 12px; font-size:13px;">Member since {{ FormatTime(user.DateJoined, "Jan 2006") }}</div>
+            {% else %}
+                <!-- Regular user view -->
+                <h2 style="margin: 0; color: var(--text-header); font-size: 20px; font-weight:700;">{{ user.FirstName }} {{ user.LastName }}</h2>
+                
+                <div style="color: var(--text-muted); margin-top: 4px; font-size:14px; font-weight:500;">
+                    @{{ user.Username }}
+                </div>
+                
+                {% if user.Email %}
+                <div style="color: var(--text-muted); font-size: 13px; margin-top: 8px; display:flex; align-items:center; justify-content:center; gap:6px;">
+                    <span class="material-icons" style="font-size:14px;">email</span> {{ user.Email }}
+                </div>
+                {% endif %}
+                
+                <div style="color: var(--text-muted); font-size: 12px; margin-top: 12px; border-top:1px solid var(--bg-tertiary); padding-top:12px;">
+                    Member since {{ FormatTime(user.DateJoined, "Jan 2006") }}
+                </div>
+            {% endif %}
+
+            <!-- Edit Profile Button -->
+            <button onclick="toggleEditMode()" class="btn" style="margin-top: 20px; padding: 8px 24px; font-size: 13px; font-weight:600; background-color: var(--bg-tertiary); color: var(--text-normal); border:1px solid var(--bg-tertiary);">
+                Edit Profile
+            </button>
+        </div>
+
+        <!-- Edit Profile Form (Hidden by default) -->
+        <div id="edit-profile-form" style="display: none; margin-bottom: 24px; padding: 20px; background: var(--bg-tertiary); border-radius: 8px; border:1px solid var(--border);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                <h3 style="margin:0; font-size: 16px; color: var(--text-header);">Edit Profile</h3>
+                <button type="button" onclick="toggleEditMode()" style="background:none; border:none; color:var(--text-muted); cursor:pointer;">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+            
+            <form id="profile-update-form" enctype="multipart/form-data">
+                <input type="hidden" name="delete_picture" id="delete_picture_input" value="false">
+                
+                <!-- Profile Picture Upload -->
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; color: var(--text-muted); font-size: 11px; font-weight: bold; text-transform: uppercase; margin-bottom: 8px;">
+                        Profile Picture
+                    </label>
+                    <div style="display:flex; gap:12px; align-items:start;">
+                        <div style="flex:1;">
+                            <input type="file" name="profile_picture" accept="image/*" onchange="previewImage(event)"
+                                style="padding: 8px; border: 1px solid var(--bg-secondary); background:var(--bg-secondary); border-radius: 4px; width: 100%; color:var(--text-normal); font-size:13px;">
+                            <div style="font-size:11px; color:var(--text-muted); margin-top:4px;">Max size 2MB. JPG, PNG.</div>
+                        </div>
+                        {% if user.ProfilePicture %}
+                        <button type="button" id="btn-delete-photo" onclick="markPhotoForDeletion()" class="btn" style="background:#ef4444; color:white; padding:8px 12px; font-size:12px; flex-shrink:0;">
+                            <span class="material-icons" style="font-size:16px; vertical-align:middle;">delete</span> Remove
+                        </button>
+                        {% endif %}
+                    </div>
+                    
+                    <div id="image-preview" style="margin-top: 12px; display: none;">
+                        <img id="preview" src="" alt="Preview" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border:2px solid var(--accent);">
+                        <span style="font-size:12px; color:var(--accent); margin-left:8px; vertical-align:middle;">New photo selected</span>
+                    </div>
+                    <div id="delete-preview" style="margin-top:8px; display:none; color:#ef4444; font-size:12px;">
+                        <span class="material-icons" style="font-size:14px; vertical-align:text-bottom;">delete</span> Photo will be removed on save
+                    </div>
+                </div>
+
+                <!-- Username Edit -->
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; color: var(--text-muted); font-size: 11px; font-weight: bold; text-transform: uppercase; margin-bottom: 8px;">
+                        Username
+                    </label>
+                    <input type="text" name="username" value="{{ user.Username }}" required
+                        style="padding: 10px; border: 1px solid var(--bg-secondary); background:var(--bg-secondary); color:var(--text-normal); border-radius: 4px; width: 100%;">
+                </div>
+
+                <div id="profile-update-error" style="display: none; padding:10px; background:rgba(239,68,68,0.1); border-radius:6px; color: var(--red); font-size: 13px; margin-bottom: 16px;"></div>
+
+                <div style="display: flex; gap: 8px;">
+                    <button type="submit" class="btn" style="flex: 1; background-color: var(--accent); color: white; padding:10px;">
+                        Save Changes
+                    </button>
+                </div>
+            </form>
         </div>
 
         <div style="background: var(--bg-tertiary); padding: 16px; border-radius: 8px; margin-bottom: 24px;">
@@ -315,6 +411,86 @@
         }
     }
 
+
+    // Profile Edit Functions
+    function toggleEditMode() {
+        const editForm = document.getElementById('edit-profile-form');
+        const errorDiv = document.getElementById('profile-update-error');
+        if (editForm.style.display === 'none') {
+            editForm.style.display = 'block';
+            errorDiv.style.display = 'none';
+            errorDiv.textContent = '';
+        } else {
+            editForm.style.display = 'none';
+        }
+    }
+
+    function previewImage(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById('preview');
+                const previewContainer = document.getElementById('image-preview');
+                const deleteInput = document.getElementById('delete_picture_input');
+                const deletePreview = document.getElementById('delete-preview');
+                
+                preview.src = e.target.result;
+                previewContainer.style.display = 'block';
+                
+                // Reset delete flag if new image selected
+                deleteInput.value = 'false';
+                deletePreview.style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    function markPhotoForDeletion() {
+        const deleteInput = document.getElementById('delete_picture_input');
+        const deletePreview = document.getElementById('delete-preview');
+        const previewContainer = document.getElementById('image-preview');
+        const fileInput = document.querySelector('input[name="profile_picture"]');
+        
+        deleteInput.value = 'true';
+        deletePreview.style.display = 'block';
+        
+        // Hide new image preview if exists
+        previewContainer.style.display = 'none';
+        fileInput.value = ''; // clear file input
+    }
+
+    // Handle profile update form submission
+    document.getElementById('profile-update-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const errorDiv = document.getElementById('profile-update-error');
+        
+        try {
+            const response = await fetch('/profile/update', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                alert('✅ Profile updated successfully!');
+                window.location.reload();
+            } else {
+                errorDiv.textContent = data.error || 'Failed to update profile';
+                errorDiv.style.display = 'block';
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            errorDiv.textContent = 'Network error. Please try again.';
+            errorDiv.style.display = 'block';
+        }
+    });
 
 </script>
 {% endblock %}
