@@ -10,7 +10,7 @@ import (
 func RegisterRoutes(r *gin.Engine) {
 	// Public Routes with Optional Auth (for UI)
 	public := r.Group("/")
-	public.Use(middleware.AuthOptional())
+	public.Use(middleware.AuthOptional(), middleware.VisitorTracker())
 	{
 		public.GET("/", handlers.LandingPage)
 
@@ -98,5 +98,8 @@ func RegisterRoutes(r *gin.Engine) {
 		admin.GET("/withdrawals", handlers.AdminWithdrawalsPage)
 		admin.POST("/withdrawals/:id/approve", handlers.AdminApproveWithdrawal)
 		admin.POST("/withdrawals/:id/reject", handlers.AdminRejectWithdrawal)
+
+		// Visitor stats API
+		admin.GET("/visitor-stats", handlers.AdminGetVisitorStats)
 	}
 }

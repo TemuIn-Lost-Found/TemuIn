@@ -1,10 +1,12 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"temuin/config"
 	"temuin/models"
 	"temuin/utils"
+	"time"
 
 	"github.com/flosch/pongo2/v6"
 	"github.com/gin-gonic/gin"
@@ -119,16 +121,18 @@ func UnbanUser(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"success": true, "message": "User unbanned successfully"})
 }
 
-// AdminDashboard displays admin control panel (optional feature)
+// AdminDashboard displays admin control panel
 func AdminDashboard(c *gin.Context) {
 	// Fetch statistics
 	var totalPosts int64
 	var totalUsers int64
 	var bannedUsersCount int64
+	var totalVisitors int64
 
 	config.DB.Model(&models.LostItem{}).Count(&totalPosts)
 	config.DB.Model(&models.User{}).Count(&totalUsers)
 	config.DB.Model(&models.User{}).Where("is_banned = ?", true).Count(&bannedUsersCount)
+	config.DB.Model(&models.SiteVisit{}).Count(&totalVisitors)
 
 	// Fetch recent posts
 	var recentPosts []models.LostItem
@@ -138,13 +142,40 @@ func AdminDashboard(c *gin.Context) {
 	var bannedUsers []models.User
 	config.DB.Where("is_banned = ?", true).Find(&bannedUsers)
 
+	// Fetch all users with subscription status
+	var allUsers []models.User
+	config.DB.Order("date_joined DESC").Find(&allUsers)
+
+	// Calculate subscription status for each user
+	type UserWithSubscription struct {
+		models.User
+		IsSubscribed bool
+		TotalTopUp   int64
+	}
+
+	var usersWithSubscription []UserWithSubscription
+	for _, user := range allUsers {
+		var successfulTopupCount int64
+		config.DB.Model(&models.TopUpTransaction{}).
+			Where("user_id = ? AND status = ?", user.ID, "success").
+			Count(&successfulTopupCount)
+
+		usersWithSubscription = append(usersWithSubscription, UserWithSubscription{
+			User:         user,
+			IsSubscribed: successfulTopupCount > 0,
+			TotalTopUp:   successfulTopupCount,
+		})
+	}
+
 	// Add global context utilities
 	ctx := utils.GetGlobalContext(c)
 	ctx["total_posts"] = totalPosts
 	ctx["total_users"] = totalUsers
 	ctx["banned_users_count"] = bannedUsersCount
+	ctx["total_visitors"] = totalVisitors
 	ctx["recent_posts"] = recentPosts
 	ctx["banned_users"] = bannedUsers
+	ctx["all_users"] = usersWithSubscription
 
 	tpl, err := pongo2.FromFile("templates/admin_dashboard.html")
 	if err != nil {
@@ -295,4 +326,93 @@ func AdminRejectWithdrawal(c *gin.Context) {
 
 	tx.Commit()
 	c.JSON(http.StatusOK, gin.H{"success": true})
+}
+
+// AdminGetVisitorStats returns visitor statistics for charts
+func AdminGetVisitorStats(c *gin.Context) {
+	period := c.DefaultQuery("period", "daily")
+
+	var visits []models.SiteVisit
+	var labels []string
+	var data []int
+
+	now := time.Now()
+
+	switch period {
+	case "daily":
+		// Last 24 hours, grouped by hour
+		startTime := now.Add(-24 * time.Hour)
+		config.DB.Where("visited_at >= ?", startTime).Find(&visits)
+
+		hourCounts := make(map[int]int)
+		for _, visit := range visits {
+			hour := visit.VisitedAt.Hour()
+			hourCounts[hour]++
+		}
+
+		for i := 0; i < 24; i++ {
+			hour := (now.Hour() - 23 + i + 24) % 24
+			labels = append(labels, fmt.Sprintf("%02d:00", hour))
+			data = append(data, hourCounts[hour])
+		}
+
+	case "weekly":
+		// Last 7 days
+		startTime := now.AddDate(0, 0, -7)
+		config.DB.Where("visited_at >= ?", startTime).Find(&visits)
+
+		dayCounts := make(map[string]int)
+		for _, visit := range visits {
+			day := visit.VisitedAt.Format("2006-01-02")
+			dayCounts[day]++
+		}
+
+		for i := 6; i >= 0; i-- {
+			day := now.AddDate(0, 0, -i)
+			dayStr := day.Format("2006-01-02")
+			labels = append(labels, day.Format("Jan 02"))
+			data = append(data, dayCounts[dayStr])
+		}
+
+	case "monthly":
+		// Last 30 days
+		startTime := now.AddDate(0, 0, -30)
+		config.DB.Where("visited_at >= ?", startTime).Find(&visits)
+
+		dayCounts := make(map[string]int)
+		for _, visit := range visits {
+			day := visit.VisitedAt.Format("2006-01-02")
+			dayCounts[day]++
+		}
+
+		for i := 29; i >= 0; i-- {
+			day := now.AddDate(0, 0, -i)
+			dayStr := day.Format("2006-01-02")
+			labels = append(labels, day.Format("Jan 02"))
+			data = append(data, dayCounts[dayStr])
+		}
+
+	case "yearly":
+		// Last 12 months
+		startTime := now.AddDate(-1, 0, 0)
+		config.DB.Where("visited_at >= ?", startTime).Find(&visits)
+
+		monthCounts := make(map[string]int)
+		for _, visit := range visits {
+			month := visit.VisitedAt.Format("2006-01")
+			monthCounts[month]++
+		}
+
+		for i := 11; i >= 0; i-- {
+			month := now.AddDate(0, -i, 0)
+			monthStr := month.Format("2006-01")
+			labels = append(labels, month.Format("Jan 2006"))
+			data = append(data, monthCounts[monthStr])
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"labels": labels,
+		"data":   data,
+	})
 }
