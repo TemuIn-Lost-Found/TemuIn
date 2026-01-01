@@ -1,51 +1,68 @@
 <section class="py-5">
     <div class="container">
         <!-- Filter Bar -->
-        <div class="bg-white p-2 rounded-4 shadow-sm mb-5 mx-auto d-flex align-items-center gap-2"
-            style="max-width: 900px; border: 1px solid #E5E7EB;">
-            <!-- Filter Icon -->
-            <button class="btn btn-light d-flex align-items-center justify-content-center p-2 rounded-3 border-0"
-                style="width: 40px; height: 40px; background-color: transparent;">
-                <span class="material-icons text-muted">filter_list</span>
-            </button>
+        <!-- Filter Bar -->
+        <div class="bg-white p-3 rounded-4 shadow-sm mb-5 mx-auto d-flex flex-column flex-md-row align-items-center gap-3"
+            style="max-width: 1000px; border: 1px solid #E5E7EB;">
+            
+            <!-- Filter Icon (Hidden on small mobile if desired, or keep) -->
+            <div class="d-none d-md-flex align-items-center justify-content-center bg-light rounded-3 text-muted" style="width: 40px; height: 40px; flex-shrink: 0;">
+                <span class="material-icons">filter_list</span>
+            </div>
 
-            <form action="/#browse" method="GET"
-                class="d-flex flex-grow-1 align-items-center gap-2 m-0 w-100 flex-wrap flex-md-nowrap">
+            <form action="/#browse" method="GET" class="row g-2 w-100 m-0 align-items-center">
+                
                 <!-- Status Dropdown -->
-                <div class="dropdown flex-grow-0">
-                    <button
-                        class="btn btn-light dropdown-toggle bg-white d-flex align-items-center justify-content-between gap-2 border"
-                        type="button" data-bs-toggle="dropdown" aria-expanded="false"
-                        style="border-color: #E5E7EB; color: #374151; height: 42px; min-width: 140px;">
-                        {% if status == 'LOST' %}Lost (Hilang){% elif status == 'FOUND' %}Found (Ditemukan){% else %}All
-                        Status{% endif %}
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="?status=&location={{ location|default:'' }}&q={{ q }}#browse">All
-                                Status</a></li>
-                        <li><a class="dropdown-item"
-                                href="?status=LOST&location={{ location|default:'' }}&q={{ q }}#browse">Lost (Hilang)</a></li>
-                        <li><a class="dropdown-item"
-                                href="?status=FOUND&location={{ location|default:'' }}&q={{ q }}#browse">Found (Ditemukan)</a>
-                        </li>
-                    </ul>
-                    <input type="hidden" name="status" value="{{ status|default:'' }}">
+                <div class="col-12 col-md-auto">
+                    <div class="dropdown w-100">
+                        <button
+                            class="btn btn-light dropdown-toggle bg-white d-flex align-items-center justify-content-between gap-2 border w-100"
+                            type="button" data-bs-toggle="dropdown" aria-expanded="false"
+                            style="border-color: #E5E7EB; color: #374151; height: 42px; min-width: 140px;">
+                            {% if status == 'LOST' %}Lost (Hilang){% elif status == 'FOUND' %}Found (Ditemukan){% else %}All Status{% endif %}
+                        </button>
+                        <ul class="dropdown-menu w-100">
+                            <li><a class="dropdown-item" href="?status=&location={{ location|default:'' }}&q={{ q }}#browse">All
+                                    Status</a></li>
+                            <li><a class="dropdown-item"
+                                    href="?status=LOST&location={{ location|default:'' }}&q={{ q }}#browse">Lost (Hilang)</a></li>
+                            <li><a class="dropdown-item"
+                                    href="?status=FOUND&location={{ location|default:'' }}&q={{ q }}#browse">Found (Ditemukan)</a>
+                            </li>
+                        </ul>
+                        <input type="hidden" name="status" value="{{ status|default:'' }}">
+                    </div>
+                </div>
+
+                <!-- Search Input -->
+                <div class="col-12 col-md">
+                    <div class="position-relative">
+                        <span class="material-icons position-absolute text-muted"
+                            style="left: 12px; top: 50%; transform: translateY(-50%); font-size: 20px;">search</span>
+                        <input type="text" name="q" value="{{ q|default:'' }}" class="form-control border"
+                            placeholder="Cari barang..."
+                            style="border-color: #E5E7EB; padding-left: 40px; height: 42px; width: 100%;">
+                    </div>
                 </div>
 
                 <!-- Location Input -->
-                <div class="flex-grow-1 position-relative">
-                    <span class="material-icons position-absolute text-muted"
-                        style="left: 12px; top: 50%; transform: translateY(-50%); font-size: 20px;">location_on</span>
-                    <input type="text" name="location" value="{{ location|default:'' }}" class="form-control border"
-                        placeholder="Lokasi..."
-                        style="border-color: #E5E7EB; padding-left: 40px; height: 42px; width: 100%;">
+                <div class="col-12 col-md">
+                    <div class="position-relative">
+                        <span class="material-icons position-absolute text-muted"
+                            style="left: 12px; top: 50%; transform: translateY(-50%); font-size: 20px;">location_on</span>
+                        <input type="text" name="location" value="{{ location|default:'' }}" class="form-control border"
+                            placeholder="Lokasi..."
+                            style="border-color: #E5E7EB; padding-left: 40px; height: 42px; width: 100%;">
+                    </div>
                 </div>
 
                 <!-- Search Button -->
-                <button type="submit" class="btn btn-primary px-4 fw-bold border-0"
-                    style="background-color: #6366F1; height: 42px;">
-                    Search
-                </button>
+                <div class="col-12 col-md-auto">
+                    <button type="submit" class="btn btn-primary fw-bold border-0 w-100"
+                        style="background-color: #6366F1; height: 42px;">
+                        Search
+                    </button>
+                </div>
             </form>
         </div>
 
