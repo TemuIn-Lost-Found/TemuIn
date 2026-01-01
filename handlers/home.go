@@ -33,8 +33,25 @@ func Home(c *gin.Context) {
 
 	query.Find(&allItems)
 
+	// Fetch highlighted items (max 3)
+	var highlightedItems []models.LostItem
+	config.DB.Preload("User").
+		Where("is_highlighted = ?", true).
+		Order("highlight_expiry DESC").
+		Limit(3).
+		Find(&highlightedItems)
+
+	// Check if there are more highlights
+	var totalHighlights int64
+	config.DB.Model(&models.LostItem{}).
+		Where("is_highlighted = ?", true).
+		Count(&totalHighlights)
+	hasMoreHighlights := totalHighlights > 3
+
 	ctx := utils.GetGlobalContext(c)
 	ctx["items"] = allItems
+	ctx["pinned_items"] = highlightedItems
+	ctx["has_more_highlights"] = hasMoreHighlights
 	ctx["q"] = c.Query("q")
 	ctx["status"] = c.Query("status")
 	ctx["location"] = c.Query("location")

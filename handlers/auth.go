@@ -6,6 +6,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"net/http"
+	"regexp"
 	"strconv"
 	"temuin/config"
 	"temuin/models"
@@ -144,6 +145,20 @@ func Register(c *gin.Context) {
 		return
 	}
 
+	// Validate Full Name (Alphabet only)
+	if match, _ := regexp.MatchString(`^[A-Za-z\s]+$`, fullname); !match {
+		errMsg := "Full Name hanya boleh berisi huruf dan spasi"
+		if isJSON {
+			c.JSON(http.StatusBadRequest, gin.H{"success": false, "error": errMsg})
+			return
+		}
+		ctx["error"] = errMsg
+		tpl := pongo2.Must(pongo2.FromFile("templates/core/register.html"))
+		out, _ := tpl.Execute(ctx)
+		c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(out))
+		return
+	}
+
 	// Validate Email
 	if valid, errMsg := utils.ValidateNotEmpty(email, "Email"); !valid {
 		if isJSON {
@@ -151,6 +166,21 @@ func Register(c *gin.Context) {
 			return
 		}
 		ctx["error"] = errMsg
+		tpl := pongo2.Must(pongo2.FromFile("templates/core/register.html"))
+		out, _ := tpl.Execute(ctx)
+		c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(out))
+		return
+	}
+
+	// Validate Username (Alphabet only)
+	if match, _ := regexp.MatchString(`^[A-Za-z]+$`, username); !match {
+		errMsg := "Username hanya boleh berisi huruf (tanpa angka/spasi)"
+		if isJSON {
+			c.JSON(http.StatusBadRequest, gin.H{"success": false, "error": errMsg})
+			return
+		}
+		ctx["username_error"] = errMsg
+		ctx["username"] = username
 		tpl := pongo2.Must(pongo2.FromFile("templates/core/register.html"))
 		out, _ := tpl.Execute(ctx)
 		c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(out))

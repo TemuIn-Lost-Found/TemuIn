@@ -10,7 +10,7 @@
             Full Name
         </label>
         <div style="background: var(--bg-tertiary); border: 1px solid var(--bg-tertiary); border-radius: 8px; padding: 10px;">
-            <input type="text" name="fullname" value="{{ fullname }}" placeholder="Enter your full name" style="background: transparent; border: none; color: var(--text-normal); width: 100%; outline: none;" required>
+            <input type="text" name="fullname" value="{{ fullname }}" placeholder="Enter your full name" pattern="[A-Za-z\s]+" title="Hanya huruf dan spasi yang diperbolehkan" style="background: transparent; border: none; color: var(--text-normal); width: 100%; outline: none;" required>
         </div>
     </div>
 
@@ -30,7 +30,7 @@
         </label>
         <div
             style="background: var(--bg-tertiary); border: 1px solid var(--bg-tertiary); border-radius: 8px; padding: 10px;">
-            <input type="text" name="username" value="{{ username }}" placeholder="Choose a username" style="background: transparent; border: none; color: var(--text-normal); width: 100%; outline: none;" required>
+            <input type="text" name="username" value="{{ username }}" placeholder="Choose a username" pattern="[A-Za-z]+" title="Hanya huruf yang diperbolehkan" style="background: transparent; border: none; color: var(--text-normal); width: 100%; outline: none;" required>
         </div>
     </div>
 

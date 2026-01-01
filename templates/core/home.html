@@ -112,7 +112,7 @@ Latest Items
     <!-- View All Highlights Link -->
     {% if has_more_highlights %}
     <div style="text-align: center; margin-top: 20px;">
-        <a href="/highlights/category/{{ active_category.ID }}"
+        <a href="{% if active_category %}/highlights/category/{{ active_category.ID }}{% else %}/highlights{% endif %}"
             style="display: inline-flex; align-items: center; gap: 6px; padding: 10px 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 14px; transition: transform 0.2s;">
             <span class="material-icons" style="font-size: 18px;">visibility</span>
             Lihat Semua Highlights
