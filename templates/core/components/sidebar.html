@@ -22,6 +22,18 @@
             Buat Laporan / Report
         </a>
 
+        {% if user.IsSuperuser or user.Username == 'admin' %}
+        <div class="category-section-label">Admin</div>
+        <a href="http://localhost:8080/admin/dashboard" class="category-item">
+            <span class="material-icons" style="font-size: 20px; margin-right: 8px;">dashboard</span>
+            Dashboard
+        </a>
+        <a href="http://localhost:8080/admin/withdrawals" class="category-item">
+            <span class="material-icons" style="font-size: 20px; margin-right: 8px;">payments</span>
+            Withdrawals
+        </a>
+        {% endif %}
+
         <div class="category-section-label">Kategori</div>
         {% for category in sidebar_categories %}
         <div class="category-group">
