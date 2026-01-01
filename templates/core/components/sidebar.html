@@ -1,7 +1,4 @@
-<!-- Mobile Menu Toggle Button -->
-<button class="menu-toggle" aria-label="Toggle Menu">
-    <span class="material-icons">menu</span>
-</button>
+
 
 <!-- Sidebar Overlay for mobile -->
 <div class="sidebar-overlay"></div>
@@ -45,7 +42,7 @@
             <!-- Render subcategories ALWAYS, but hide if not active -->
             {% if category.SubCategories %}
             <div class="subcategory-list"
-                style="margin-left: 12px; border-left: 2px solid var(--accent); padding-left: 8px; margin-bottom: 8px; {% if active_category and active_category.ID == category.ID %}display: block;{% else %}display: none;{% endif %}">
+            style="margin-left: 12px; border-left: 2px solid var(--accent); padding-left: 8px; margin-bottom: 8px; {% if active_category and active_category.ID == category.ID %}display: block;{% else %}display: none;{% endif %}">
                 {% for sub in category.SubCategories %}
                 <a href="/subcategory/{{ sub.ID }}"
                     class="category-item {% if active_subcategory and active_subcategory.ID == sub.ID %}active-channel{% endif %}"
@@ -88,17 +85,19 @@
 
     <div class="user-panel">
         {% if user %}
-        <div style="flex: 1;">
+        <div style="flex: 1; min-width: 0; margin-right: 8px;">
             <a href="/profile"
-                style="color: var(--text-header); text-decoration: none; font-weight: bold; display: block; margin-bottom: 2px;">
-                {{user.Username }}</a>
+                style="color: var(--text-header); text-decoration: none; font-weight: bold; display: block; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
+                title="{{ user.Username }}">
+                {{ user.Username|truncatechars:15 }}
+            </a>
             <div
                 style="font-size: 12px; color: var(--gold); display: flex; align-items: center; font-family: monospace;">
                 <span class="material-icons" style="font-size: 14px; margin-right: 4px;">monetization_on</span>
                 {{ user.CoinBalance }} Coins
             </div>
         </div>
-        <a href="/logout" style="color: var(--text-muted); padding: 8px; border-radius: 4px; transition: 0.2s;"
+        <a href="/logout" style="color: var(--text-muted); padding: 8px; border-radius: 4px; transition: 0.2s; flex-shrink: 0;"
             title="Logout">
             <span class="material-icons">logout</span>
         </a>
