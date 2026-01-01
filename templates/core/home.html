@@ -18,9 +18,7 @@ Latest Items
     <span class="material-icons" style="color: var(--text-muted);">filter_list</span>
 
     <form method="get" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center; width: 100%;">
-        {% if q %}
-        <input type="hidden" name="q" value="{{ q }}">
-        {% endif %}
+
 
         <select name="status"
             style="background: var(--bg-secondary); color: var(--text-normal); border: 1px solid var(--bg-tertiary); padding: 0 12px; border-radius: 6px; outline: none; cursor: pointer; height: 32px; font-size: 13px;">
@@ -28,6 +26,13 @@ Latest Items
             <option value="LOST" {% if status=='LOST' %}selected{% endif %}>Lost (Hilang)</option>
             <option value="FOUND" {% if status=='FOUND' %}selected{% endif %}>Found (Ditemukan)</option>
         </select>
+
+        <div style="position: relative; flex: 1 1 200px; min-width: 150px;">
+            <span class="material-icons"
+                style="position: absolute; left: 8px; top: 50%; transform: translateY(-50%); font-size: 16px; color: #72767d; pointer-events: none;">search</span>
+            <input type="text" name="q" placeholder="Cari barang..." value="{{ q|default:'' }}"
+                style="width: 100%; background: var(--bg-secondary); border: 1px solid var(--bg-tertiary); padding: 0 10px 0 30px; border-radius: 6px; color: var(--text-normal); height: 32px; font-size: 13px;">
+        </div>
 
         <div style="position: relative; flex: 0 1 220px; min-width: 150px;">
             <span class="material-icons"

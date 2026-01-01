@@ -25,14 +25,32 @@ func CategoryPage(c *gin.Context) {
 
 	// items
 	var items []models.LostItem
+	var pinnedItems []models.LostItem
+	var normalItems []models.LostItem
+
 	config.DB.Preload("User").Where("category_id = ?", id).Find(&items)
 
+	for _, item := range items {
+		if item.IsHighlighted {
+			pinnedItems = append(pinnedItems, item)
+		} else {
+			normalItems = append(normalItems, item)
+		}
+	}
+
+	// Limit pinned items to 3, set flag if more exist
+	hasMoreHighlights := len(pinnedItems) > 3
+	if hasMoreHighlights {
+		pinnedItems = pinnedItems[:3]
+	}
+
 	ctx["active_category"] = category
-	ctx["items"] = items
+	ctx["items"] = normalItems
+	ctx["pinned_items"] = pinnedItems
+	ctx["has_more_highlights"] = hasMoreHighlights
 	ctx["header_title"] = category.Name
 
-	tpl := pongo2.Must(pongo2.FromFile("templates/core/home.html")) // Reuse home template? Or landing?
-	// Originally loop uses 'items', so home.html works if we pass items.
+	tpl := pongo2.Must(pongo2.FromFile("templates/core/home.html"))
 	out, _ := tpl.Execute(ctx)
 	c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(out))
 }
@@ -70,10 +88,10 @@ func SubCategoryPage(c *gin.Context) {
 		}
 	}
 
-	// Limit pinned items to 4, set flag if more exist
-	hasMoreHighlights := len(pinnedItems) > 4
+	// Limit pinned items to 3, set flag if more exist
+	hasMoreHighlights := len(pinnedItems) > 3
 	if hasMoreHighlights {
-		pinnedItems = pinnedItems[:4]
+		pinnedItems = pinnedItems[:3]
 	}
 
 	ctx["active_category"] = category
