@@ -13,7 +13,7 @@ func RegisterRoutes(r *gin.Engine) {
 	public.Use(middleware.AuthOptional())
 	{
 		public.GET("/", handlers.LandingPage)
-		public.GET("/dashboard", handlers.Home)
+
 		public.GET("/images/:pk", handlers.GetItemImage) // New Image Route
 		public.GET("/login", handlers.LoginPage)
 		public.POST("/login", handlers.Login)
@@ -40,6 +40,7 @@ func RegisterRoutes(r *gin.Engine) {
 	authorized := r.Group("/")
 	authorized.Use(middleware.AuthRequired())
 	{
+		authorized.GET("/dashboard", handlers.Home)
 		authorized.GET("/report", handlers.ReportItemPage)
 		authorized.POST("/report", handlers.ReportItem)
 		authorized.GET("/item/:pk", handlers.ItemDetail)

@@ -18,24 +18,7 @@ import (
 )
 
 func LoginPage(c *gin.Context) {
-	tpl, err := pongo2.FromFile("templates/core/login.html")
-	if err != nil {
-		c.String(http.StatusInternalServerError, "Template Error: "+err.Error())
-		return
-	}
-	ctx := utils.GetGlobalContext(c)
-
-	// Check for banned user error from query parameter
-	if c.Query("error") == "banned" {
-		ctx["banned_error"] = "Akun Anda telah diblokir karena melanggar ketentuan platform (penipuan, jual beli, atau pelanggaran lainnya). Silakan hubungi admin jika ada pertanyaan."
-	}
-
-	out, err := tpl.Execute(ctx)
-	if err != nil {
-		c.String(http.StatusInternalServerError, "Render Error: "+err.Error())
-		return
-	}
-	c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(out))
+	c.Redirect(http.StatusFound, "/")
 }
 
 func Login(c *gin.Context) {
@@ -109,9 +92,7 @@ func Login(c *gin.Context) {
 }
 
 func RegisterPage(c *gin.Context) {
-	tpl := pongo2.Must(pongo2.FromFile("templates/core/register.html"))
-	out, _ := tpl.Execute(pongo2.Context{})
-	c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(out))
+	c.Redirect(http.StatusFound, "/")
 }
 
 func Register(c *gin.Context) {
