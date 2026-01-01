@@ -23,6 +23,7 @@
             --primary: #1E3683;
             --primary-hover: #15245a;
             --accent: #FFC107;
+            --bg-new: #f8fafc;
             /* Yellow for CTA */
             --accent-hover: #ffbb00;
             --text-main: #1E3683;
@@ -44,7 +45,6 @@
         body {
             font-family: 'Poppins', sans-serif;
             background: var(--bg-gradient);
-            background-color: #F3F4F6;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -172,9 +172,9 @@
 
     <!-- Hero Section -->
     <div id="hero" class="hero-section text-center d-flex flex-column justify-content-center align-items-center" style="min-height: 100vh; padding: 0 20px;">
-        <h1 class="hero-title mb-3 text-brand fw-bold display-4">Platform Digital Membantu<br>Sebarkan Informasi Barang Hilang</h1>
+        <h1 class="hero-title mb-2 text-brand fw-bold display-4">Platform Digital Membantu<br>Sebarkan Informasi Barang Hilang</h1>
 
-        <p class="hero-subtitle mb-4 text-secondary" style="max-width: 650px; font-size: 1.1rem; line-height: 1.6;">
+        <p class="hero-subtitle mb-4 text-secondary" style="max-width: 750px; font-size: 1.1rem; line-height: 1.6;">
             TemuIN menghubungkan penemu dan pemilik barang melalui satu platform digital untuk pencarian yang cepat,
             aman, dan transparan.
         </p>
@@ -193,19 +193,20 @@
     </div>
 
     <!-- Browse Section -->
-    <section id="browse" class="py-5 my-5 bg-white">
+    <section id="browse" class="pt-5 pb-0 my-5 bg-light">
+        <div class="d-flex flex-column align-items-center text-center">
+            <h2 class="fs-1 fw-bold">Barang Hilang Terbaru</h2>
+            <p>Laporan barang yang masih dalam proses pencarian.</p>
+        </div>
         <div class="container">
            {% include 'components/browse_section.html' %}
         </div>
-    </section>
-
-    <!-- Promo Section -->
-    <section>
+        <!-- Promo Section -->
         {% include 'components/promo_section.html' %}
     </section>
 
     <!-- FAQ Section -->
-    <section id="faq" class="py-5 my-5">
+    <section id="faq" class="pt-0 pb-5 my-5">
         {% include 'components/faq_section.html' %}
     </section>
 

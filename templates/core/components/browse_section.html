@@ -21,7 +21,7 @@
                             style="border-color: #E5E7EB; color: #374151; height: 42px; min-width: 140px;">
                             {% if status == 'LOST' %}Lost (Hilang){% elif status == 'FOUND' %}Found (Ditemukan){% else %}All Status{% endif %}
                         </button>
-                        <ul class="dropdown-menu w-100">
+                        <ul class="dropdown-menu shadow-sm" style="min-width: 100%; width: max-content;">
                             <li><a class="dropdown-item" href="?status=&location={{ location|default:'' }}&q={{ q }}#browse">All
                                     Status</a></li>
                             <li><a class="dropdown-item"
@@ -121,12 +121,12 @@
         <!-- View More Button -->
         <div class="text-center mt-5">
             {% if user %}
-            <a href="/dashboard" class="btn btn-outline-secondary px-5 py-2 rounded-pill fw-medium "
+            <a href="/dashboard" class="btn btn-outline-secondary px-5 py-2 rounded-pill fw-medium bg-primary"
                 style="border-color: #E5E7EB;">
                 View More
             </a>
             {% else %}
-            <a href="/login" class="btn btn-outline-secondary px-5 py-2 rounded-pill fw-medium "
+            <a href="/login" class="btn btn-outline-secondary px-5 py-2 rounded-pill fw-medium bg-primary"
                 style="border-color: #E5E7EB;">
                 View More
             </a>
