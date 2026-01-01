@@ -47,6 +47,8 @@ func RegisterRoutes(r *gin.Engine) {
 		authorized.POST("/item/:pk/comment", handlers.PostComment)
 
 		authorized.GET("/profile", handlers.Profile)
+		authorized.POST("/profile/update", handlers.UpdateProfile)
+		authorized.GET("/profile/picture/:user_id", handlers.GetProfilePicture)
 
 		// TopUp routes
 		authorized.POST("/topup/initiate", handlers.InitiateTopUp)
