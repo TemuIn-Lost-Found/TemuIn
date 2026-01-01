@@ -18,7 +18,7 @@ func AuthRequired() gin.HandlerFunc {
 		fmt.Printf("Session UserID: %v\n", userID)
 
 		if userID == nil {
-			c.Redirect(http.StatusFound, "/login")
+			c.Redirect(http.StatusFound, "/")
 			c.Abort()
 			return
 		}
@@ -28,7 +28,7 @@ func AuthRequired() gin.HandlerFunc {
 		if err := config.DB.First(&user, userID).Error; err != nil {
 			session.Delete("user_id")
 			session.Save()
-			c.Redirect(http.StatusFound, "/login")
+			c.Redirect(http.StatusFound, "/")
 			c.Abort()
 			return
 		}

@@ -28,6 +28,14 @@
             --bg-gradient: radial-gradient(circle at 50% 50%, #E0F2FE 0%, #F0F9FF 100%);
             /* Softer light blue glow */
             --white: #F5F5F5;
+
+            /* Imported from style.css for Modals */
+            --bg-secondary: #FFFFFF;
+            --bg-tertiary: #E5E7EB;
+            --text-normal: #374151;
+            --text-header: #111827;
+            --text-muted: #6B7280;
+            --red: #EF4444;
         }
 
         body {
@@ -128,6 +136,7 @@
             box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3);
             transition: all 0.3s ease;
             margin-top: 32px;
+            cursor: pointer;
         }
 
         .cta-button:hover {
@@ -170,10 +179,10 @@
             Mulai Temukan Barang!
         </a>
         {% else %}
-        <a href="/login" class="cta-button">
+        <button type="button" class="cta-button border-0 pointer" data-bs-toggle="modal" data-bs-target="#loginModal">
             <img src="/static/images/asset/icon-search.png" alt="Cari Barang" class="cta-icon px-2" />
             Mulai Temukan Barang!
-        </a>
+        </button>
         {% endif %}
     </div>
 
@@ -188,6 +197,36 @@
 
     <!-- Footer Section -->
     {% include 'components/footer.html' %}
+
+    <!-- Login Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background: transparent; border: none;">
+                <div style="background: var(--bg-secondary); padding: 32px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                    <div style="text-align: right;">
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="filter: invert(1);"></button>
+                    </div>
+                    {% include 'components/auth/form_login.html' %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div class="modal fade" id="registerModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background: transparent; border: none;">
+                <div style="background: var(--bg-secondary); padding: 32px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                    <div style="text-align: right;">
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="filter: invert(1);"></button>
+                    </div>
+                    {% include 'components/auth/form_register.html' %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+
 
     <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
