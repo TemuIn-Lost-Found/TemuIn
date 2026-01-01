@@ -1,0 +1,32 @@
+<section class="py-5">
+    <div class="container">
+        <div class="p-4 p-md-5 rounded-4 d-flex flex-column flex-md-row align-items-center justify-content-between position-relative overflow-hidden"
+            style="background: linear-gradient(135deg, #6366F1 0%, #A855F7 50%, #EC4899 100%); box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.4);">
+
+            <!-- Soft overlay for smoother gradient feel -->
+            <div class="position-absolute top-0 start-0 w-100 h-100"
+                style="background: linear-gradient(to right, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%); pointer-events: none;">
+            </div>
+
+            <div class="text-white mb-4 mb-md-0 position-relative z-1 text-center text-md-start">
+                <h2 class="fw-bold mb-2" style="font-size: 28px;">Tingkatkan peluang barangmu ditemukan</h2>
+                <p class="mb-0 opacity-90" style="font-size: 16px;">Highlight laporanmu agar tampil di posisi teratas
+                </p>
+            </div>
+
+            <div class="position-relative z-1">
+                {% if user %}
+                <a href="/dashboard" class="btn btn-light px-4 py-3 rounded-pill fw-bold border-0"
+                    style="color: #6366F1; font-size: 15px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                    Highlight Sekarang
+                </a>
+                {% else %}
+                <a href="/login" class="btn btn-light px-4 py-3 rounded-pill fw-bold border-0"
+                    style="color: #6366F1; font-size: 15px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                    Highlight Sekarang
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,165 @@
+<section class="py-5">
+    <div class="container">
+        <!-- Filter Bar -->
+        <div class="bg-white p-2 rounded-4 shadow-sm mb-5 mx-auto d-flex align-items-center gap-2"
+            style="max-width: 900px; border: 1px solid #E5E7EB;">
+            <!-- Filter Icon -->
+            <button class="btn btn-light d-flex align-items-center justify-content-center p-2 rounded-3 border-0"
+                style="width: 40px; height: 40px; background-color: transparent;">
+                <span class="material-icons text-muted">filter_list</span>
+            </button>
+
+            <form action="/" method="GET"
+                class="d-flex flex-grow-1 align-items-center gap-2 m-0 w-100 flex-wrap flex-md-nowrap">
+                <!-- Status Dropdown -->
+                <div class="dropdown flex-grow-0">
+                    <button
+                        class="btn btn-light dropdown-toggle bg-white d-flex align-items-center justify-content-between gap-2 border"
+                        type="button" data-bs-toggle="dropdown" aria-expanded="false"
+                        style="border-color: #E5E7EB; color: #374151; height: 42px; min-width: 140px;">
+                        {% if status == 'LOST' %}Lost (Hilang){% elif status == 'FOUND' %}Found (Ditemukan){% else %}All
+                        Status{% endif %}
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="?status=&location={{ location|default:'' }}&q={{ q }}">All
+                                Status</a></li>
+                        <li><a class="dropdown-item"
+                                href="?status=LOST&location={{ location|default:'' }}&q={{ q }}">Lost (Hilang)</a></li>
+                        <li><a class="dropdown-item"
+                                href="?status=FOUND&location={{ location|default:'' }}&q={{ q }}">Found (Ditemukan)</a>
+                        </li>
+                    </ul>
+                    <input type="hidden" name="status" value="{{ status|default:'' }}">
+                </div>
+
+                <!-- Location Input -->
+                <div class="flex-grow-1 position-relative">
+                    <span class="material-icons position-absolute text-muted"
+                        style="left: 12px; top: 50%; transform: translateY(-50%); font-size: 20px;">location_on</span>
+                    <input type="text" name="location" value="{{ location|default:'' }}" class="form-control border"
+                        placeholder="Lokasi..."
+                        style="border-color: #E5E7EB; padding-left: 40px; height: 42px; width: 100%;">
+                </div>
+
+                <!-- Search Button -->
+                <button type="submit" class="btn btn-primary px-4 fw-bold border-0"
+                    style="background-color: #6366F1; height: 42px;">
+                    Search
+                </button>
+            </form>
+        </div>
+
+        <!-- Items Grid (Dynamic - Reusing home.html styles) -->
+        <div class="card-grid">
+            {% for item in items %}
+            <a href="/item/{{ item.ID }}" class="thread-card text-decoration-none d-block text-inherit">
+                <div class="card-image position-relative">
+                    {% if item.Image %}
+                    <img src="/images/{{ item.ID }}" alt="{{ item.Title }}"
+                        style="width: 100%; height: 100%; object-fit: cover;">
+                    {% else %}
+                    <div class="w-100 h-100 d-flex align-items-center justify-content-center bg-light text-muted">
+                        <span class="material-icons" style="font-size: 48px;">image_not_supported</span>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="d-flex flex-column p-3 flex-grow-1">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="card-badge badge-{{ item.Status|lower }}">{{ item.Status }}</span>
+                        <span class="text-muted small">{{ FormatTime(item.CreatedAt, "Jan 02") }}</span>
+                    </div>
+
+                    <h4 class="fw-bold mb-2 text-dark" style="font-size: 16px; line-height: 1.4;">
+                        {{ item.Title|truncatechars:40 }}
+                    </h4>
+
+                    <div class="d-flex align-items-center gap-1 text-muted small mb-3">
+                        <span class="material-icons" style="font-size: 14px;">place</span>
+                        {{ item.Location|truncatechars:25 }}
+                    </div>
+
+                    <div class="mt-auto pt-3 border-top d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center small text-dark">
+                            <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center text-white me-2"
+                                style="width: 24px; height: 24px;">
+                                <span class="material-icons" style="font-size: 14px;">person</span>
+                            </div>
+                            {{ item.User.Username|default:'User' }}
+                        </div>
+                        {% if item.BountyCoins > 0 %}
+                        <div style="color: #F59E0B; font-weight: bold; font-size: 12px;">
+                            {{ item.BountyCoins }} Coins
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </a>
+            {% empty %}
+            <div class="col-12 py-5 text-center w-100" style="grid-column: 1/-1;">
+                <span class="material-icons text-muted mb-3" style="font-size: 48px; opacity: 0.5;">search_off</span>
+                <p class="text-muted">Tidak ada barang ditemukan.</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- View More Button -->
+        <div class="text-center mt-5">
+            {% if user %}
+            <a href="/dashboard" class="btn btn-outline-secondary px-5 py-2 rounded-pill fw-medium bg-white"
+                style="border-color: #E5E7EB;">
+                View More
+            </a>
+            {% else %}
+            <a href="/login" class="btn btn-outline-secondary px-5 py-2 rounded-pill fw-medium bg-white"
+                style="border-color: #E5E7EB;">
+                View More
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<style>
+    /* Ensure home.html grid classes work if not fully loaded from style.css */
+    .card-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 16px;
+    }
+
+    .thread-card {
+        background-color: white;
+        border-radius: 12px;
+        overflow: hidden;
+        transition: all 0.2s ease;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        border: 1px solid #E5E7EB;
+        color: inherit;
+    }
+
+    .thread-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .badge-lost {
+        color: #EF4444;
+        background-color: rgba(239, 68, 68, 0.1);
+        border: 1px solid #EF4444;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+    .badge-found {
+        color: #10B981;
+        background-color: rgba(16, 185, 129, 0.1);
+        border: 1px solid #10B981;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+</style>

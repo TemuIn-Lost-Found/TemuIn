@@ -65,12 +65,40 @@ func Home(c *gin.Context) {
 }
 
 func LandingPage(c *gin.Context) {
-	// If user is already logged in, we might want to let them stay on landing
-	// or show a "Go to Dashboard" button. The template handles this with {% if user %}.
-	// Just render the static landing page.
+	// Expire old highlights using utility function
+	utils.ExpireHighlights(config.DB)
 
-	ctx := utils.GetGlobalContext(c) // Put useful globals like user info into context
+	ctx := utils.GetGlobalContext(c)
 
+	// Fetch items from database with filtering
+	var items []models.LostItem
+	query := config.DB.Preload("User").Order("created_at desc")
+
+	// Apply filters (same logic as Home handler)
+	if q := c.Query("q"); q != "" {
+		// Search in title OR description
+		query = query.Where("(title LIKE ? OR description LIKE ?)", "%"+q+"%", "%"+q+"%")
+	}
+	if status := c.Query("status"); status != "" {
+		query = query.Where("status = ?", status)
+	}
+	if loc := c.Query("location"); loc != "" {
+		query = query.Where("location LIKE ?", "%"+loc+"%")
+	}
+
+	// Limit items for landing page (12 items)
+	query.Limit(12).Find(&items)
+
+	// DEBUG: Log the number of items fetched
+	println("DEBUG LandingPage: Fetched", len(items), "items from database")
+
+	// Pass data to template
+	ctx["items"] = items
+	ctx["q"] = c.Query("q")
+	ctx["status"] = c.Query("status")
+	ctx["location"] = c.Query("location")
+
+	// Render template
 	tpl, err := pongo2.FromFile("templates/core/landing.html")
 	if err != nil {
 		c.String(http.StatusInternalServerError, "Template Error: "+err.Error())

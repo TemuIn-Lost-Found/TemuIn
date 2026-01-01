@@ -1,0 +1,66 @@
+<nav class="navbar navbar-expand-lg">
+    <div class="container-fluid" style="padding-left: 80px; padding-right: 80px;">
+        <a href="/" class="logo">TemuIN</a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar"
+            aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title fw-bold" id="offcanvasNavbarLabel" style="color: #6366F1;">TemuIN</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+                <ul class="navbar-nav justify-content-end flex-grow-1 gap-4 align-items-center">
+                    <li class="nav-item">
+                        <a class="nav-link text-dark fw-medium" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark fw-medium" href="/search">Cari Barang</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark fw-medium" href="/faq">FAQ</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<style>
+    /* Mobile responsive adjustments */
+    @media (max-width: 991px) {
+        .navbar .container-fluid {
+            padding-left: 20px !important;
+            padding-right: 20px !important;
+        }
+    }
+
+    /* Offcanvas width customization */
+    @media (max-width: 991px) {
+        .offcanvas {
+            width: 50% !important;
+            /* Set width to 50% on mobile */
+            background-color: white;
+            /* Ensure background is white */
+        }
+    }
+
+    .logo {
+        font-size: 24px;
+        font-weight: 700;
+        color: #8091C9;
+        letter-spacing: -0.5px;
+        text-decoration: none;
+    }
+
+    .nav-link {
+        font-size: 15px;
+    }
+
+    .nav-link:hover {
+        color: var(--primary) !important;
+    }
+</style>
