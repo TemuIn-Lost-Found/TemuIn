@@ -38,7 +38,7 @@ func RegisterRoutes(r *gin.Engine) {
 
 	// Protected Routes
 	authorized := r.Group("/")
-	authorized.Use(middleware.AuthRequired())
+	authorized.Use(middleware.AuthRequired(), middleware.VisitorTracker())
 	{
 		authorized.GET("/dashboard", handlers.Home)
 		authorized.GET("/report", handlers.ReportItemPage)
@@ -82,7 +82,7 @@ func RegisterRoutes(r *gin.Engine) {
 
 	// Admin Routes
 	admin := r.Group("/admin")
-	admin.Use(middleware.AuthRequired(), middleware.AdminRequired())
+	admin.Use(middleware.AuthRequired(), middleware.AdminRequired(), middleware.VisitorTracker())
 	{
 		admin.GET("/dashboard", handlers.AdminDashboard)
 		admin.POST("/item/:pk/delete", handlers.AdminDeleteItem)
