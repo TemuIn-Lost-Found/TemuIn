@@ -86,8 +86,8 @@ func LandingPage(c *gin.Context) {
 		query = query.Where("location LIKE ?", "%"+loc+"%")
 	}
 
-	// Limit items for landing page (12 items)
-	query.Limit(12).Find(&items)
+	// Limit items for landing page (9 items)
+	query.Limit(9).Find(&items)
 
 	// DEBUG: Log the number of items fetched
 	println("DEBUG LandingPage: Fetched", len(items), "items from database")
