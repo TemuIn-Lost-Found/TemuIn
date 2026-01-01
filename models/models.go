@@ -210,3 +210,15 @@ type WithdrawalRequest struct {
 func (WithdrawalRequest) TableName() string {
 	return "core_withdrawalrequest"
 }
+
+type SiteVisit struct {
+	ID        int64     `gorm:"primaryKey;autoIncrement"`
+	VisitedAt time.Time `gorm:"column:visited_at;autoCreateTime"`
+	IPAddress string    `gorm:"column:ip_address;size:45"` // IPv6 compatible
+	UserAgent string    `gorm:"column:user_agent;size:255"`
+	Path      string    `gorm:"size:255"`
+}
+
+func (SiteVisit) TableName() string {
+	return "core_sitevisit"
+}

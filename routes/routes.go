@@ -10,7 +10,7 @@ import (
 func RegisterRoutes(r *gin.Engine) {
 	// Public Routes with Optional Auth (for UI)
 	public := r.Group("/")
-	public.Use(middleware.AuthOptional())
+	public.Use(middleware.AuthOptional(), middleware.VisitorTracker())
 	{
 		public.GET("/", handlers.LandingPage)
 
@@ -38,7 +38,7 @@ func RegisterRoutes(r *gin.Engine) {
 
 	// Protected Routes
 	authorized := r.Group("/")
-	authorized.Use(middleware.AuthRequired())
+	authorized.Use(middleware.AuthRequired(), middleware.VisitorTracker())
 	{
 		authorized.GET("/dashboard", handlers.Home)
 		authorized.GET("/report", handlers.ReportItemPage)
@@ -82,7 +82,7 @@ func RegisterRoutes(r *gin.Engine) {
 
 	// Admin Routes
 	admin := r.Group("/admin")
-	admin.Use(middleware.AuthRequired(), middleware.AdminRequired())
+	admin.Use(middleware.AuthRequired(), middleware.AdminRequired(), middleware.VisitorTracker())
 	{
 		admin.GET("/dashboard", handlers.AdminDashboard)
 		admin.POST("/item/:pk/delete", handlers.AdminDeleteItem)
@@ -98,5 +98,8 @@ func RegisterRoutes(r *gin.Engine) {
 		admin.GET("/withdrawals", handlers.AdminWithdrawalsPage)
 		admin.POST("/withdrawals/:id/approve", handlers.AdminApproveWithdrawal)
 		admin.POST("/withdrawals/:id/reject", handlers.AdminRejectWithdrawal)
+
+		// Visitor stats API
+		admin.GET("/visitor-stats", handlers.AdminGetVisitorStats)
 	}
 }
