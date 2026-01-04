@@ -47,5 +47,5 @@ func main() {
 	if port == "" {
 		port = "8080"
 	}
-	log.Println("🚀 Server running on port", port)
-	r.Run(":" + port)}
+	r.Run(":" + port)
+}

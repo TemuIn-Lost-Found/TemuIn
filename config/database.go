@@ -1,26 +1,41 @@
 package config
 
 import (
-    "fmt"
-    "log"
+	"fmt"
+	"log"
+	"os"
 
-    "gorm.io/driver/mysql"
-    "gorm.io/gorm"
-    "gorm.io/gorm/logger"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 var DB *gorm.DB
 
 func ConnectDB() {
-    dsn := "root:@tcp(127.0.0.1:3306)/temuin_db?charset=utf8mb4&parseTime=True&loc=Local"
-    var err error
-    DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
-        Logger: logger.Default.LogMode(logger.Info),
-    })
+	dbUser := os.Getenv("DB_USER")
+	dbPass := os.Getenv("DB_PASSWORD")
+	dbHost := os.Getenv("DB_HOST")
+	dbPort := os.Getenv("DB_PORT")
+	dbName := os.Getenv("DB_NAME")
 
-    if err != nil {
-        log.Fatal("Failed to connect to database:", err)
-    }
+	if dbUser == "" || dbPass == "" || dbHost == "" || dbPort == "" || dbName == "" {
+		log.Fatal("Database environment variables are not set properly")
+	}
 
-    fmt.Println("Database connection established")
+	dsn := fmt.Sprintf(
+		"%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local&tls=true",
+		dbUser, dbPass, dbHost, dbPort, dbName,
+	)
+
+	var err error
+	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Info),
+	})
+
+	if err != nil {
+		log.Fatal("Failed to connect to database:", err)
+	}
+
+	fmt.Println("✅ Database connection established")
 }

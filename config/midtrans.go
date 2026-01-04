@@ -18,7 +18,7 @@ var (
 func InitMidtrans() {
 	serverKey := os.Getenv("MIDTRANS_SERVER_KEY")
 	clientKey := os.Getenv("MIDTRANS_CLIENT_KEY")
-	env := os.Getenv("MIDTRANS_ENV")
+	env := os.Getenv("MIDTRANS_ENVIRONMENT")
 
 	if serverKey == "" || clientKey == "" {
 		log.Println("Warning: MIDTRANS keys not set. Midtrans integration will not work properly.")
