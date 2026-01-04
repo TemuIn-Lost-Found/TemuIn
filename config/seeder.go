@@ -4,11 +4,13 @@ import (
 	"log"
 	"temuin/models"
 
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
 func SeedDB(db *gorm.DB) {
 	seedCategories(db)
+	seedAdmin(db)
 	log.Println("✅ Database seeding completed")
 }
 
@@ -76,4 +78,31 @@ func seedCategories(db *gorm.DB) {
 		}
 	}
 	log.Println("✅ Categories seeded")
+}
+
+func seedAdmin(db *gorm.DB) {
+	var count int64
+	db.Model(&models.User{}).Where("is_superuser = ?", true).Count(&count)
+	if count > 0 {
+		return // Admin already exists
+	}
+
+	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte("admin123"), bcrypt.DefaultCost)
+
+	admin := models.User{
+		Username:    "admin",
+		Email:       "admin@temuin.com",
+		Password:    string(hashedPassword),
+		FirstName:   "Super",
+		LastName:    "Admin",
+		IsSuperuser: true,
+		IsStaff:     true,
+		IsActive:    true,
+	}
+
+	if err := db.Create(&admin).Error; err != nil {
+		log.Printf("❌ Failed to create admin user: %v", err)
+	} else {
+		log.Println("✅ Admin user created (username: admin, password: admin123)")
+	}
 }
