@@ -42,5 +42,7 @@ func main() {
 	}
 
 	log.Println("Starting server on port", port)
-	r.Run("0.0.0.0:" + port)
+	if err := r.Run("0.0.0.0:" + port); err != nil {
+		log.Fatal("❌ Failed to start server:", err)
+	}
 }
