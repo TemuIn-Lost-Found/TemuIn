@@ -6,6 +6,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"net/http"
+	"regexp"
 	"strconv"
 	"temuin/config"
 	"temuin/models"
@@ -18,34 +19,22 @@ import (
 )
 
 func LoginPage(c *gin.Context) {
-	tpl, err := pongo2.FromFile("templates/core/login.html")
-	if err != nil {
-		c.String(http.StatusInternalServerError, "Template Error: "+err.Error())
-		return
-	}
-	ctx := utils.GetGlobalContext(c)
-
-	// Check for banned user error from query parameter
-	if c.Query("error") == "banned" {
-		ctx["banned_error"] = "Akun Anda telah diblokir karena melanggar ketentuan platform (penipuan, jual beli, atau pelanggaran lainnya). Silakan hubungi admin jika ada pertanyaan."
-	}
-
-	out, err := tpl.Execute(ctx)
-	if err != nil {
-		c.String(http.StatusInternalServerError, "Render Error: "+err.Error())
-		return
-	}
-	c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(out))
+	c.Redirect(http.StatusFound, "/")
 }
 
 func Login(c *gin.Context) {
 	username := c.PostForm("username")
 	password := c.PostForm("password")
+	isJSON := c.GetHeader("Accept") == "application/json"
 
 	ctx := utils.GetGlobalContext(c)
 
 	// Validate username is not empty
 	if valid, errMsg := utils.ValidateNotEmpty(username, "Username"); !valid {
+		if isJSON {
+			c.JSON(http.StatusBadRequest, gin.H{"success": false, "error": errMsg})
+			return
+		}
 		ctx["username_error"] = errMsg
 		ctx["username"] = username
 		tpl := pongo2.Must(pongo2.FromFile("templates/core/login.html"))
@@ -56,6 +45,10 @@ func Login(c *gin.Context) {
 
 	// Validate password is not empty
 	if valid, errMsg := utils.ValidateNotEmpty(password, "Password"); !valid {
+		if isJSON {
+			c.JSON(http.StatusBadRequest, gin.H{"success": false, "error": errMsg})
+			return
+		}
 		ctx["password_error"] = errMsg
 		ctx["username"] = username // Preserve username
 		tpl := pongo2.Must(pongo2.FromFile("templates/core/login.html"))
@@ -67,6 +60,10 @@ func Login(c *gin.Context) {
 	// Check if user exists
 	var user models.User
 	if err := config.DB.Where("username = ?", username).First(&user).Error; err != nil {
+		if isJSON {
+			c.JSON(http.StatusUnauthorized, gin.H{"success": false, "error": "Username tidak ditemukan"})
+			return
+		}
 		ctx["username_error"] = "Username tidak ditemukan"
 		ctx["username"] = username
 		tpl := pongo2.Must(pongo2.FromFile("templates/core/login.html"))
@@ -82,6 +79,10 @@ func Login(c *gin.Context) {
 	// Verify password
 	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 	if err != nil {
+		if isJSON {
+			c.JSON(http.StatusUnauthorized, gin.H{"success": false, "error": "Password tidak sesuai"})
+			return
+		}
 		ctx["password_error"] = "Password tidak sesuai"
 		ctx["username"] = username // Preserve username
 		tpl := pongo2.Must(pongo2.FromFile("templates/core/login.html"))
@@ -92,7 +93,12 @@ func Login(c *gin.Context) {
 
 	// Check if user is banned
 	if user.IsBanned {
-		ctx["banned_error"] = "Akun Anda telah diblokir karena melanggar ketentuan platform (penipuan, jual beli, atau pelanggaran lainnya). Silakan hubungi admin jika ada pertanyaan."
+		errMsg := "Akun Anda telah diblokir karena melanggar ketentuan platform (penipuan, jual beli, atau pelanggaran lainnya). Silakan hubungi admin jika ada pertanyaan."
+		if isJSON {
+			c.JSON(http.StatusForbidden, gin.H{"success": false, "error": errMsg})
+			return
+		}
+		ctx["banned_error"] = errMsg
 		ctx["username"] = username
 		tpl := pongo2.Must(pongo2.FromFile("templates/core/login.html"))
 		out, _ := tpl.Execute(ctx)
@@ -105,23 +111,88 @@ func Login(c *gin.Context) {
 	session.Set("user_id", user.ID)
 	session.Save()
 
+	if isJSON {
+		c.JSON(http.StatusOK, gin.H{"success": true, "redirect": "/dashboard"})
+		return
+	}
+
 	c.Redirect(http.StatusFound, "/dashboard")
 }
 
 func RegisterPage(c *gin.Context) {
-	tpl := pongo2.Must(pongo2.FromFile("templates/core/register.html"))
-	out, _ := tpl.Execute(pongo2.Context{})
-	c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(out))
+	c.Redirect(http.StatusFound, "/")
 }
 
 func Register(c *gin.Context) {
 	username := c.PostForm("username")
 	password := c.PostForm("password")
+	fullname := c.PostForm("fullname")
+	email := c.PostForm("email")
+	isJSON := c.GetHeader("Accept") == "application/json"
 
 	ctx := utils.GetGlobalContext(c)
 
+	// Validate Full Name
+	if valid, errMsg := utils.ValidateNotEmpty(fullname, "Full Name"); !valid {
+		if isJSON {
+			c.JSON(http.StatusBadRequest, gin.H{"success": false, "error": errMsg})
+			return
+		}
+		ctx["error"] = errMsg
+		tpl := pongo2.Must(pongo2.FromFile("templates/core/register.html"))
+		out, _ := tpl.Execute(ctx)
+		c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(out))
+		return
+	}
+
+	// Validate Full Name (Alphabet only)
+	if match, _ := regexp.MatchString(`^[A-Za-z\s]+$`, fullname); !match {
+		errMsg := "Full Name hanya boleh berisi huruf dan spasi"
+		if isJSON {
+			c.JSON(http.StatusBadRequest, gin.H{"success": false, "error": errMsg})
+			return
+		}
+		ctx["error"] = errMsg
+		tpl := pongo2.Must(pongo2.FromFile("templates/core/register.html"))
+		out, _ := tpl.Execute(ctx)
+		c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(out))
+		return
+	}
+
+	// Validate Email
+	if valid, errMsg := utils.ValidateNotEmpty(email, "Email"); !valid {
+		if isJSON {
+			c.JSON(http.StatusBadRequest, gin.H{"success": false, "error": errMsg})
+			return
+		}
+		ctx["error"] = errMsg
+		tpl := pongo2.Must(pongo2.FromFile("templates/core/register.html"))
+		out, _ := tpl.Execute(ctx)
+		c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(out))
+		return
+	}
+
+	// Validate Username (Alphabet only)
+	if match, _ := regexp.MatchString(`^[A-Za-z]+$`, username); !match {
+		errMsg := "Username hanya boleh berisi huruf (tanpa angka/spasi)"
+		if isJSON {
+			c.JSON(http.StatusBadRequest, gin.H{"success": false, "error": errMsg})
+			return
+		}
+		ctx["username_error"] = errMsg
+		ctx["username"] = username
+		tpl := pongo2.Must(pongo2.FromFile("templates/core/register.html"))
+		out, _ := tpl.Execute(ctx)
+		c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(out))
+		return
+	}
+
 	// Validate username is not empty
 	if valid, errMsg := utils.ValidateNotEmpty(username, "Username"); !valid {
+		if isJSON {
+			c.JSON(http.StatusBadRequest, gin.H{"success": false, "error": errMsg})
+			return
+		}
 		ctx["username_error"] = errMsg
 		ctx["username"] = username
 		tpl := pongo2.Must(pongo2.FromFile("templates/core/register.html"))
@@ -132,6 +203,10 @@ func Register(c *gin.Context) {
 
 	// Validate password is not empty
 	if valid, errMsg := utils.ValidateNotEmpty(password, "Password"); !valid {
+		if isJSON {
+			c.JSON(http.StatusBadRequest, gin.H{"success": false, "error": errMsg})
+			return
+		}
 		ctx["password_error"] = errMsg
 		ctx["username"] = username // Preserve username
 		tpl := pongo2.Must(pongo2.FromFile("templates/core/register.html"))
@@ -142,6 +217,10 @@ func Register(c *gin.Context) {
 
 	// Validate password strength
 	if valid, errMsg := utils.ValidatePassword(password); !valid {
+		if isJSON {
+			c.JSON(http.StatusBadRequest, gin.H{"success": false, "error": errMsg})
+			return
+		}
 		ctx["password_error"] = errMsg
 		ctx["username"] = username // Preserve username
 		tpl := pongo2.Must(pongo2.FromFile("templates/core/register.html"))
@@ -150,26 +229,79 @@ func Register(c *gin.Context) {
 		return
 	}
 
+	// Check for existing email or username
+	var existingUser models.User
+	if err := config.DB.Where("username = ? OR email = ?", username, email).First(&existingUser).Error; err == nil {
+		var errMsg string
+		if existingUser.Username == username {
+			errMsg = "Username is already taken"
+		} else {
+			errMsg = "Email is already registered"
+		}
+
+		if isJSON {
+			c.JSON(http.StatusBadRequest, gin.H{"success": false, "error": errMsg})
+			return
+		}
+		ctx["error"] = errMsg
+		ctx["username"] = username
+		tpl := pongo2.Must(pongo2.FromFile("templates/core/register.html"))
+		out, _ := tpl.Execute(ctx)
+		c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(out))
+		return
+	}
+
 	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 
+	// Split fullname
+	var firstName, lastName string
+
+	spaceIdx := -1
+	for i, r := range fullname {
+		if r == ' ' {
+			spaceIdx = i
+			break
+		}
+	}
+
+	if spaceIdx != -1 {
+		firstName = fullname[:spaceIdx]
+		lastName = fullname[spaceIdx+1:]
+	} else {
+		firstName = fullname
+		lastName = fullname // Fallback
+	}
+
 	user := models.User{
-		Username: username,
-		Password: string(hashedPassword),
-		Email:    username + "@example.com",
+		Username:    username,
+		Password:    string(hashedPassword),
+		Email:       email,
+		FirstName:   firstName,
+		LastName:    lastName,
+		IsActive:    true,
+		CoinBalance: 0,
 	}
 
 	if err := config.DB.Create(&user).Error; err != nil {
-		ctx["error"] = "Username sudah digunakan atau terjadi kesalahan"
-		ctx["username"] = username // Preserve username
+		if isJSON {
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": "Database error: " + err.Error()})
+			return
+		}
+		ctx["error"] = "Registration failed"
 		tpl := pongo2.Must(pongo2.FromFile("templates/core/register.html"))
 		out, _ := tpl.Execute(ctx)
-		c.Data(http.StatusBadRequest, "text/html; charset=utf-8", []byte(out))
+		c.Data(http.StatusInternalServerError, "text/html; charset=utf-8", []byte(out))
 		return
 	}
 
 	session := sessions.Default(c)
 	session.Set("user_id", user.ID)
 	session.Save()
+
+	if isJSON {
+		c.JSON(http.StatusOK, gin.H{"success": true, "redirect": "/dashboard"})
+		return
+	}
 
 	c.Redirect(http.StatusFound, "/dashboard")
 }

@@ -6,20 +6,21 @@ import (
 
 // User maps to core_customuser
 type User struct {
-	ID          int64  `gorm:"primaryKey;autoIncrement"`
-	Password    string `gorm:"size:128;not null"`
-	LastLogin   *time.Time
-	IsSuperuser bool      `gorm:"column:is_superuser;default:false"`
-	Username    string    `gorm:"size:150;unique;not null"`
-	FirstName   string    `gorm:"column:first_name;size:150;not null"`
-	LastName    string    `gorm:"column:last_name;size:150;not null"`
-	Email       string    `gorm:"size:254;not null"`
-	IsStaff     bool      `gorm:"column:is_staff;default:false"`
-	IsActive    bool      `gorm:"column:is_active;default:true"`
-	IsBanned    bool      `gorm:"column:is_banned;default:false"`
-	DateJoined  time.Time `gorm:"column:date_joined;autoCreateTime"`
-	PhoneNumber string    `gorm:"column:phone_number;size:15;default:null"`
-	CoinBalance int       `gorm:"column:coin_balance;default:0"`
+	ID             int64  `gorm:"primaryKey;autoIncrement"`
+	Password       string `gorm:"size:128;not null"`
+	LastLogin      *time.Time
+	IsSuperuser    bool      `gorm:"column:is_superuser;default:false"`
+	Username       string    `gorm:"size:150;unique;not null"`
+	FirstName      string    `gorm:"column:first_name;size:150;not null"`
+	LastName       string    `gorm:"column:last_name;size:150;not null"`
+	Email          string    `gorm:"size:254;not null"`
+	IsStaff        bool      `gorm:"column:is_staff;default:false"`
+	IsActive       bool      `gorm:"column:is_active;default:true"`
+	IsBanned       bool      `gorm:"column:is_banned;default:false"`
+	DateJoined     time.Time `gorm:"column:date_joined;autoCreateTime"`
+	PhoneNumber    string    `gorm:"column:phone_number;size:15;default:null"`
+	CoinBalance    int       `gorm:"column:coin_balance;default:0"`
+	ProfilePicture string    `gorm:"column:profile_picture;size:255;default:null"`
 }
 
 // TableName overrides the table name to match Django's
@@ -209,4 +210,16 @@ type WithdrawalRequest struct {
 
 func (WithdrawalRequest) TableName() string {
 	return "core_withdrawalrequest"
+}
+
+type SiteVisit struct {
+	ID        int64     `gorm:"primaryKey;autoIncrement"`
+	VisitedAt time.Time `gorm:"column:visited_at;autoCreateTime"`
+	IPAddress string    `gorm:"column:ip_address;size:45"` // IPv6 compatible
+	UserAgent string    `gorm:"column:user_agent;size:255"`
+	Path      string    `gorm:"size:255"`
+}
+
+func (SiteVisit) TableName() string {
+	return "core_sitevisit"
 }

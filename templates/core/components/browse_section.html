@@ -1,0 +1,137 @@
+<section class="py-5">
+    <div class="container">
+        <!-- Filter Bar -->
+        <!-- Filter Bar -->
+        <div class="bg-white p-3 rounded-4 shadow-sm mb-5 mx-auto d-flex flex-column flex-md-row align-items-center gap-3"
+            style="max-width: 1000px; border: 1px solid #E5E7EB;">
+            
+            <!-- Filter Icon (Hidden on small mobile if desired, or keep) -->
+            <div class="d-none d-md-flex align-items-center justify-content-center bg-light rounded-3 text-muted" style="width: 40px; height: 40px; flex-shrink: 0;">
+                <span class="material-icons">filter_list</span>
+            </div>
+
+            <form action="/#browse" method="GET" class="row g-2 w-100 m-0 align-items-center">
+                
+                <!-- Status Dropdown -->
+                <div class="col-12 col-md-auto">
+                    <div class="dropdown w-100">
+                        <button
+                            class="btn btn-light dropdown-toggle bg-white d-flex align-items-center justify-content-between gap-2 border w-100"
+                            type="button" data-bs-toggle="dropdown" aria-expanded="false"
+                            style="border-color: #E5E7EB; color: #374151; height: 42px; min-width: 140px;">
+                            {% if status == 'LOST' %}Lost (Hilang){% elif status == 'FOUND' %}Found (Ditemukan){% else %}All Status{% endif %}
+                        </button>
+                        <ul class="dropdown-menu shadow-sm" style="min-width: 100%; width: max-content;">
+                            <li><a class="dropdown-item" href="?status=&location={{ location|default:'' }}&q={{ q }}#browse">All
+                                    Status</a></li>
+                            <li><a class="dropdown-item"
+                                    href="?status=LOST&location={{ location|default:'' }}&q={{ q }}#browse">Lost (Hilang)</a></li>
+                            <li><a class="dropdown-item"
+                                    href="?status=FOUND&location={{ location|default:'' }}&q={{ q }}#browse">Found (Ditemukan)</a>
+                            </li>
+                        </ul>
+                        <input type="hidden" name="status" value="{{ status|default:'' }}">
+                    </div>
+                </div>
+
+                <!-- Search Input -->
+                <div class="col-12 col-md">
+                    <div class="position-relative">
+                        <span class="material-icons position-absolute text-muted"
+                            style="left: 12px; top: 50%; transform: translateY(-50%); font-size: 20px;">search</span>
+                        <input type="text" name="q" value="{{ q|default:'' }}" class="form-control border"
+                            placeholder="Cari barang..."
+                            style="border-color: #E5E7EB; padding-left: 40px; height: 42px; width: 100%;">
+                    </div>
+                </div>
+
+                <!-- Location Input -->
+                <div class="col-12 col-md">
+                    <div class="position-relative">
+                        <span class="material-icons position-absolute text-muted"
+                            style="left: 12px; top: 50%; transform: translateY(-50%); font-size: 20px;">location_on</span>
+                        <input type="text" name="location" value="{{ location|default:'' }}" class="form-control border"
+                            placeholder="Lokasi..."
+                            style="border-color: #E5E7EB; padding-left: 40px; height: 42px; width: 100%;">
+                    </div>
+                </div>
+
+                <!-- Search Button -->
+                <div class="col-12 col-md-auto">
+                    <button type="submit" class="btn btn-primary fw-bold border-0 w-100"
+                        style="background-color: #6366F1; height: 42px;">
+                        Search
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Items Grid (Dynamic - Reusing home.html styles) -->
+        <div class="card-grid">
+            {% for item in items %}
+            <a href="/item/{{ item.ID }}" class="thread-card text-decoration-none d-block text-inherit" style="color: inherit;">
+                <div class="card-image">
+                    {% if item.Image %}
+                    <img src="/images/{{ item.ID }}" alt="{{ item.Title }}"
+                        style="width: 100%; height: 100%; object-fit: cover;">
+                    {% else %}
+                    <div class="w-100 h-100 d-flex align-items-center justify-content-center bg-light text-muted"
+                        style="background-color: var(--bg-tertiary); color: var(--text-muted);">
+                        <span class="material-icons" style="font-size: 48px;">image_not_supported</span>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="card-content">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="card-badge badge-{{ item.Status|lower }}">{{ item.Status }}</span>
+                        <span class="text-muted small" style="font-size: 12px;">{{ FormatTime(item.CreatedAt, "Jan 02") }}</span>
+                    </div>
+
+                    <h4 class="card-title">
+                        {{ item.Title|truncatechars:40 }}
+                    </h4>
+
+                    <div class="d-flex align-items-center gap-1 text-muted small mb-3" style="font-size: 12px;">
+                        <span class="material-icons" style="font-size: 14px;">place</span>
+                        {{ item.Location|truncatechars:25 }}
+                    </div>
+
+                    <div class="card-meta" style="margin-top: auto; padding-top: 12px; border-top: 1px solid var(--bg-tertiary);">
+                        <div class="d-flex align-items-center small text-dark">
+                            <span class="material-icons me-1" style="font-size: 16px; color: var(--accent);">account_circle</span>
+                            {{ item.User.Username|default:'User' }}
+                        </div>
+                        {% if item.BountyCoins > 0 %}
+                        <div style="color: var(--gold); font-weight: bold; font-size: 12px;">
+                            {{ item.BountyCoins }} Coins
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </a>
+            {% empty %}
+            <div class="col-12 py-5 text-center w-100" style="grid-column: 1/-1;">
+                <span class="material-icons text-muted mb-3" style="font-size: 48px; opacity: 0.5;">search_off</span>
+                <p class="text-muted">Tidak ada barang ditemukan.</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- View More Button -->
+        <div class="text-center mt-5">
+            {% if user %}
+            <a href="/dashboard" class="btn btn-outline-secondary px-5 py-2 rounded-pill fw-medium bg-primary"
+                style="border-color: #E5E7EB;">
+                View More
+            </a>
+            {% else %}
+            <a href="/login" class="btn btn-outline-secondary px-5 py-2 rounded-pill fw-medium bg-primary"
+                style="border-color: #E5E7EB;">
+                View More
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+

@@ -56,20 +56,98 @@
             </a>
         </div>
 
-        <!-- <a href="/admin/withdrawals" style="text-decoration: none;">
-            <div
-                style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); border-radius: 12px; padding: 24px; color: white; box-shadow: 0 4px 12px rgba(79, 172, 254, 0.3); transition: transform 0.2s;">
-                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
-                    <span class="material-icons" style="font-size: 32px;">payments</span>
-                    <div>
-                        <div style="font-size: 24px; font-weight: bold;">Withdrawals</div>
-                        <div style="font-size: 14px; opacity: 0.9;">Manage Requests</div>
-                    </div>
+        <div
+            style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); border-radius: 12px; padding: 24px; color: white; box-shadow: 0 4px 12px rgba(67, 233, 123, 0.3);">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                <span class="material-icons" style="font-size: 32px;">visibility</span>
+                <div>
+                    <div style="font-size: 32px; font-weight: bold;">{{ total_visitors }}</div>
+                    <div style="font-size: 14px; opacity: 0.9;">Total Visitors</div>
                 </div>
             </div>
-        </a> -->
+        </div>
     </div>
 
+    
+    <!-- User Management Section -->
+<div
+        style="background: var(--bg-secondary); border-radius: 12px; padding: 24px; margin-bottom: 32px; border: 1px solid var(--bg-tertiary);">
+        <h3 style="margin: 0 0 20px 0; color: var(--text-header); display: flex; align-items: center; gap: 8px;">
+            <span class="material-icons">manage_accounts</span>
+            Manajemen Akun Pengguna
+        </h3>
+
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="background: var(--bg-tertiary); text-align: left;">
+                        <th style="padding: 12px; color: var(--text-header); font-size: 13px;">Username</th>
+                        <th style="padding: 12px; color: var(--text-header); font-size: 13px;">Email</th>
+                        <th style="padding: 12px; color: var(--text-header); font-size: 13px;">Tanggal Registrasi</th>
+                        <th style="padding: 12px; color: var(--text-header); font-size: 13px;">Coin Balance</th>
+                        <th style="padding: 12px; color: var(--text-header); font-size: 13px;">Status</th>
+                        <th style="padding: 12px; color: var(--text-header); font-size: 13px;">Total Top-Up</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user_data in all_users %}
+                    <tr style="border-bottom: 1px solid var(--bg-tertiary);">
+                        <td style="padding: 12px; color: var(--text-normal); font-size: 13px;">
+                            {{ user_data.User.Username }}
+                            {% if user_data.User.IsSuperuser %}
+                            <span style="color: #faa61a;">⚡</span>
+                            {% endif %}
+                        </td>
+                        <td style="padding: 12px; color: var(--text-muted); font-size: 13px;">
+                            {{ user_data.User.Email }}
+                        </td>
+                        <td style="padding: 12px; color: var(--text-muted); font-size: 13px;">
+                            {{ FormatTime(user_data.User.DateJoined, "02 Jan 2006") }}
+                        </td>
+                        <td style="padding: 12px; color: #ffab00; font-size: 13px; font-weight: 600;">
+                            {{ user_data.User.CoinBalance }} Coins
+                        </td>
+                        <td style="padding: 12px;">
+                            {% if user_data.IsSubscribed %}
+                            <span
+                                style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 600;">
+                                ✨ Subscribed
+                            </span>
+                            {% else %}
+                            <span
+                                style="background: var(--bg-tertiary); color: var(--text-muted); padding: 4px 12px; border-radius: 12px; font-size: 11px;">
+                                Free User
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td style="padding: 12px; color: var(--text-normal); font-size: 13px;">
+                            {{ user_data.TotalTopUp }} times
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Visitor Statistics Chart -->
+    <div
+        style="background: var(--bg-secondary); border-radius: 12px; padding: 24px; margin-bottom: 32px; border: 1px solid var(--bg-tertiary);">
+        <h3 style="margin: 0 0 20px 0; color: var(--text-header); display: flex; align-items: center; gap: 8px; justify-content: space-between;">
+            <span style="display: flex; align-items: center; gap: 8px;">
+                <span class="material-icons">trending_up</span>
+                Visitor Statistics
+            </span>
+            <select id="period-selector" onchange="updateChart()"
+                style="padding: 8px 12px; border-radius: 6px; border: 1px solid var(--bg-tertiary); background: var(--bg-primary); color: var(--text-normal); cursor: pointer;">
+                <option value="daily">Per Hari (24 Jam)</option>
+                <option value="weekly">Per Minggu (7 Hari)</option>
+                <option value="monthly" selected>Per Bulan (30 Hari)</option>
+                <option value="yearly">Per Tahun (12 Bulan)</option>
+            </select>
+        </h3>
+        <canvas id="visitorChart" style="max-height: 400px;"></canvas>
+    </div>
     <!-- Banned Users Section -->
     {% if banned_users|length > 0 %}
     <div
@@ -167,7 +245,91 @@
 
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+    let visitorChart = null;
+
+    function updateChart() {
+        const period = document.getElementById('period-selector').value;
+        
+        fetch(`/admin/visitor-stats?period=${period}`)
+            .then(response => response.json())
+            .then(data => {
+                if (visitorChart) {
+                    visitorChart.destroy();
+                }
+                
+                const ctx = document.getElementById('visitorChart').getContext('2d');
+                visitorChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: data.labels,
+                        datasets: [{
+                            label: 'Visitors',
+                            data: data.data,
+                            borderColor: '#4facfe',
+                            backgroundColor: 'rgba(79, 172, 254, 0.1)',
+                            tension: 0.4,
+                            fill: true,
+                            pointBackgroundColor: '#4facfe',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                padding: 12,
+                                titleFont: {
+                                    size: 14
+                                },
+                                bodyFont: {
+                                    size: 13
+                                },
+                                callbacks: {
+                                    label: function(context) {
+                                        return 'Visitors: ' + context.parsed.y;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    precision: 0
+                                },
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)'
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        }
+                    }
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching visitor stats:', error);
+            });
+    }
+
+    // Initialize chart on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        updateChart();
+    });
+
     function unbanUser(userId) {
         if (!confirm('Unban this user? They will be able to post again.')) {
             return;
