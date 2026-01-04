@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"temuin/models"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -31,4 +32,30 @@ func ConnectDB() {
 	}
 
 	log.Println("✅ Database connected")
+
+	// Auto Migrate
+	err = DB.AutoMigrate(
+		&models.User{},
+		&models.Category{},
+		&models.SubCategory{},
+		&models.LostItem{},
+		&models.LostItemImage{},
+		&models.Comment{},
+		&models.CoinTransaction{},
+		&models.ItemClaim{},
+		&models.ItemReport{},
+		&models.Notification{},
+		&models.TopUpTransaction{},
+		&models.WithdrawalRequest{},
+		&models.SiteVisit{},
+	)
+
+	if err != nil {
+		log.Fatal("❌ Failed to migrate database:", err)
+	}
+
+	log.Println("✅ Database migrated")
+
+	// Run Seeder
+	SeedDB(DB)
 }
