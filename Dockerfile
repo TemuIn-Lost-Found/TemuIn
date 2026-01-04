@@ -12,7 +12,13 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o app
 FROM alpine:latest
 WORKDIR /app
 
+# Install CA certificates for DB TLS
+RUN apk --no-cache add ca-certificates
+
 COPY --from=builder /app/app .
+COPY --from=builder /app/templates ./templates
+COPY --from=builder /app/static ./static
+
 RUN chmod +x /app/app
 
 EXPOSE 8080
