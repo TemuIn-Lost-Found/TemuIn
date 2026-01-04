@@ -24,11 +24,11 @@
 
         {% if user.IsSuperuser or user.Username == 'admin' %}
         <div class="category-section-label">Admin</div>
-        <a href="http://localhost:8080/admin/dashboard" class="category-item">
+        <a href="/admin/dashboard" class="category-item">
             <span class="material-icons" style="font-size: 20px; margin-right: 8px;">dashboard</span>
             Dashboard
         </a>
-        <a href="http://localhost:8080/admin/withdrawals" class="category-item">
+        <a href="/admin/withdrawals" class="category-item">
             <span class="material-icons" style="font-size: 20px; margin-right: 8px;">payments</span>
             Withdrawals
         </a>
@@ -53,8 +53,7 @@
 
             <!-- Render subcategories ALWAYS, but hide if not active -->
             {% if category.SubCategories %}
-            <div class="subcategory-list"
-            style="margin-left: 12px; border-left: 2px solid var(--accent); padding-left: 8px; margin-bottom: 8px; {% if active_category and active_category.ID == category.ID %}display: block;{% else %}display: none;{% endif %}">
+            <div class="subcategory-list {% if active_category and active_category.ID == category.ID %}expanded{% endif %}">
                 {% for sub in category.SubCategories %}
                 <a href="/subcategory/{{ sub.ID }}"
                     class="category-item {% if active_subcategory and active_subcategory.ID == sub.ID %}active-channel{% endif %}"

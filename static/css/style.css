@@ -466,3 +466,16 @@ body {
   background-color: rgba(16, 185, 129, 0.1);
   border: 1px solid var(--green);
 }
+
+/* Subcategory List */
+.subcategory-list {
+  display: none;
+  margin-left: 12px;
+  border-left: 2px solid var(--accent);
+  padding-left: 8px;
+  margin-bottom: 8px;
+}
+
+.subcategory-list.expanded {
+  display: block;
+}
