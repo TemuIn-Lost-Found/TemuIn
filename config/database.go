@@ -7,7 +7,7 @@ import (
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
+	// "gorm.io/gorm/logger"
 )
 
 var DB *gorm.DB
@@ -20,7 +20,8 @@ func ConnectDB() {
 	dbName := os.Getenv("DB_NAME")
 
 	if dbUser == "" || dbPass == "" || dbHost == "" || dbPort == "" || dbName == "" {
-		log.Fatal("Database environment variables are not set properly")
+		log.Println("⚠️ Database env not set, skipping DB connection")
+		return
 	}
 
 	dsn := fmt.Sprintf(
@@ -29,13 +30,11 @@ func ConnectDB() {
 	)
 
 	var err error
-	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Info),
-	})
-
+	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
-		log.Fatal("Failed to connect to database:", err)
+		log.Println("❌ Failed to connect DB:", err)
+		return
 	}
 
-	fmt.Println("✅ Database connection established")
+	log.Println("✅ Database connected")
 }
