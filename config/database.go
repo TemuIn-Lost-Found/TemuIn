@@ -7,7 +7,6 @@ import (
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	// "gorm.io/gorm/logger"
 )
 
 var DB *gorm.DB
@@ -18,11 +17,6 @@ func ConnectDB() {
 	dbHost := os.Getenv("DB_HOST")
 	dbPort := os.Getenv("DB_PORT")
 	dbName := os.Getenv("DB_NAME")
-
-	if dbUser == "" || dbPass == "" || dbHost == "" || dbPort == "" || dbName == "" {
-		log.Println("⚠️ Database env not set, skipping DB connection")
-		return
-	}
 
 	dsn := fmt.Sprintf(
 		"%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local&tls=true",
