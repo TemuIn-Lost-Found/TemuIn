@@ -40,14 +40,26 @@ func main() {
 	store := cookie.NewStore([]byte("secret"))
 	r.Use(sessions.Sessions("mysession", store))
 
+	r.GET("/", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"status":  "OK",
+			"message": "Temuin API is running",
+		})
+	})
+
 	// 5. Routes
 	routes.RegisterRoutes(r)
 
-	port := os.Getenv("WEBSITES_PORT")
+	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
 	}
 
-	r.Run(":" + port)
+	log.Println("Starting server on port", port)
+
+	err := r.Run("0.0.0.0:" + port)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 }
