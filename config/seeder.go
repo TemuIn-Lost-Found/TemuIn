@@ -11,6 +11,7 @@ import (
 func SeedDB(db *gorm.DB) {
 	seedCategories(db)
 	seedAdmin(db)
+	CleanupVisitorStats(db)
 	log.Println("✅ Database seeding completed")
 }
 
@@ -104,5 +105,32 @@ func seedAdmin(db *gorm.DB) {
 		log.Printf("❌ Failed to create admin user: %v", err)
 	} else {
 		log.Println("✅ Admin user created (username: admin, password: admin123)")
+	}
+}
+
+// CleanupVisitorStats removes duplicate visits (same IP, same Day), keeping only the earliest one.
+func CleanupVisitorStats(db *gorm.DB) {
+	log.Println("🧹 Starting Visitor Stats Cleanup...")
+	
+	// SQL to delete duplicates in MySQL:
+	// Delete t1 (the duplicate with higher ID)
+	// From core_sitevisit t1
+	// Inner Join core_sitevisit t2
+	// Where they have same IP and same Date
+	// And t1.id > t2.id (so we keep t2, the earlier one)
+	
+	query := `
+		DELETE t1 FROM core_sitevisit t1
+		INNER JOIN core_sitevisit t2 
+		WHERE 
+			t1.id > t2.id AND 
+			t1.ip_address = t2.ip_address AND 
+			DATE(t1.visited_at) = DATE(t2.visited_at)
+	`
+
+	if err := db.Exec(query).Error; err != nil {
+		log.Printf("⚠️ Failed to clean up visitor stats: %v", err)
+	} else {
+		log.Println("✅ Visitor Stats cleaned up! (Duplicates removed)")
 	}
 }

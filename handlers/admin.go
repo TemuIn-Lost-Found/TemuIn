@@ -26,6 +26,31 @@ func AdminDeleteItem(c *gin.Context) {
 	// Use transaction to ensure full cleanup (Manual Cascade)
 	tx := config.DB.Begin()
 
+	// REFUND LOGIC: If item has bounty, refund to owner
+	if item.BountyCoins > 0 {
+		var owner models.User
+		if err := tx.First(&owner, item.UserID).Error; err == nil {
+			owner.CoinBalance += item.BountyCoins
+			if err := tx.Save(&owner).Error; err != nil {
+				tx.Rollback()
+				c.String(http.StatusInternalServerError, "Failed to refund coins to owner")
+				return
+			}
+
+			// Record Transaction
+			trans := models.CoinTransaction{
+				UserID:          owner.ID,
+				Amount:          item.BountyCoins,
+				TransactionType: "admin_delete_refund",
+			}
+			if err := tx.Create(&trans).Error; err != nil {
+				tx.Rollback()
+				c.String(http.StatusInternalServerError, "Failed to create refund transaction")
+				return
+			}
+		}
+	}
+
 	// 1. Delete Image
 	if err := tx.Where("item_id = ?", item.ID).Delete(&models.LostItemImage{}).Error; err != nil {
 		tx.Rollback()

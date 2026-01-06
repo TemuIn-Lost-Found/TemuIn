@@ -464,6 +464,46 @@ func EditItem(c *gin.Context) {
 	bounty, _ := strconv.Atoi(bountyStr)
 	subCatID, _ := strconv.ParseInt(subCatIDStr, 10, 64)
 
+	// Calculate bounty difference
+	oldBounty := item.BountyCoins
+	bountyDiff := bounty - oldBounty
+
+	// Validate and adjust coin balance if bounty changed
+	if bountyDiff > 0 {
+		// Bounty increased - check if user has sufficient balance
+		if user.CoinBalance < bountyDiff {
+			// Re-render template with error
+			var subcategories []models.SubCategory
+			config.DB.Find(&subcategories)
+
+			ctx := utils.GetGlobalContext(c)
+			ctx["item"] = item
+			ctx["subcategories"] = subcategories
+			ctx["error"] = "Saldo Coins Tidak Cukup! Anda memerlukan " + strconv.Itoa(bountyDiff) + " coins tambahan."
+
+			tpl, err := pongo2.FromFile("templates/core/edit_item.html")
+			if err != nil {
+				c.String(http.StatusInternalServerError, "Template Error: "+err.Error())
+				return
+			}
+			out, err := tpl.Execute(ctx)
+			if err != nil {
+				c.String(http.StatusInternalServerError, "Render Error: "+err.Error())
+				return
+			}
+			c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(out))
+			return
+		}
+		// Deduct the difference
+		user.CoinBalance -= bountyDiff
+		config.DB.Save(user)
+	} else if bountyDiff < 0 {
+		// Bounty decreased - refund the difference
+		user.CoinBalance += (-bountyDiff)
+		config.DB.Save(user)
+	}
+	// If bountyDiff == 0, no coin adjustment needed
+
 	// Handle Image Upload (if new image provided)
 	fileHeader, err := c.FormFile("image")
 	if err == nil {
