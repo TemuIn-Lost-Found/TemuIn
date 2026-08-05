@@ -6,6 +6,7 @@ import (
 	"os"
 	"temuin/models"
 
+	"github.com/joho/godotenv"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -13,15 +14,32 @@ import (
 var DB *gorm.DB
 
 func ConnectDB() {
+	_ = godotenv.Load()
 	dbUser := os.Getenv("DB_USER")
+	if dbUser == "" {
+		dbUser = "root"
+	}
 	dbPass := os.Getenv("DB_PASSWORD")
 	dbHost := os.Getenv("DB_HOST")
+	if dbHost == "" {
+		dbHost = "127.0.0.1"
+	}
 	dbPort := os.Getenv("DB_PORT")
+	if dbPort == "" {
+		dbPort = "3306"
+	}
 	dbName := os.Getenv("DB_NAME")
+	if dbName == "" {
+		dbName = "temuin_db"
+	}
+	dbTls := os.Getenv("DB_TLS")
+	if dbTls == "" {
+		dbTls = "false"
+	}
 
 	dsn := fmt.Sprintf(
-		"%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local&tls=true",
-		dbUser, dbPass, dbHost, dbPort, dbName,
+		"%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local&tls=%s",
+		dbUser, dbPass, dbHost, dbPort, dbName, dbTls,
 	)
 
 	// Connect to database
